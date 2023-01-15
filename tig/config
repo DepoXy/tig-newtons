@@ -1,0 +1,453 @@
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# CXREF/2023-01-15: Tig default configuration:
+#   https://jonas.github.io/tig/doc/tigrc.5.html
+#   https://github.com/jonas/tig/blob/master/tigrc
+#   - If you're using DepoXy, locally at:
+#       ~/.kit/git/tig/tigrc
+#     https://github.com/depoxy/depoxy#🍯
+#   - See also:
+#       man tig
+#       man tigrc
+#       man tigmanual
+
+# HINT/2020-12-14: Test/Run `tig` without loading this config:
+#
+#   XDG_CONFIG_HOME=not-a-path tig
+
+# BWARE/2021-01-28: If a comment ends with a trailing slash \
+# then next line or command will be ignored, commented or not.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Order commits topologically
+set commit-order = topo
+
+# Do not read Git's color settings
+#  set git-colors = no
+
+# Scroll XX% of the view width
+#  set horizontal-scroll = 33%
+set horizontal-scroll = 25%
+
+# Blame lines from other files
+set blame-options = -C -C -C
+
+# Wrap branch names with () and tags with <>
+# Default:
+#  [feature-branch] {remote/feature-branch} commit message
+# Via reference-format:
+#  (feature-branch) [remote/feature-branch] commit message
+set reference-format = (branch) <tag> [remote]
+
+# Configure blame view columns using command spanning multiple lines
+set blame-view = \
+      date:default \
+      author:abbreviated \
+      file-name:auto \
+      id:yes,color \
+      line-number:yes,interval=5 text
+
+# Choose character graphics for revision history/ancestry lines
+#  ascii|default|utf-8|<bool>
+# E.g., to disable graphics characters:
+#  set line-graphics = no
+# The UTF-8 graphics seems most pleasing to the eye.
+set line-graphics = utf-8
+
+# Number of spaces per tab
+#  tab-size = 8
+
+# Whether to show staged and unstaged changes in the main view.
+#  set show-changes = no
+#  set show-changes = true
+
+set ignore-case = smart-case
+
+# 2020-10-21: Repair tig blame to work with git-smart .gitconfig.
+# - The git-smart .gitconfig suppresses the 'a/' and 'b/' path prefixes
+#   to make it easy to double-click and copy paths from terminal session.
+#     https://github.com/landonb/git-smart#💡
+# - But tig blame looks upwards from the cursor for the a/ and b/ paths
+#   to get the blame paths.
+# - I.e., with the cursor in a diff hunk, press 'b', and tig looks
+#   backward lines for the a/ and b/ files with which to run blame.
+#   - What a nifty feature! But git-smart inadvertently breaks it.
+#     Here we restore it.
+set diff-options = --src-prefix=a/ --dst-prefix=b/
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** COLORS
+
+# Search 'UI colors' in `man tigrc`.
+
+# COLOR COMMAND / color area fgcolor bgcolor [attributes]
+
+# fgcolor/bgcolor: white, black, green, magenta, blue, cyan, yellow, red, default.
+#                  (default handy if your terminal is transparent, hah41, so c00l.)
+# attributes: normal, blink, bold, dim, reverse, standout, and underline.
+# area: interEST: can be custom quoted string for matching lines.
+
+# General colors
+#
+#       default         Override default terminal colors (see above).
+#
+#       cursor          The cursor line.
+#
+#       status          The status window showing info messages.
+#
+#       title-focus     The title window for the current view.
+#
+#       title-blur      The title window of any backgrounded view.
+#
+#       search-result   Highlighted search result.
+#
+#       delimiter       Delimiter shown for truncated lines.
+#
+#       header          The view header lines. Use status.header to
+#                       color the staged, unstaged, and untracked
+#                       sections in the status view. Use help.header
+#                       to color the keymap sections in the help
+#                       view.
+#
+#       line-number     Line numbers.
+#
+#       id              The commit ID.
+#
+#       date            The author date.
+#
+#
+#
+#       author          The commit author.
+#
+#       mode            The file mode holding the permissions and
+#                       type.
+#
+#       overflow        Title text overflow.
+#
+#       directory       The directory name.
+#
+#       file            The file name.
+#
+#       file-size       File size.
+
+# 2020-10-21: Much better! I couldn't read through the default cursor I saw.
+color cursor yellow red bold
+
+# 2020-10-21: Now I see that I can't read the status line, either.
+#             No, it's the title-focus line, the *one above* status.
+color title-focus black white
+# Oh, title-blus is when you have a split pane, its title.
+color title-blur black white
+
+# MAYBE: Test 'em all:
+#  color default yellow green
+#  color status black white
+#  color title-focus black white
+#  color title-blur black white
+#  color search-result black white
+#  color delimiter black white
+#  color header black white
+#  color line-number black white
+#  color id black white
+#  color date black white
+#  color author black white
+#  color mode black white
+#  color overflow black white
+#  color directory black white
+#  color file black white
+#  color file-size black white
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** MOUSE
+
+# set mouse = yes
+# set mouse-scroll = 1
+# set mouse-wheel-cursor = yes
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** BIND(INGS)
+
+# CXREF: See also `man tigmanual`, in addition to `man tig` and `man tigrc`.
+
+# TRYME: Test binding:
+#
+#   bind generic <C-x> +sh -c "echo You got me!"
+
+# ***
+
+# 2020-12-14 15:04: Press 'x' to copy the commid ID/SHA1 hash.
+#
+# - From `man tigrc`:
+#
+#     Example 1. Configure a binding to copy the current commit ID to the clipboard.
+#     bind generic I @sh -c "echo -n %(commit) | xclip -selection c"
+#
+#   - I'm guessing the 'I' chosen in the example stands for commit [I]D.
+#
+#   - I also like 'x', which is unbound, because 'X' is the commit ID toggle.
+#
+#   - Both c's are taken: 'c' is switch to stage view, and 'C' is cherry-pick
+#     in main, and commit in status. Which is fine, I like 'x'.
+#
+# - How this works: Try xclip first (Linux), then fallback pbcopy (macOS).
+#
+# - Note that `xclip -selection c` is `xclip -selection clipboard` (XA_CLIPBOARD),
+#   i.e., not the "primary" (XA_PRIMARY) X selection (which is the default).
+#
+# - Note also that tig ignores (doesn't show the user) any command output.
+#
+#   E.g., I had only `2> /dev/null` here first (i.e., not redirecting stdout)
+#   but tig was nonetheless not showing any stdout when `type xclip` printed
+#   "xclip is /usr/bin/xclip". Just an FYI, for whatever reason.
+#
+bind generic x @sh -c " \
+  copy_selected_commit_sha_to_clipboard () { \
+    type xclip > /dev/null 2>&1 && \
+      ( printf %(commit) | xclip -selection c ) \
+      || ( printf %(commit) | pbcopy ); \
+  }; copy_selected_commit_sha_to_clipboard"
+
+# 2020-12-14 15:05: Show commit ID by default.
+set main-view-id = yes
+
+# ***
+
+# 2020-12-16 18:56: Show commit date as elapsed time before now.
+#
+# - display (mixed) [relative|relative-compact|custom|default|<bool>]
+#
+#      If set to "relative" or "relative-compact" a relative date will be used,
+#      e.g. "2 minutes ago" or "2m".
+#
+# - E.g's., 'default':
+#
+#             6848284 2020-12-16 usernom      o message foo
+#             2dc2ab9 2020-12-15 usernom      o message bar
+#             5033f9e 2020-12-14 usernom      o message baz
+#
+#           'relative':
+#
+#             6848284 20 minutes ago usernom      o message foo
+#             2dc2ab9   27 hours ago usernom      o message bar
+#             5033f9e     2 days ago usernom      o message baz
+#
+#           'relative-compact':
+#
+#             6848284 20M usernom      o message foo
+#             2dc2ab9 27h usernom      o message bar
+#             5033f9e 2d  usernom      o message baz
+#
+#   I think I like 'relative' because at a glance you can tell what's
+#   recent (more letters) and what's older (fewer letters), just because
+#   of how len('minutes') > len('hours') > len('days).
+#
+#   Or, perhaps a compromise solution that's more compact than
+#   'relative', but where "20M" is more easily distinguisable
+#   from "27h":
+#
+#           'relative' w/ width 6:
+#
+#             6848284 27 min usernom      o message foo
+#             2dc2ab9 27 hou usernom      o message bar
+#             5033f9e 2 days usernom      o message baz
+#
+# - tig's built-in 'D' cycles the date format, but not the column width.
+#   - You can press ':' and enter the `set` command directly.
+#   - Or you can use the bindings we've specified below.
+set main-view-date-display = relative
+set main-view-date-width = 6
+
+# Mnemonic: 'T' for dateTime display.
+# - Make date column wider, and change to datetime format.
+bind generic T :set main-view-date = width:16,display:default
+
+# Mnemonic: 'R' for relative date.
+# - Make date column narrower, and change to relative format.
+# - Note that 'R' by default also mapped to reload, but so is F5:
+#           'R, <F5> refresh             Reload and refresh view'
+bind generic R :set main-view-date = width:6,display:relative
+
+# ***
+
+# 2021-01-27: From `man tigrc` examples, might be useful if working on this file:
+#
+#   # "User-defined internal command that reloads ~/.tigrc"
+#   bind generic S :source ~/.tigrc
+#
+# NOTE/2021-01-27: 'S' is already mapped, though it's not mentioned in the docs.
+# - Run tig and press 'h' to see it's bound, but same as 's': `s, S view-status`.
+#   So you could remap 'S' and not lose any functionality.
+
+# ***
+
+# Press `v` to open files in GVim.
+#
+# In diff view, the file that's under the cursor will be opened,
+# and the cursor will be placed on the corresponding line.
+#
+# - Note: This works in a tig diff view.
+#         But it does not work in a
+#           `git diff a..b | tig` view.
+#
+# - I did not add a similar command to open the file in Vim
+#   in the same terminal as tig, but you could do so with a
+#   `!sh` so tig shows output, e.g.,
+#
+#       bind generic V !sh -c " \
+#         vim -c \"call cursor(%(lineno), 0)\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\""
+#
+# - Mnemonic: Think 'v', as in Vim.
+#
+#   - Note that this hides the default tig 'v', which is
+#     show-version, e.g., 'tig-2.5.1'
+#
+# - This calls gvim-open-kindness (from Home Fries) to ensure that
+#   file does not open in quickfix window, or the project tray, or
+#   a help window, etc.
+#     https://github.com/landonb/home-fries/blob/release/bin/gvim-open-kindness
+#
+# - I usually postfix project URLs with a pound '#', but that character's
+#   presense breaks tig command. So using '?', which user can include in
+#   copy-paste to browser location, no biggee. /home-fries#🍟
+bind generic v +sh -c " \
+  open_line_under_cursor_in_gVim () { \
+    if [ -n \"%(file)\" ]; then \
+      if command -v gvim-open-kindness > /dev/null; then \
+        gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
+      else \
+        gvim --remote-silent \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
+        gvim --remote-send \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
+        echo \"Improve 'v' with gvim-open-kindness: https://github.com/landonb/home-fries?🍟\" ; \
+      fi; \
+    fi; \
+  }; open_line_under_cursor_in_gVim"
+
+# ***
+
+# Copy filepath to clipboard
+# - Mnemonic: Copy 'P'ath
+# - Note: This strips leading "b/" that tig prints, e.g., "a/path" and "b/path"
+# - Note: This strips realpath newline using tr, but here's alt: | sed -z 's/\\n$//g'
+bind generic P @sh -c " \
+  copy_file_Path_to_clipboard () { \
+    local path=\"$(realpath -- \"%(directory)$(printf '%(file)' | sed 's/^b//')\" | tr -d '\\n')\"; \
+    type xclip > /dev/null 2>&1 \
+      && printf $path | xclip -selection c \
+      || printf $path | pbcopy; \
+  }; copy_file_Path_to_clipboard"
+
+# ***
+
+# Fixup commit. Usage: Stage your changes, then select commit and press '+'.
+# - Note we use 'generic', but we could use 'main' and 'diff' to be more
+#   precise, except then we'd need two separate bind commands, AFAIK.
+# - Also, I wanted to use Ctrl-Up, but after investigating, I don't
+#   think tig does Ctrl-Arrow bindings. Then I thought maybe <C-f>
+#   could be a decent choice. But now thinking '+', which has the
+#   mnemonic that you're 'adding' to commit, would could be helpful.
+# - Consider the three tig options for shelling out:
+#     '!' (runs in fg; full i/o)
+#     '@' (runs in bg; no i/o)
+#     '+' (runs sync; shows 1st line of output)
+#   - With '!', user can interact with command (e.g., git-fup's
+#     "Was rebase successful?" prompt); also, user can see git-rebase
+#     output, which is nice for review and confirmation (as opposed
+#     to just silently fup'ping, and user just assuming it ran).
+bind generic + !sh -c " \
+  fixup_staged_into_commit () { \
+    if command -v git-fup > /dev/null; then \
+      git fup %(commit); \
+      [ -f \".git/REBASE_HEAD\" ] \
+        && echo \
+        && echo \"Killing \\`tig\\`, because you got work to do\" \
+        && echo \"  🥩 🥩 chop chop\"\ \
+        && kill -s 9 $PPID; \
+    else \
+      echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
+    fi; \
+  }; fixup_staged_into_commit"
+
+# ***
+
+# Git-ria (rebase -i --autosquash) binding, via modified git-pwip.
+bind generic <C-r> !sh -c " \
+  rebase_selected_commit_auto_wip () { \
+    local wipped=false; \
+    git add -A \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
+      && wipped=true; \
+    git rebase -i --autosquash %(commit)^; \
+    [ -f \".git/REBASE_HEAD\" ] \
+      && echo \
+      && echo \"Killing \\`tig\\`, because you got work to do\" \
+      && echo \"  🥩 🥩 chop chop\"\ \
+      && kill -s 9 $PPID; \
+    ${wipped} && git reset --mixed @~1; \
+  }; rebase_selected_commit_auto_wip"
+
+# ***
+
+# Git-pwip binding.
+# - <C-w> available, but I feel it's overloaded (kill word, close window, etc.).
+#   <C-i> available, meh.
+#   <C-t> could work, as in *Tidy*.
+# - Note that I tried sync style, which lets us 'echo' message to status line:
+#     bind generic <C-t> +sh -c "
+#   Unfortunately the main display is not updated, and I don't know how to tell
+#   tig to update the revision list. Fortunately, we can just use the '@sh'
+#   binding, which blocks tig to run, and tig doesn't show its output, but
+#   user at least sees revision list update to show new WIP commit. (See
+#   also '!sh' option, but that hides tig window to show output in terminal
+#   and prompts user to acknowledge.)
+bind generic <C-t> @sh -c " \
+  wip_commit () { \
+    git_status_porcelain () { git status --porcelain=v1; }; \
+    if [ -n \"$(git_status_porcelain)\" ]; then \
+      git add -A \
+        && git commit --no-verify -m 'PRIVATE: WIP'; \
+    else \
+      echo 'Already pristine'; \
+    fi; \
+  }; wip_commit"
+
+# ***
+
+# Git-pop binding.
+
+# A very conversative git-pop binding:
+# - Only pops the youngest commit.
+# - Only pops a WIP commit.
+
+# Note that running '+sh' synchronously, you can show status line upate,
+# but after WIP removed, the tig view is not updated.
+# - Fortunately running '@sh' in background, view updates immediately,
+#   and no other user interaction happens, which is nice, because user
+#   can see that the WIP commit was replaced with "Unstaged changes",
+#   which is exactly my use case: pop the WIP commit, then stage and
+#   commit it for reals [I seriously cannot think of a better term
+#   than "for reals", seriously, what's the synonym I'm looking for?
+#   "professionally"? "legitimately"? "deliberately"? for reals!].
+bind generic _ @sh -c " \
+  pop_commit_iff_youngest_wip () { \
+    git_grep_youngest_rev () { \
+      git --no-pager log --pretty=format:\"%H\" --grep \"$1\" HEAD^..HEAD; \
+    }; \
+    if [ -n \"$(git_grep_youngest_rev \"\\bWIP\\b\")\" ]; then \
+      git reset --mixed @~1 > /dev/null; \
+    else \
+      echo 'Nothing WIPped'; \
+    fi; \
+  }; pop_commit_iff_youngest_wip"
+
+# ***
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
