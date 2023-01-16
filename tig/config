@@ -357,10 +357,9 @@ bind generic P @sh -c " \
 #     '!' (runs in fg; full i/o)
 #     '@' (runs in bg; no i/o)
 #     '+' (runs sync; shows 1st line of output)
-#   - With '!', user can interact with command (e.g., git-fup's
-#     "Was rebase successful?" prompt); also, user can see git-rebase
-#     output, which is nice for review and confirmation (as opposed
-#     to just silently fup'ping, and user just assuming it ran).
+#   - With '!', user can interact with command; also, user can see the
+#     git-rebase output, which is nice for review and confirmation (as
+#     opposed to just silently fup'ping, and user just assuming it ran).
 bind generic + !sh -c " \
   fixup_staged_into_commit () { \
     if command -v git-fup > /dev/null; then \
