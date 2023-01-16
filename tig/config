@@ -306,8 +306,10 @@ bind generic R :set main-view-date = width:6,display:relative
 #
 # - Mnemonic: Think 'v', as in Vim.
 #
-#   - Note that this hides the default tig 'v', which is
-#     show-version, e.g., 'tig-2.5.1'
+#   - Note this hides the default tig 'v', which
+#     is show-version, e.g., 'tig-2.5.1'
+#     - To access: :show-version.
+#     - We'll also replace at 'V', why not.
 #
 # - This calls gvim-open-kindness (from Home Fries) to ensure that
 #   file does not open in quickfix window, or the project tray, or
@@ -329,6 +331,8 @@ bind generic v +sh -c " \
       fi; \
     fi; \
   }; open_line_under_cursor_in_gVim"
+
+bind generic V :show-version
 
 # ***
 
