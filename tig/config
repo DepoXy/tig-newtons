@@ -78,6 +78,10 @@ set ignore-case = smart-case
 #   backward lines for the a/ and b/ files with which to run blame.
 #   - What a nifty feature! But git-smart inadvertently breaks it.
 #     Here we restore it.
+# 2023-01-16: Note this breaks tig's built-in 'e' and :edit commands,
+# which do not expect the a/ or b/ prefix. We fix (replace) the 'e'
+# command below; but this setting leaves the :edit command broken.
+# (But if you're like me, you almost always open in 'v' gVim.)
 set diff-options = --src-prefix=a/ --dst-prefix=b/
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -517,6 +521,51 @@ bind generic * <sh -c " \
 #   command. (Note that nothing built-in at 'C' for 'diff'.)
 bind main C !sh -c "git commit -v"
 bind diff C !sh -c "git commit -v"
+
+# ***
+
+# The diff-options option above breaks tig's built-in 'e' and :edit
+# commands. Specifically, this setting above:
+#
+#   set diff-options = --src-prefix=a/ --dst-prefix=b/
+#
+# You can test against vanilla tig thusly (though still loads your Git config):
+#
+#   XDG_CONFIG_HOME=foo tig
+#
+# and you should see that 'e' works, and that the tig 'diff' view
+# shows the `--- file` and `+++ file` without an a/ and b/ prefix
+# (as opposed to how we format it, `--- a/file` and `+++ b/file`,
+#  which makes it so tig-blame works (because tig-blame fails if
+#  the paths *do not* have the a/ and b/ prefix, I know, right)).
+#
+# I have not searched GitHub Issues, but I would be surprised if
+# this is an issue for the broader public, because it seems like
+# something that would've been fixed (which is why I have not
+# bothered to search GitHub Issues). So I assume it's something
+# with my tig or Git configs, or development environment -- though
+# not to say tig shouldn't be fixed, because this is ultimately a
+# tig issue.
+#
+# Here we replace broken 'e' with a mostly faithful reproduction.
+# Because we use '!' (full i/o, b/c Vim is interactive), even
+# when there's nothing to edit, tig shells out and the user must
+# 'Press Enter to continue'. This is different from the built-in 'e'
+# command, where tig prints "Nothing to edit" to the status line, and
+# tig never shells out and the user is not prompted.
+# - BROKE: Note that the :edit command remains broken. Whatever, just
+#   use 'e'. Or better yet, use 'v'.
+# - SYNCD: See EDITOR resolution in tig/src/display.c open_editor():
+#            Prefers TIG_EDITOR → GIT_EDITOR → VISUAL → EDITOR → vi.
+bind generic e !sh -c " \
+  open_line_under_cursor_in_gVim () { \
+    if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
+      local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
+      ${editor} +%(lineno) \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
+    else \
+      echo \"Nothing to edit\"; \
+    fi; \
+  }; open_line_under_cursor_in_gVim"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
