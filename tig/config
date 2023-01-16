@@ -465,5 +465,19 @@ bind generic & !sh -c " \
     ${wipped} && git reset --mixed @~1; \
   }; git_reword_revision"
 
+# COPYD: See git-edit/git_edit_revision in git-smart
+#   https://github.com/landonb/git-smart#💡
+# Using DepoXy, at ~/.kit/git/git-smart/bin/git-edit
+bind generic * <sh -c " \
+  git_edit_revision () { \
+    local wipped=false; \
+    git add -A \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig <C-*>]'; \
+    GIT_SEQUENCE_EDITOR='f () { \
+      local rebase_todo_path=\"$1\"; \
+      sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
+    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+  }; git_edit_revision"
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
