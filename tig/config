@@ -377,14 +377,14 @@ bind generic + !sh -c " \
 
 # ***
 
-# Git-ria (rebase -i --autosquash) binding, via modified git-pwip.
+# Git-rebase binding, via modified git-pwip.
 bind generic <C-r> !sh -c " \
   rebase_selected_commit_auto_wip () { \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
       && wipped=true; \
-    git rebase -i --autosquash %(commit)^; \
+    git rebase -i %(commit)^; \
     [ -f \".git/REBASE_HEAD\" ] \
       && echo \
       && echo \"Killing \\`tig\\`, because you got work to do\" \
