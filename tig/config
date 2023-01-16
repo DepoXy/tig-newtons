@@ -365,9 +365,9 @@ bind generic + !sh -c " \
     if command -v git-fup > /dev/null; then \
       git fup %(commit); \
       [ -f \".git/REBASE_HEAD\" ] \
-        && echo \
-        && echo \"Killing \\`tig\\`, because you got work to do\" \
-        && echo \"  🥩 🥩 chop chop\"\ \
+        && >&2 echo \
+        && >&2 echo \"Killing \\`tig\\` because you got work to do\" \
+        && >&2 echo \"  🥩 🥩 chop chop\"\ \
         && kill -s 9 $PPID; \
     else \
       echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
@@ -385,9 +385,9 @@ bind generic <C-r> !sh -c " \
       && wipped=true; \
     git rebase -i %(commit)^; \
     [ -f \".git/REBASE_HEAD\" ] \
-      && echo \
-      && echo \"Killing \\`tig\\`, because you got work to do\" \
-      && echo \"  🥩 🥩 chop chop\"\ \
+      && >&2 echo \
+      && >&2 echo \"Killing \\`tig\\` because you got work to do\" \
+      && >&2 echo \"  🥩 🥩 chop chop\"\ \
       && kill -s 9 $PPID; \
     ${wipped} && git reset --mixed @~1; \
   }; rebase_selected_commit_auto_wip"
