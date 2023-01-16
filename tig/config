@@ -304,6 +304,16 @@ bind generic R :set main-view-date = width:6,display:relative
 #       bind generic V !sh -c " \
 #         vim -c \"call cursor(%(lineno), 0)\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\""
 #
+# - CAVEAT: tig does not clear %(file) or %(lineno) if user quits 'diff'
+#   view or otherwise moves cursor away from file diff.
+#   - Fortunately, tig set %(lineno_old) to 0 when in such a state.
+#     Use that to know if there's a file to open or not.
+#   - Note also: file_old/lineno_old is the a/path file (the diff lhs).
+#     (If you thought file_old/lineno_old was user's previous selection
+#      in tig, then you're not alone; or maybe I'm the odd one.)
+#     - I wonder if I should open a ticket and MR to also reset %(lineno) to
+#       0 when %(lineno_old) is reset to 0, or if there's a reason it's not.
+#
 # - Mnemonic: Think 'v', as in Vim.
 #
 #   - Note this hides the default tig 'v', which
@@ -321,7 +331,7 @@ bind generic R :set main-view-date = width:6,display:relative
 #   copy-paste to browser location, no biggee. /home-fries#🍟
 bind generic v +sh -c " \
   open_line_under_cursor_in_gVim () { \
-    if [ -n \"%(file)\" ]; then \
+    if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
       if command -v gvim-open-kindness > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
       else \
@@ -329,10 +339,23 @@ bind generic v +sh -c " \
         gvim --remote-send \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
         echo \"Improve 'v' with gvim-open-kindness: https://github.com/landonb/home-fries?🍟\" ; \
       fi; \
+    else \
+      echo \"Nothing to edit\"; \
     fi; \
   }; open_line_under_cursor_in_gVim"
 
 bind generic V :show-version
+
+# Here's how you might diagnose issues with open/edit commands:
+#
+#   bind generic V !sh -c " \
+#     print_file_line_info () { \
+#       >&2 echo \"file=%(file)\"; \
+#       >&2 echo \"file_old=%(file_old)\"; \
+#       >&2 echo \"lineno=%(lineno)\"; \
+#       >&2 echo \"lineno_old=%(lineno_old)\"; \
+#       >&2 echo \"directory=%(directory)\"; \
+#     }; print_file_line_info"
 
 # ***
 
