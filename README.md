@@ -4,8 +4,9 @@
 
 | Binding  | Description |
 | -------: | :---------- |
-| `<C-r>`  | Run [interactive-rebase-tool](https://github.com/MitMaro/git-interactive-rebase-tool) from commit under cursor |
-|     `+`  | Fixup staged to commit under cursor |
+| `<C-r>`  | Run [interactive-rebase-tool](https://github.com/MitMaro/git-interactive-rebase-tool) from revision under cursor (and quit tig if conflicts or rebase doesn't complete) |
+|     `&`  | Reword revision under cursor |
+|     `+`  | Fixup staged to revision under cursor (and quit tig if conflicts) |
 | `<C-t>`  | Create a WIP commit with uncommitted changes |
 |     `_`  | Pop youngest (latest) commit if WIP commit |
 |     `x`  | Copy SHA from revision under cursor to clipboard |

@@ -449,5 +449,21 @@ bind generic _ @sh -c " \
 
 # ***
 
+# COPYD: See git-reword/git_reword_revision in git-smart
+#   https://github.com/landonb/git-smart#💡
+# Using DepoXy, at ~/.kit/git/git-smart/bin/git-reword
+bind generic & !sh -c " \
+  git_reword_revision () { \
+    local wipped=false; \
+    git add -A \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig <\">]' \
+      && wipped=true; \
+    GIT_SEQUENCE_EDITOR='f () { \
+      local rebase_todo_path=\"$1\"; \
+      sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
+    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+    ${wipped} && git reset --mixed @~1; \
+  }; git_reword_revision"
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
