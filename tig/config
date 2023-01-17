@@ -213,11 +213,11 @@ color title-blur black white
 #   "xclip is /usr/bin/xclip". Just an FYI, for whatever reason.
 #
 bind generic x @sh -c " \
-  copy_selected_commit_sha_to_clipboard_____ () { \
+  clipboard_copy_selected_commit_sha________ () { \
     type xclip > /dev/null 2>&1 && \
       ( printf %(commit) | xclip -selection c ) \
       || ( printf %(commit) | pbcopy ); \
-  }; copy_selected_commit_sha_to_clipboard_____"
+  }; clipboard_copy_selected_commit_sha________"
 
 # 2020-12-14 15:05: Show commit ID by default.
 set main-view-id = yes
@@ -334,7 +334,7 @@ bind generic R :set main-view-date = width:6,display:relative
 #   presense breaks tig command. So using '?', which user can include in
 #   copy-paste to browser location, no biggee. /home-fries#🍟
 bind generic v +sh -c " \
-  open_line_under_cursor_in_gVim____________ () { \
+  gVim_open_line_under_cursor_______________ () { \
     if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
       if command -v gvim-open-kindness > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
@@ -346,7 +346,7 @@ bind generic v +sh -c " \
     else \
       echo \"Nothing to edit\"; \
     fi; \
-  }; open_line_under_cursor_in_gVim____________"
+  }; gVim_open_line_under_cursor_______________"
 
 bind generic V :show-version
 
@@ -368,12 +368,12 @@ bind generic V :show-version
 # - Note: This strips leading "b/" that tig prints, e.g., "a/path" and "b/path"
 # - Note: This strips realpath newline using tr, but here's alt: | sed -z 's/\\n$//g'
 bind generic P @sh -c " \
-  copy_file_Path_to_clipboard_______________ () { \
+  clipboard_copy_file_path__________________ () { \
     local path=\"$(realpath -- \"%(directory)$(printf '%(file)' | sed 's/^b//')\" | tr -d '\\n')\"; \
     type xclip > /dev/null 2>&1 \
       && printf $path | xclip -selection c \
       || printf $path | pbcopy; \
-  }; copy_file_Path_to_clipboard_______________"
+  }; clipboard_copy_file_path__________________"
 
 # ***
 
@@ -394,7 +394,7 @@ bind generic P @sh -c " \
 # - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
 #   - It does remove git-rebase-todo.
 bind generic + !sh -c " \
-  fixup_staged_into_commit__________________ () { \
+  rebase_fixup_staged_into_selected_commit__ () { \
     if command -v git-fup > /dev/null; then \
       if ! git fup %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
         >&2 echo; \
@@ -405,13 +405,13 @@ bind generic + !sh -c " \
     else \
       echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
     fi; \
-  }; fixup_staged_into_commit__________________"
+  }; rebase_fixup_staged_into_selected_commit__"
 
 # ***
 
 # Git-rebase binding, via modified git-pwip.
 bind generic <C-r> !sh -c " \
-  rebase_selected_commit_auto_wip___________ () { \
+  rebase_interactive_from_selected_commit___ () { \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
@@ -423,7 +423,7 @@ bind generic <C-r> !sh -c " \
       kill -s 9 $PPID; \
     fi; \
     ${wipped} && git reset --mixed @~1; \
-  }; rebase_selected_commit_auto_wip___________"
+  }; rebase_interactive_from_selected_commit___"
 
 # ***
 
@@ -440,7 +440,7 @@ bind generic <C-r> !sh -c " \
 #   also '!sh' option, but that hides tig window to show output in terminal
 #   and prompts user to acknowledge.)
 bind generic <C-t> @sh -c " \
-  wip_commit________________________________ () { \
+  wip_commit_push_aka_tidy_up_______________ () { \
     git_status_porcelain () { git status --porcelain=v1; }; \
     if [ -n \"$(git_status_porcelain)\" ]; then \
       git add -A \
@@ -448,7 +448,7 @@ bind generic <C-t> @sh -c " \
     else \
       echo 'Already pristine'; \
     fi; \
-  }; wip_commit________________________________"
+  }; wip_commit_push_aka_tidy_up_______________"
 
 # ***
 
@@ -487,7 +487,7 @@ bind generic <C-t> @sh -c " \
 #    which is the wip-create command. So you can Ctrl-t/^/Ctrl-t/^/...
 #    all day long.)
 bind generic ^ @sh -c " \
-  pop_commit_iff_youngest_wip_______________ () { \
+  wip_commit_pop_iff_youngest_rev___________ () { \
     git_grep_youngest_rev () { \
       git --no-pager log --pretty=format:\"%H\" --grep \"$1\" HEAD^..HEAD; \
     }; \
@@ -496,7 +496,7 @@ bind generic ^ @sh -c " \
     else \
       echo 'Nothing WIPped'; \
     fi; \
-  }; pop_commit_iff_youngest_wip_______________"
+  }; wip_commit_pop_iff_youngest_rev___________"
 
 # ***
 
@@ -504,7 +504,7 @@ bind generic ^ @sh -c " \
 #   https://github.com/landonb/git-smart#💡
 # Using DepoXy, at ~/.kit/git/git-smart/bin/git-reword
 bind generic & !sh -c " \
-  git_reword_revision_______________________ () { \
+  rebase_reword_rev_________________________ () { \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <\">]' \
@@ -514,13 +514,15 @@ bind generic & !sh -c " \
       sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
     ${wipped} && git reset --mixed @~1; \
-  }; git_reword_revision_______________________"
+    echo; \
+    echo \"Done! Back to tig...\"; \
+  }; rebase_reword_rev_________________________"
 
 # COPYD: See git-edit/git_edit_revision in git-smart
 #   https://github.com/landonb/git-smart#💡
 # Using DepoXy, at ~/.kit/git/git-smart/bin/git-edit
 bind generic * <sh -c " \
-  git_edit_revision_________________________ () { \
+  rebase_edit_rev___________________________ () { \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-*>]'; \
@@ -528,7 +530,7 @@ bind generic * <sh -c " \
       local rebase_todo_path=\"$1\"; \
       sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
-  }; git_edit_revision_________________________"
+  }; rebase_edit_rev___________________________"
 
 # ***
 
