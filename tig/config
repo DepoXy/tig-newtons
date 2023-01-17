@@ -391,15 +391,17 @@ bind generic P @sh -c " \
 #   - With '!', user can interact with command; also, user can see the
 #     git-rebase output, which is nice for review and confirmation (as
 #     opposed to just silently fup'ping, and user just assuming it ran).
+# - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
+#   - It does remove git-rebase-todo.
 bind generic + !sh -c " \
   fixup_staged_into_commit__________________ () { \
     if command -v git-fup > /dev/null; then \
-      git fup %(commit); \
-      [ -f \".git/REBASE_HEAD\" ] \
-        && >&2 echo \
-        && >&2 echo \"Killing \\`tig\\` because you got work to do\" \
-        && >&2 echo \"  🥩 🥩 chop chop\"\ \
-        && kill -s 9 $PPID; \
+      if ! git fup %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+        >&2 echo; \
+        >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+        >&2 echo \"  🥩 🥩 chop chop\"; \
+        kill -s 9 $PPID; \
+      fi; \
     else \
       echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
     fi; \
@@ -414,12 +416,12 @@ bind generic <C-r> !sh -c " \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
       && wipped=true; \
-    git rebase -i %(commit)^; \
-    [ -f \".git/REBASE_HEAD\" ] \
-      && >&2 echo \
-      && >&2 echo \"Killing \\`tig\\` because you got work to do\" \
-      && >&2 echo \"  🥩 🥩 chop chop\"\ \
-      && kill -s 9 $PPID; \
+    if ! git rebase -i %(commit)^ || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+      >&2 echo; \
+      >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+      >&2 echo \"  🥩 🥩 chop chop\"; \
+      kill -s 9 $PPID; \
+    fi; \
     ${wipped} && git reset --mixed @~1; \
   }; rebase_selected_commit_auto_wip___________"
 
