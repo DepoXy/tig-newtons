@@ -9,13 +9,17 @@
 |     `*`  | Edit revision under cursor (and quit tig) |
 |     `+`  | Fixup staged to revision under cursor (and quit tig if conflicts) |
 | `<C-t>`  | Create a WIP commit with uncommitted changes |
-|     `_`  | Pop youngest (latest) commit if WIP commit |
+|     `^`  | Pop youngest (latest) commit if WIP commit |
 |     `x`  | Copy SHA from revision under cursor to clipboard |
 |     `T`  | Show datetime format and make date column wider, e.g., `2023-01-15 15:23` |
 |     `R`  | Show relative format and make date column narrower, e.g., `3 hour` |
 |     `v`  | Open line under cursor in gVim (prefers [`gvim-open-kindness`](https://github.com/landonb/home-fries/blob/release/bin/gvim-open-kindness) if installed) |
 |     `P`  | Copy file path to clipboard |
 |     `V`  | Moved built-in `:show-version` from `v` to `V`, to make our gVim command easier to use |
+
+Masked:
+
+- The `^` mapping masks tig's built-in `:toggle rev-filter` binding [but I tested `rev-filter` and it changes nothing for me, so I'm not remapping the command elsewhere, like I did with `V`/`:show-version`]
 
 ## Defaults
 

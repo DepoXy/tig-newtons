@@ -467,7 +467,26 @@ bind generic <C-t> @sh -c " \
 #   commit it for reals [I seriously cannot think of a better term
 #   than "for reals", seriously, what's the synonym I'm looking for?
 #   "professionally"? "legitimately"? "deliberately"? for reals!].
-bind generic _ @sh -c " \
+# - Hrm, tig's built-in '^' command calls `:toggle rev-filter`, but a few
+#   issues: "rev-filter" is not mentioned in the docs. `man tigmanual`
+#   mentions "revision filtering" once:
+#       ^   Toggle revision filtering in the main view.
+#   But -- most importantly -- when I demo the toggle (it defaults so
+#   revision filtering is on), I don't see a lick of change in the main
+#   view. So, like, whatever, I'll mask this option if I want to, nothing
+#   apparently lost.
+#   - I originally used the unbound '_' binding:
+#       bind generic _ @sh -c ...
+#    but I'm gonna steal '^' because I like the mnemonic better --
+#    pointing up, as in "popping off". (And I'm not going to remap
+#    `:toggle rev-filter` because I don't use that setting/does nothing
+#    for me.) (Also note this command changes revisions, and I like to
+#    use a two-key press for changy commands, which this command
+#    satisfies because it uses two keys: Shift and '6'.) (Also nice
+#    about '^': it's above Ctrl-t (US American keyboard at least)
+#    which is the wip-create command. So you can Ctrl-t/^/Ctrl-t/^/...
+#    all day long.)
+bind generic ^ @sh -c " \
   pop_commit_iff_youngest_wip_______________ () { \
     git_grep_youngest_rev () { \
       git --no-pager log --pretty=format:\"%H\" --grep \"$1\" HEAD^..HEAD; \
