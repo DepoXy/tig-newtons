@@ -213,11 +213,11 @@ color title-blur black white
 #   "xclip is /usr/bin/xclip". Just an FYI, for whatever reason.
 #
 bind generic x @sh -c " \
-  copy_selected_commit_sha_to_clipboard () { \
+  copy_selected_commit_sha_to_clipboard_____ () { \
     type xclip > /dev/null 2>&1 && \
       ( printf %(commit) | xclip -selection c ) \
       || ( printf %(commit) | pbcopy ); \
-  }; copy_selected_commit_sha_to_clipboard"
+  }; copy_selected_commit_sha_to_clipboard_____"
 
 # 2020-12-14 15:05: Show commit ID by default.
 set main-view-id = yes
@@ -334,7 +334,7 @@ bind generic R :set main-view-date = width:6,display:relative
 #   presense breaks tig command. So using '?', which user can include in
 #   copy-paste to browser location, no biggee. /home-fries#🍟
 bind generic v +sh -c " \
-  open_line_under_cursor_in_gVim () { \
+  open_line_under_cursor_in_gVim____________ () { \
     if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
       if command -v gvim-open-kindness > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
@@ -346,7 +346,7 @@ bind generic v +sh -c " \
     else \
       echo \"Nothing to edit\"; \
     fi; \
-  }; open_line_under_cursor_in_gVim"
+  }; open_line_under_cursor_in_gVim____________"
 
 bind generic V :show-version
 
@@ -368,12 +368,12 @@ bind generic V :show-version
 # - Note: This strips leading "b/" that tig prints, e.g., "a/path" and "b/path"
 # - Note: This strips realpath newline using tr, but here's alt: | sed -z 's/\\n$//g'
 bind generic P @sh -c " \
-  copy_file_Path_to_clipboard () { \
+  copy_file_Path_to_clipboard_______________ () { \
     local path=\"$(realpath -- \"%(directory)$(printf '%(file)' | sed 's/^b//')\" | tr -d '\\n')\"; \
     type xclip > /dev/null 2>&1 \
       && printf $path | xclip -selection c \
       || printf $path | pbcopy; \
-  }; copy_file_Path_to_clipboard"
+  }; copy_file_Path_to_clipboard_______________"
 
 # ***
 
@@ -392,7 +392,7 @@ bind generic P @sh -c " \
 #     git-rebase output, which is nice for review and confirmation (as
 #     opposed to just silently fup'ping, and user just assuming it ran).
 bind generic + !sh -c " \
-  fixup_staged_into_commit () { \
+  fixup_staged_into_commit__________________ () { \
     if command -v git-fup > /dev/null; then \
       git fup %(commit); \
       [ -f \".git/REBASE_HEAD\" ] \
@@ -403,13 +403,13 @@ bind generic + !sh -c " \
     else \
       echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
     fi; \
-  }; fixup_staged_into_commit"
+  }; fixup_staged_into_commit__________________"
 
 # ***
 
 # Git-rebase binding, via modified git-pwip.
 bind generic <C-r> !sh -c " \
-  rebase_selected_commit_auto_wip () { \
+  rebase_selected_commit_auto_wip___________ () { \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
@@ -421,7 +421,7 @@ bind generic <C-r> !sh -c " \
       && >&2 echo \"  🥩 🥩 chop chop\"\ \
       && kill -s 9 $PPID; \
     ${wipped} && git reset --mixed @~1; \
-  }; rebase_selected_commit_auto_wip"
+  }; rebase_selected_commit_auto_wip___________"
 
 # ***
 
@@ -438,7 +438,7 @@ bind generic <C-r> !sh -c " \
 #   also '!sh' option, but that hides tig window to show output in terminal
 #   and prompts user to acknowledge.)
 bind generic <C-t> @sh -c " \
-  wip_commit () { \
+  wip_commit________________________________ () { \
     git_status_porcelain () { git status --porcelain=v1; }; \
     if [ -n \"$(git_status_porcelain)\" ]; then \
       git add -A \
@@ -446,7 +446,7 @@ bind generic <C-t> @sh -c " \
     else \
       echo 'Already pristine'; \
     fi; \
-  }; wip_commit"
+  }; wip_commit________________________________"
 
 # ***
 
@@ -466,7 +466,7 @@ bind generic <C-t> @sh -c " \
 #   than "for reals", seriously, what's the synonym I'm looking for?
 #   "professionally"? "legitimately"? "deliberately"? for reals!].
 bind generic _ @sh -c " \
-  pop_commit_iff_youngest_wip () { \
+  pop_commit_iff_youngest_wip_______________ () { \
     git_grep_youngest_rev () { \
       git --no-pager log --pretty=format:\"%H\" --grep \"$1\" HEAD^..HEAD; \
     }; \
@@ -475,7 +475,7 @@ bind generic _ @sh -c " \
     else \
       echo 'Nothing WIPped'; \
     fi; \
-  }; pop_commit_iff_youngest_wip"
+  }; pop_commit_iff_youngest_wip_______________"
 
 # ***
 
@@ -483,7 +483,7 @@ bind generic _ @sh -c " \
 #   https://github.com/landonb/git-smart#💡
 # Using DepoXy, at ~/.kit/git/git-smart/bin/git-reword
 bind generic & !sh -c " \
-  git_reword_revision () { \
+  git_reword_revision_______________________ () { \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <\">]' \
@@ -493,13 +493,13 @@ bind generic & !sh -c " \
       sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
     ${wipped} && git reset --mixed @~1; \
-  }; git_reword_revision"
+  }; git_reword_revision_______________________"
 
 # COPYD: See git-edit/git_edit_revision in git-smart
 #   https://github.com/landonb/git-smart#💡
 # Using DepoXy, at ~/.kit/git/git-smart/bin/git-edit
 bind generic * <sh -c " \
-  git_edit_revision () { \
+  git_edit_revision_________________________ () { \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-*>]'; \
@@ -507,7 +507,7 @@ bind generic * <sh -c " \
       local rebase_todo_path=\"$1\"; \
       sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
-  }; git_edit_revision"
+  }; git_edit_revision_________________________"
 
 # ***
 
@@ -558,14 +558,14 @@ bind diff C !sh -c "git commit -v"
 # - SYNCD: See EDITOR resolution in tig/src/display.c open_editor():
 #            Prefers TIG_EDITOR → GIT_EDITOR → VISUAL → EDITOR → vi.
 bind generic e !sh -c " \
-  open_line_under_cursor_in_gVim () { \
+  open_line_under_cursor_in_gVim____________ () { \
     if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
       local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
       ${editor} +%(lineno) \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
     else \
       echo \"Nothing to edit\"; \
     fi; \
-  }; open_line_under_cursor_in_gVim"
+  }; open_line_under_cursor_in_gVim____________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
