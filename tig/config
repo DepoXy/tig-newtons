@@ -377,6 +377,8 @@ bind generic e !sh -c " \
     if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
       local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
       ${editor} +%(lineno) \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
+      echo; \
+      echo \"Done! Back to tig...\"; \
     else \
       echo \"Nothing to edit\"; \
     fi; \
@@ -449,6 +451,8 @@ bind generic <C-r> !sh -c " \
       kill -s 9 $PPID; \
     fi; \
     ${wipped} && git reset --mixed @~1; \
+    echo; \
+    echo \"Done! Back to tig...\"; \
   }; rebase_interactive___from_selected_rev____"
 
 # ***
@@ -512,6 +516,8 @@ bind generic + !sh -c " \
         >&2 echo \"  🥩 🥩 chop chop\"; \
         kill -s 9 $PPID; \
       fi; \
+      echo; \
+      echo \"Done! Back to tig...\"; \
     else \
       echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
     fi; \
