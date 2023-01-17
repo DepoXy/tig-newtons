@@ -187,40 +187,16 @@ color title-blur black white
 
 # ***
 
-# 2020-12-14 15:04: Press 'x' to copy the commid ID/SHA1 hash.
-#
-# - From `man tigrc`:
-#
-#     Example 1. Configure a binding to copy the current commit ID to the clipboard.
-#     bind generic I @sh -c "echo -n %(commit) | xclip -selection c"
-#
-#   - I'm guessing the 'I' chosen in the example stands for commit [I]D.
-#
-#   - I also like 'x', which is unbound, because 'X' is the commit ID toggle.
-#
-#   - Both c's are taken: 'c' is switch to stage view, and 'C' is cherry-pick
-#     in main, and commit in status. Which is fine, I like 'x'.
-#
-# - How this works: Try xclip first (Linux), then fallback pbcopy (macOS).
-#
-# - Note that `xclip -selection c` is `xclip -selection clipboard` (XA_CLIPBOARD),
-#   i.e., not the "primary" (XA_PRIMARY) X selection (which is the default).
-#
-# - Note also that tig ignores (doesn't show the user) any command output.
-#
-#   E.g., I had only `2> /dev/null` here first (i.e., not redirecting stdout)
-#   but tig was nonetheless not showing any stdout when `type xclip` printed
-#   "xclip is /usr/bin/xclip". Just an FYI, for whatever reason.
-#
-bind generic x @sh -c " \
-  clipboard_copy_selected_commit_sha________ () { \
-    type xclip > /dev/null 2>&1 && \
-      ( printf %(commit) | xclip -selection c ) \
-      || ( printf %(commit) | pbcopy ); \
-  }; clipboard_copy_selected_commit_sha________"
-
-# 2020-12-14 15:05: Show commit ID by default.
-set main-view-id = yes
+# Default 'main' 'C' binding prompts ('?') and runs cherry-pick:
+#   C ?git cherry-pick %(commit)
+# But, like, why? I rarely cherry-pick, and I think it's always been
+# revisions not reachable from HEAD. So I wouldn't care about the 'C'
+# binding unless I was running tig on a disparate lineage. But I also
+# do this operation so rarely, I'd probably want to run it more manually.
+# - All that said, no shame in masking built-in 'main' 'C' cherry-pick
+#   command. (Note that nothing built-in at 'C' for 'diff'.)
+bind main C !sh -c "git commit -v"
+bind diff C !sh -c "git commit -v"
 
 # ***
 
@@ -334,7 +310,7 @@ bind generic R :set main-view-date = width:6,display:relative
 #   presense breaks tig command. So using '?', which user can include in
 #   copy-paste to browser location, no biggee. /home-fries#🍟
 bind generic v +sh -c " \
-  gVim_open_line_under_cursor_______________ () { \
+  open_line_under_cursor__gVim______________ () { \
     if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
       if command -v gvim-open-kindness > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
@@ -346,7 +322,7 @@ bind generic v +sh -c " \
     else \
       echo \"Nothing to edit\"; \
     fi; \
-  }; gVim_open_line_under_cursor_______________"
+  }; open_line_under_cursor__gVim______________"
 
 bind generic V :show-version
 
@@ -363,17 +339,151 @@ bind generic V :show-version
 
 # ***
 
+# The diff-options option above breaks tig's built-in 'e' and :edit
+# commands. Specifically, this setting above:
+#
+#   set diff-options = --src-prefix=a/ --dst-prefix=b/
+#
+# You can test against vanilla tig thusly (though still loads your Git config):
+#
+#   XDG_CONFIG_HOME=foo tig
+#
+# and you should see that 'e' works, and that the tig 'diff' view
+# shows the `--- file` and `+++ file` without an a/ and b/ prefix
+# (as opposed to how we format it, `--- a/file` and `+++ b/file`,
+#  which makes it so tig-blame works (because tig-blame fails if
+#  the paths *do not* have the a/ and b/ prefix, I know, right)).
+#
+# I have not searched GitHub Issues, but I would be surprised if
+# this is an issue for the broader public, because it seems like
+# something that would've been fixed (which is why I have not
+# bothered to search GitHub Issues). So I assume it's something
+# with my tig or Git configs, or development environment -- though
+# not to say tig shouldn't be fixed, because this is ultimately a
+# tig issue.
+#
+# Here we replace broken 'e' with a mostly faithful reproduction.
+# Because we use '!' (full i/o, b/c Vim is interactive), even
+# when there's nothing to edit, tig shells out and the user must
+# 'Press Enter to continue'. This is different from the built-in 'e'
+# command, where tig prints "Nothing to edit" to the status line, and
+# tig never shells out and the user is not prompted.
+# - BROKE: Note that the :edit command remains broken. Whatever, just
+#   use 'e'. Or better yet, use 'v'.
+# - SYNCD: See EDITOR resolution in tig/src/display.c open_editor():
+#            Prefers TIG_EDITOR → GIT_EDITOR → VISUAL → EDITOR → vi.
+bind generic e !sh -c " \
+  open_line_under_cursor__editor____________ () { \
+    if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
+      local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
+      ${editor} +%(lineno) \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
+    else \
+      echo \"Nothing to edit\"; \
+    fi; \
+  }; open_line_under_cursor__editor____________"
+
+# ***
+
+# 2020-12-14 15:04: Press 'x' to copy the commid ID/SHA1 hash.
+#
+# - From `man tigrc`:
+#
+#     Example 1. Configure a binding to copy the current commit ID to the clipboard.
+#     bind generic I @sh -c "echo -n %(commit) | xclip -selection c"
+#
+#   - I'm guessing the 'I' chosen in the example stands for commit [I]D.
+#
+#   - I also like 'x', which is unbound, because 'X' is the commit ID toggle.
+#
+#   - Both c's are taken: 'c' is switch to stage view, and 'C' is cherry-pick
+#     in main, and commit in status. Which is fine, I like 'x'.
+#
+# - How this works: Try xclip first (Linux), then fallback pbcopy (macOS).
+#
+# - Note that `xclip -selection c` is `xclip -selection clipboard` (XA_CLIPBOARD),
+#   i.e., not the "primary" (XA_PRIMARY) X selection (which is the default).
+#
+# - Note also that tig ignores (doesn't show the user) any command output.
+#
+#   E.g., I had only `2> /dev/null` here first (i.e., not redirecting stdout)
+#   but tig was nonetheless not showing any stdout when `type xclip` printed
+#   "xclip is /usr/bin/xclip". Just an FYI, for whatever reason.
+#
+bind generic x @sh -c " \
+  clipboard_copy__selected_commit_sha_______ () { \
+    type xclip > /dev/null 2>&1 && \
+      ( printf %(commit) | xclip -selection c ) \
+      || ( printf %(commit) | pbcopy ); \
+  }; clipboard_copy__selected_commit_sha_______"
+
+# 2020-12-14 15:05: Show commit ID by default.
+set main-view-id = yes
+
+# ***
+
 # Copy filepath to clipboard
 # - Mnemonic: Copy 'P'ath
 # - Note: This strips leading "b/" that tig prints, e.g., "a/path" and "b/path"
 # - Note: This strips realpath newline using tr, but here's alt: | sed -z 's/\\n$//g'
 bind generic P @sh -c " \
-  clipboard_copy_file_path__________________ () { \
+  clipboard_copy__file_path_________________ () { \
     local path=\"$(realpath -- \"%(directory)$(printf '%(file)' | sed 's/^b//')\" | tr -d '\\n')\"; \
     type xclip > /dev/null 2>&1 \
       && printf $path | xclip -selection c \
       || printf $path | pbcopy; \
-  }; clipboard_copy_file_path__________________"
+  }; clipboard_copy__file_path_________________"
+
+# ***
+
+# Git-rebase binding, via modified git-pwip.
+bind generic <C-r> !sh -c " \
+  rebase_interactive___from_selected_rev____ () { \
+    local wipped=false; \
+    git add -A \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
+      && wipped=true; \
+    if ! git rebase -i %(commit)^ || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+      >&2 echo; \
+      >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+      >&2 echo \"  🥩 🥩 chop chop\"; \
+      kill -s 9 $PPID; \
+    fi; \
+    ${wipped} && git reset --mixed @~1; \
+  }; rebase_interactive___from_selected_rev____"
+
+# ***
+
+# COPYD: See git-reword/git_reword_revision in git-smart
+#   https://github.com/landonb/git-smart#💡
+# Using DepoXy, at ~/.kit/git/git-smart/bin/git-reword
+bind generic & !sh -c " \
+  rebase_reword________selected_rev_________ () { \
+    local wipped=false; \
+    git add -A \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig <\">]' \
+      && wipped=true; \
+    GIT_SEQUENCE_EDITOR='f () { \
+      local rebase_todo_path=\"$1\"; \
+      sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
+    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+    ${wipped} && git reset --mixed @~1; \
+    echo; \
+    echo \"Done! Back to tig...\"; \
+  }; rebase_reword________selected_rev_________"
+
+# COPYD: See git-edit/git_edit_revision in git-smart
+#   https://github.com/landonb/git-smart#💡
+# Using DepoXy, at ~/.kit/git/git-smart/bin/git-edit
+bind generic * <sh -c " \
+  rebase_edit__________selected_rev_________ () { \
+    local wipped=false; \
+    git add -A \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig <C-*>]'; \
+    GIT_SEQUENCE_EDITOR='f () { \
+      local rebase_todo_path=\"$1\"; \
+      sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
+    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+  }; rebase_edit__________selected_rev_________"
 
 # ***
 
@@ -394,7 +504,7 @@ bind generic P @sh -c " \
 # - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
 #   - It does remove git-rebase-todo.
 bind generic + !sh -c " \
-  rebase_fixup_staged_into_selected_commit__ () { \
+  rebase_fixup_staged__into_selected_rev____ () { \
     if command -v git-fup > /dev/null; then \
       if ! git fup %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
         >&2 echo; \
@@ -405,25 +515,7 @@ bind generic + !sh -c " \
     else \
       echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
     fi; \
-  }; rebase_fixup_staged_into_selected_commit__"
-
-# ***
-
-# Git-rebase binding, via modified git-pwip.
-bind generic <C-r> !sh -c " \
-  rebase_interactive_from_selected_commit___ () { \
-    local wipped=false; \
-    git add -A \
-      && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
-      && wipped=true; \
-    if ! git rebase -i %(commit)^ || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
-      >&2 echo; \
-      >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
-      >&2 echo \"  🥩 🥩 chop chop\"; \
-      kill -s 9 $PPID; \
-    fi; \
-    ${wipped} && git reset --mixed @~1; \
-  }; rebase_interactive_from_selected_commit___"
+  }; rebase_fixup_staged__into_selected_rev____"
 
 # ***
 
@@ -440,7 +532,7 @@ bind generic <C-r> !sh -c " \
 #   also '!sh' option, but that hides tig window to show output in terminal
 #   and prompts user to acknowledge.)
 bind generic <C-t> @sh -c " \
-  wip_commit_push_aka_tidy_up_______________ () { \
+  wip_commit__push__aka_tidy_up_____________ () { \
     git_status_porcelain () { git status --porcelain=v1; }; \
     if [ -n \"$(git_status_porcelain)\" ]; then \
       git add -A \
@@ -448,7 +540,7 @@ bind generic <C-t> @sh -c " \
     else \
       echo 'Already pristine'; \
     fi; \
-  }; wip_commit_push_aka_tidy_up_______________"
+  }; wip_commit__push__aka_tidy_up_____________"
 
 # ***
 
@@ -487,7 +579,7 @@ bind generic <C-t> @sh -c " \
 #    which is the wip-create command. So you can Ctrl-t/^/Ctrl-t/^/...
 #    all day long.)
 bind generic ^ @sh -c " \
-  wip_commit_pop_iff_youngest_rev___________ () { \
+  wip_commit__pop__iff_youngest_rev_________ () { \
     git_grep_youngest_rev () { \
       git --no-pager log --pretty=format:\"%H\" --grep \"$1\" HEAD^..HEAD; \
     }; \
@@ -496,99 +588,7 @@ bind generic ^ @sh -c " \
     else \
       echo 'Nothing WIPped'; \
     fi; \
-  }; wip_commit_pop_iff_youngest_rev___________"
-
-# ***
-
-# COPYD: See git-reword/git_reword_revision in git-smart
-#   https://github.com/landonb/git-smart#💡
-# Using DepoXy, at ~/.kit/git/git-smart/bin/git-reword
-bind generic & !sh -c " \
-  rebase_reword_rev_________________________ () { \
-    local wipped=false; \
-    git add -A \
-      && git commit --no-verify -m 'PRIVATE: WIP [tig <\">]' \
-      && wipped=true; \
-    GIT_SEQUENCE_EDITOR='f () { \
-      local rebase_todo_path=\"$1\"; \
-      sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
-    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
-    ${wipped} && git reset --mixed @~1; \
-    echo; \
-    echo \"Done! Back to tig...\"; \
-  }; rebase_reword_rev_________________________"
-
-# COPYD: See git-edit/git_edit_revision in git-smart
-#   https://github.com/landonb/git-smart#💡
-# Using DepoXy, at ~/.kit/git/git-smart/bin/git-edit
-bind generic * <sh -c " \
-  rebase_edit_rev___________________________ () { \
-    local wipped=false; \
-    git add -A \
-      && git commit --no-verify -m 'PRIVATE: WIP [tig <C-*>]'; \
-    GIT_SEQUENCE_EDITOR='f () { \
-      local rebase_todo_path=\"$1\"; \
-      sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
-    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
-  }; rebase_edit_rev___________________________"
-
-# ***
-
-# Default 'main' 'C' binding prompts ('?') and runs cherry-pick:
-#   C ?git cherry-pick %(commit)
-# But, like, why? I rarely cherry-pick, and I think it's always been
-# revisions not reachable from HEAD. So I wouldn't care about the 'C'
-# binding unless I was running tig on a disparate lineage. But I also
-# do this operation so rarely, I'd probably want to run it more manually.
-# - All that said, no shame in masking built-in 'main' 'C' cherry-pick
-#   command. (Note that nothing built-in at 'C' for 'diff'.)
-bind main C !sh -c "git commit -v"
-bind diff C !sh -c "git commit -v"
-
-# ***
-
-# The diff-options option above breaks tig's built-in 'e' and :edit
-# commands. Specifically, this setting above:
-#
-#   set diff-options = --src-prefix=a/ --dst-prefix=b/
-#
-# You can test against vanilla tig thusly (though still loads your Git config):
-#
-#   XDG_CONFIG_HOME=foo tig
-#
-# and you should see that 'e' works, and that the tig 'diff' view
-# shows the `--- file` and `+++ file` without an a/ and b/ prefix
-# (as opposed to how we format it, `--- a/file` and `+++ b/file`,
-#  which makes it so tig-blame works (because tig-blame fails if
-#  the paths *do not* have the a/ and b/ prefix, I know, right)).
-#
-# I have not searched GitHub Issues, but I would be surprised if
-# this is an issue for the broader public, because it seems like
-# something that would've been fixed (which is why I have not
-# bothered to search GitHub Issues). So I assume it's something
-# with my tig or Git configs, or development environment -- though
-# not to say tig shouldn't be fixed, because this is ultimately a
-# tig issue.
-#
-# Here we replace broken 'e' with a mostly faithful reproduction.
-# Because we use '!' (full i/o, b/c Vim is interactive), even
-# when there's nothing to edit, tig shells out and the user must
-# 'Press Enter to continue'. This is different from the built-in 'e'
-# command, where tig prints "Nothing to edit" to the status line, and
-# tig never shells out and the user is not prompted.
-# - BROKE: Note that the :edit command remains broken. Whatever, just
-#   use 'e'. Or better yet, use 'v'.
-# - SYNCD: See EDITOR resolution in tig/src/display.c open_editor():
-#            Prefers TIG_EDITOR → GIT_EDITOR → VISUAL → EDITOR → vi.
-bind generic e !sh -c " \
-  open_line_under_cursor_in_gVim____________ () { \
-    if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
-      local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
-      ${editor} +%(lineno) \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
-    else \
-      echo \"Nothing to edit\"; \
-    fi; \
-  }; open_line_under_cursor_in_gVim____________"
+  }; wip_commit__pop__iff_youngest_rev_________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
