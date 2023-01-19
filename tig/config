@@ -600,7 +600,7 @@ bind generic <C-t> @sh -c " \
 #    which is the wip-create command. So you can Ctrl-t/^/Ctrl-t/^/...
 #    all day long.)
 bind generic ^ @sh -c " \
-  wip_commit__pop__iff_youngest_rev_________ () { \
+  wip_commit__pop___iff_youngest_rev________ () { \
     git_grep_youngest_rev () { \
       git --no-pager log --pretty=format:\"%H\" --grep \"$1\" HEAD^..HEAD; \
     }; \
@@ -609,7 +609,7 @@ bind generic ^ @sh -c " \
     else \
       echo 'Nothing WIPped'; \
     fi; \
-  }; wip_commit__pop__iff_youngest_rev_________"
+  }; wip_commit__pop___iff_youngest_rev________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
