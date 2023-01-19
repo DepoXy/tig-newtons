@@ -213,6 +213,15 @@ bind generic C !sh -c " \
     echo \"Done! Back to tig...\"; \
   }; git_commit_verbose________________________"
 
+# The 'generic' binding does not shadow the same key bound
+# to specific keymaps, so we must needs repeat ourself.
+bind main C !sh -c " \
+  git_commit_verbose________________________ () { \
+    git commit -v; \
+    echo; \
+    echo \"Done! Back to tig...\"; \
+  }; git_commit_verbose________________________"
+
 # ***
 
 # 2020-12-16 18:56: Show commit date as elapsed time before now.
