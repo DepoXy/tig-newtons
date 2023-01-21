@@ -462,13 +462,18 @@ bind generic P @sh -c " \
 # ***
 
 # Git-rebase binding, via modified git-pwip.
+# - Note that I tried using %(commit)^ here,
+#   but I'm so used to how rebase really works
+#   that I just can't. The commit you choose
+#   itself is not rebased, like how git-rebase
+#   really works.
 bind generic <C-r> !sh -c " \
   rebase_interactive___from_selected_rev____ () { \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
       && wipped=true; \
-    if ! git rebase -i %(commit)^ || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+    if ! git rebase -i %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
       >&2 echo; \
       >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
       >&2 echo \"  🥩 🥩 chop chop\"; \
