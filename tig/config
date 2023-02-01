@@ -489,6 +489,12 @@ bind generic <C-r> !sh -c " \
 # COPYD: See git-reword/git_reword_revision in git-smart
 #   https://github.com/landonb/git-smart#💡
 # Using DepoXy, at ~/.kit/git/git-smart/bin/git-reword
+#
+# YOU: If you use Vim and find your EDITOR slow to open,
+#      consider running it without plugs:
+#        ...
+#        EDITOR='vim --noplugin' \
+#        GIT_SEQUENCE_EDITOR='f () { ...
 bind generic & !sh -c " \
   rebase_reword________selected_rev_________ () { \
     local wipped=false; \
