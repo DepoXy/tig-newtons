@@ -639,5 +639,21 @@ bind generic ^ @sh -c " \
     fi; \
   }; wip_commit__pop___iff_youngest_rev________"
 
+# ***
+
+# No-op shell-out to view output from previous command.
+# - Hm, Escape works, but brief pause before you see shell:
+#     bind generic <Esc> !sh -c "
+# - Hm, responds "Only one view is displayed":
+#     bind generic <C-i> !sh -c "
+# - "Unknown key":
+#     bind generic <C-.> !sh -c "
+# Phew! Just period alone works, wasn't previously bound,
+# and it's near Enter, which you hit to return to tig.
+bind generic . !sh -c " \
+  shell_out_to_view_previous_command_output_ () { \
+    echo \"Done! Back to tig...\"; \
+  }; shell_out_to_view_previous_command_output_"
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
