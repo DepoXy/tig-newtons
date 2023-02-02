@@ -208,18 +208,18 @@ color title-blur black white
 
 bind generic C >sh -c " \
   git_commit_verbose________________________ () { \
+    echo; \
     git commit -v; \
     echo; \
-    echo \"Done! Back to tig...\"; \
   }; git_commit_verbose________________________"
 
 # The 'generic' binding does not shadow the same key bound
 # to specific keymaps, so we must needs repeat ourself.
 bind main C >sh -c " \
   git_commit_verbose________________________ () { \
+    echo; \
     git commit -v; \
     echo; \
-    echo \"Done! Back to tig...\"; \
   }; git_commit_verbose________________________"
 
 # ***
@@ -399,10 +399,10 @@ bind generic V :show-version
 bind generic e >sh -c " \
   open_line_under_cursor__editor____________ () { \
     if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
+      echo; \
       local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
       ${editor} +%(lineno) \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
       echo; \
-      echo \"Done! Back to tig...\"; \
     else \
       echo \"Nothing to edit\"; \
     fi; \
@@ -469,6 +469,7 @@ bind generic P @sh -c " \
 #   really works.
 bind generic <C-r> >sh -c " \
   rebase_interactive___from_selected_rev____ () { \
+    echo; \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
@@ -481,7 +482,6 @@ bind generic <C-r> >sh -c " \
     fi; \
     ${wipped} && git reset --mixed @~1; \
     echo; \
-    echo \"Done! Back to tig...\"; \
   }; rebase_interactive___from_selected_rev____"
 
 # ***
@@ -497,6 +497,7 @@ bind generic <C-r> >sh -c " \
 #        GIT_SEQUENCE_EDITOR='f () { ...
 bind generic & >sh -c " \
   rebase_reword________selected_rev_________ () { \
+    echo; \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <\">]' \
@@ -507,7 +508,6 @@ bind generic & >sh -c " \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
     ${wipped} && git reset --mixed @~1; \
     echo; \
-    echo \"Done! Back to tig...\"; \
   }; rebase_reword________selected_rev_________"
 
 # COPYD: See git-edit/git_edit_revision in git-smart
@@ -515,6 +515,7 @@ bind generic & >sh -c " \
 # Using DepoXy, at ~/.kit/git/git-smart/bin/git-edit
 bind generic * <sh -c " \
   rebase_edit__________selected_rev_________ () { \
+    echo; \
     local wipped=false; \
     git add -A \
       && git commit --no-verify -m 'PRIVATE: WIP [tig <C-*>]'; \
@@ -522,6 +523,7 @@ bind generic * <sh -c " \
       local rebase_todo_path=\"$1\"; \
       sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+    echo; \
   }; rebase_edit__________selected_rev_________"
 
 # ***
@@ -551,6 +553,7 @@ bind generic * <sh -c " \
 bind generic + >sh -c " \
   rebase_fixup_staged__into_selected_rev____ () { \
     if command -v git-fup > /dev/null; then \
+      echo; \
       if ! git fup %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
         >&2 echo; \
         >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
@@ -558,7 +561,6 @@ bind generic + >sh -c " \
         kill -s 9 $PPID; \
       fi; \
       echo; \
-      echo \"Done! Back to tig...\"; \
     else \
       echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
     fi; \
@@ -652,7 +654,7 @@ bind generic ^ @sh -c " \
 # and it's near Enter, which you hit to return to tig.
 bind generic . !sh -c " \
   shell_out_to_view_previous_command_output_ () { \
-    echo \"Done! Back to tig...\"; \
+    :; \
   }; shell_out_to_view_previous_command_output_"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
