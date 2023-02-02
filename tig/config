@@ -206,7 +206,7 @@ color title-blur black white
 #   doesn't work. Also keeps our code DRY (because we don't have to
 #   specify the same command for multiple keymaps (main, diff, etc.)).
 
-bind generic C !sh -c " \
+bind generic C >sh -c " \
   git_commit_verbose________________________ () { \
     git commit -v; \
     echo; \
@@ -215,7 +215,7 @@ bind generic C !sh -c " \
 
 # The 'generic' binding does not shadow the same key bound
 # to specific keymaps, so we must needs repeat ourself.
-bind main C !sh -c " \
+bind main C >sh -c " \
   git_commit_verbose________________________ () { \
     git commit -v; \
     echo; \
@@ -396,7 +396,7 @@ bind generic V :show-version
 #   use 'e'. Or better yet, use 'v'.
 # - SYNCD: See EDITOR resolution in tig/src/display.c open_editor():
 #            Prefers TIG_EDITOR → GIT_EDITOR → VISUAL → EDITOR → vi.
-bind generic e !sh -c " \
+bind generic e >sh -c " \
   open_line_under_cursor__editor____________ () { \
     if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
       local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
@@ -467,7 +467,7 @@ bind generic P @sh -c " \
 #   that I just can't. The commit you choose
 #   itself is not rebased, like how git-rebase
 #   really works.
-bind generic <C-r> !sh -c " \
+bind generic <C-r> >sh -c " \
   rebase_interactive___from_selected_rev____ () { \
     local wipped=false; \
     git add -A \
@@ -495,7 +495,7 @@ bind generic <C-r> !sh -c " \
 #        ...
 #        EDITOR='vim --noplugin' \
 #        GIT_SEQUENCE_EDITOR='f () { ...
-bind generic & !sh -c " \
+bind generic & >sh -c " \
   rebase_reword________selected_rev_________ () { \
     local wipped=false; \
     git add -A \
@@ -533,16 +533,22 @@ bind generic * <sh -c " \
 #   think tig does Ctrl-Arrow bindings. Then I thought maybe <C-f>
 #   could be a decent choice. But now thinking '+', which has the
 #   mnemonic that you're 'adding' to commit, would could be helpful.
-# - Consider the three tig options for shelling out:
+# - Consider the tig options for shelling out:
 #     '!' (runs in fg; full i/o)
 #     '@' (runs in bg; no i/o)
 #     '+' (runs sync; shows 1st line of output)
+#     '?' (Prompt the user before executing the command)
+#     '<' (Exit Tig after executing the command)
+#     '>' (Re-open Tig instantly ... after executing the command -- aka quick)
 #   - With '!', user can interact with command; also, user can see the
-#     git-rebase output, which is nice for review and confirmation (as
+#     git-rebase output, which can be nice for review and confirmation (as
 #     opposed to just silently fup'ping, and user just assuming it ran).
+#     - Except user will see changes in the revision history in tig,
+#       and being prompted to return to tig gets annoying after a while,
+#       so authoer prefers '>' vs. '!'.
 # - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
 #   - It does remove git-rebase-todo.
-bind generic + !sh -c " \
+bind generic + >sh -c " \
   rebase_fixup_staged__into_selected_rev____ () { \
     if command -v git-fup > /dev/null; then \
       if ! git fup %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
@@ -572,6 +578,7 @@ bind generic + !sh -c " \
 #   user at least sees revision list update to show new WIP commit. (See
 #   also '!sh' option, but that hides tig window to show output in terminal
 #   and prompts user to acknowledge.)
+# - Note @sh better than >sh, so tig doesn't shell out for a blip.
 bind generic <C-t> @sh -c " \
   wip_commit__push__aka_tidy_up_____________ () { \
     git_status_porcelain () { git status --porcelain=v1; }; \
@@ -619,6 +626,7 @@ bind generic <C-t> @sh -c " \
 #    about '^': it's above Ctrl-t (US American keyboard at least)
 #    which is the wip-create command. So you can Ctrl-t/^/Ctrl-t/^/...
 #    all day long.)
+# - Note @sh better than >sh, so tig doesn't shell out for a blip.
 bind generic ^ @sh -c " \
   wip_commit__pop___iff_youngest_rev________ () { \
     git_grep_youngest_rev () { \
