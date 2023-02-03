@@ -542,12 +542,16 @@ bind generic * <sh -c " \
 #     '?' (Prompt the user before executing the command)
 #     '<' (Exit Tig after executing the command)
 #     '>' (Re-open Tig instantly ... after executing the command -- aka quick)
-#   - With '!', user can interact with command; also, user can see the
-#     git-rebase output, which can be nice for review and confirmation (as
-#     opposed to just silently fup'ping, and user just assuming it ran).
-#     - Except user will see changes in the revision history in tig,
-#       and being prompted to return to tig gets annoying after a while,
-#       so authoer prefers '>' vs. '!'.
+# - With '!', user can interact with command; also, user can see the
+#   git-rebase output, which can be nice for review and confirmation (as
+#   opposed to just silently fup'ping, and user just assuming it ran).
+#   - Except user will see changes in the revision history in tig,
+#     and being prompted to return to tig gets annoying after a while,
+#     so author prefers '>' vs. '!'.
+#   - Note, too, `bind generic + +sh` is nice because we could print
+#     a one-line message to the status window, with no shell-out
+#     disruption. But it's not nice because it doesn't update the
+#     view.
 # - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
 #   - It does remove git-rebase-todo.
 bind generic + >sh -c " \
