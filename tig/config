@@ -661,5 +661,22 @@ bind generic . !sh -c " \
     :; \
   }; shell_out_to_view_previous_command_output_"
 
+# ***
+
+# I like <C-x> except implies copied to clipboard and <C-z> undoable.
+bind generic <C-o> >sh -c " \
+  git_drop_revision_________________________ () { \
+    echo; \
+    printf \"Really drop %(commit)? [Y/n] \"; \
+    read input; \
+    if [ -z \"${input}\" ] || [ \"${input}\" = \"Y\" ] || [ \"${input}\" = \"y\" ]; then \
+      echo \"git rebase --onto %(commit)^ %(commit)\"; \
+      git rebase --onto %(commit)^ %(commit); \
+    else \
+      echo \"Ope\"; \
+    fi; \
+    echo; \
+  }; git_drop_revision_________________________"
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
