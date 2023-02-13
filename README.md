@@ -16,8 +16,12 @@
 |     `T`  | Show datetime format and make date column wider, e.g., `2023-01-15 15:23` |
 |     `R`  | Show relative format and make date column narrower, e.g., `3 hour` |
 |     `v`  | Open line under cursor in gVim (prefers [`gvim-open-kindness`](https://github.com/landonb/home-fries/blob/release/bin/gvim-open-kindness) if installed) |
-|     `P`  | Copy file path to clipboard |
 |     `V`  | Moved built-in `:show-version` from `v` to `V`, to make our gVim command easier to use |
+|     `e`  | Like `v`, but opens line under cursor in terminal EDITOR |
+|     `P`  | Copy file path to clipboard |
+|     `.`  | Temporarily shells-out (shows your terminal session); useful for reviewing previous command output |
+|     `C`  | Runs `git commit -v` |
+| `<C-o>`  | Drop the selected revision |
 
 'Main' and 'diff' view bindings:
 
@@ -28,6 +32,10 @@
 Masked:
 
 - The `^` mapping masks tig's built-in `:toggle rev-filter` binding [but I tested `rev-filter` and it changes nothing for me, so I'm not remapping the command elsewhere, like I did with `V`/`:show-version`]
+
+- The `C` mapping masks tig's built-in `?git cherry-pick %(commit)` binding.
+
+- The `v` mapping masks tig's built-in `:show-version` binding, which is re-bound to `V`.
 
 ## Defaults
 
@@ -65,7 +73,7 @@ Masked:
 
 ### Option 3 — Source from your own config
 
-Edit ~/.config/tig/config and add:
+Edit `~/.config/tig/config` and add:
 
 ```config
   source /path/to/tig-newtons/tig/config
