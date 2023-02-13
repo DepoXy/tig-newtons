@@ -1,0 +1,55 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=conf
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# SYNC_ME:
+#
+#   cd path/to/tig-newtons
+#   meld tig/config-diff tig/config-main &
+#
+# Only difference should be 'bind main...' vs. 'bind diff', so commands
+# don't apply to other views (pager, reflog, refs, stage, stash, status),
+# because tig config doesn't support reusing code for multiple commands
+# (alternating, we could immediately shell-out, but I'd rather not).
+#
+# In many case, using 'generic' is fine, if the binding doesn't shadow
+# other view bindings. But there are a few symbols defined only for the
+# special views, e.g., the ! binding is defined separately for multiple
+# views (reflogs, refs, stage, status).
+
+# YOU: Per DepoXy convention (htt
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# SAVVY: If this returns nonzero, tig prints "Press Enter to continue".
+# - Otherwise we could prompt ourselves and return 0, but let's tig it.
+bind main ! >sh -c " \
+  git_upraise_revision______________________ () { \
+    echo; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    if [ ! -d \"${tnewtons}\" ]; then \
+      >&2 echo \"ERROR: Please install tig-newtons to\"; \
+      >&2 echo \"  ${tnewtons}\"; \
+      >&2 echo \"Or use the TIGNEWTONSPATH environ.\"; \
+      >&2 echo; \
+      return 1; \
+    fi; \
+    local wipped=false; \
+    git add -A \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig !]' \
+      && wipped=true; \
+    local bubble_cmd=\"${tnewtons}/bin/git-rebase-bubble-commit\"; \
+    echo \"git rebase -i %(commit)^\"; \
+    local exit_val; \
+    ${bubble_cmd} \"%(commit)^\" ${wipped}; \
+    exit_val=$?; \
+    ${wipped} && git reset --mixed @~1; \
+    echo; \
+    return ${exit_val}; \
+  }; git_upraise_revision______________________"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+

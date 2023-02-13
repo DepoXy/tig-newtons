@@ -2,6 +2,8 @@
 
 ## Features
 
+'Generic' view bindings (that work from any view):
+
 | Binding  | Description |
 | -------: | :---------- |
 | `<C-r>`  | Run [interactive-rebase-tool](https://github.com/MitMaro/git-interactive-rebase-tool) from revision under cursor (and quit tig if conflicts or rebase doesn't complete) |
@@ -16,6 +18,12 @@
 |     `v`  | Open line under cursor in gVim (prefers [`gvim-open-kindness`](https://github.com/landonb/home-fries/blob/release/bin/gvim-open-kindness) if installed) |
 |     `P`  | Copy file path to clipboard |
 |     `V`  | Moved built-in `:show-version` from `v` to `V`, to make our gVim command easier to use |
+
+'Main' and 'diff' view bindings:
+
+| Binding  | Description |
+| -------: | :---------- |
+|     `!`  | Make the selected revision the most recent revision (aka, bubble-up) |
 
 Masked:
 
@@ -61,6 +69,21 @@ Edit ~/.config/tig/config and add:
 
 ```config
   source /path/to/tig-newtons/tig/config
+```
+
+## Setup
+
+If you want to use certain bindings (so far just `!` bubble-up),
+you'll need to install tig-newtons to a specific path:
+
+```sh
+  ~/.kit/git/tig-newtons
+```
+
+Or you'll need to use the `TIGNEWTONSPATH` environment, e.g.,
+
+```sh
+  TIGNEWTONSPATH=path/to/tig-newtons tig
 ```
 
 ## Bibliography

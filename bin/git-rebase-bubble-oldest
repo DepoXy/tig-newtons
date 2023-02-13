@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# USAGE:
+#
+#   GIT_SEQUENCE_EDITOR='/path/to/git-rebase-bubble-oldest' git rebase -i <revision>
+#
+# USETO: Rebase so the first commit in the range (the ancestor commit)
+#        becomes the last commit (the new HEAD).
+#        - This is a contactless interactive rebase, so to speak,
+#          no user interaction involved.
+
+# REFER: The `awk -i inplace` specifies an awk extension:
+#   https://www.gnu.org/software/gawk/manual/html_node/Extension-Sample-Inplace.html
+
+# DEV: Uncomment to show rebase-todo before and after:
+#  DX_SHOW_TODO=true
+DX_SHOW_TODO=${DX_SHOW_TODO:-false}
+
+# Git passes the internal path to the rebase-todo file, e.g.,
+#   /path/to/project/.git/rebase-merge/git-rebase-todo
+git_rebase_bubble_oldest () {
+  local rebase_todo_path="$1"
+
+  print_todo_maybe "before"
+
+  awk -i inplace "
+    BEGIN { state = 0 }
+    state == 0 { first_commit = \$0; state = 1; next };
+    \$0 ~ /^\$/ && state == 1 { print first_commit; state = 2; }
+    1" ${rebase_todo_path}
+
+  print_todo_maybe "after"
+}
+
+print_todo_maybe () {
+  local context="$1"
+
+  ${DX_SHOW_TODO} || return 0
+
+  >&2 echo
+  >&2 echo "rebase-todo ${context}:"
+  >&2 cat "${rebase_todo_path}"
+  >&2 echo
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  git_rebase_bubble_oldest "${@}"
+}
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  main "${@}"
+fi
+

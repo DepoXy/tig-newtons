@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# USAGE:
+#
+#   GIT_SEQUENCE_EDITOR='/path/to/git-rebase-bubble-oldest' git rebase -i <revision>
+#
+# USETO: Rebase so the first commit in the range (the ancestor commit)
+#        becomes the second-to-last commit (one before HEAD).
+#        - This is a contactless interactive rebase, so to speak,
+#          no user interaction involved.
+
+# REFER: The `awk -i inplace` specifies an awk extension:
+#   https://www.gnu.org/software/gawk/manual/html_node/Extension-Sample-Inplace.html
+
+# DEV: Uncomment to show rebase-todo before and after:
+#  DX_SHOW_TODO=true
+DX_SHOW_TODO=${DX_SHOW_TODO:-false}
+
+# Git passes the internal path to the rebase-todo file, e.g.,
+#   /path/to/project/.git/rebase-merge/git-rebase-todo
+git_rebase_bubble_oldest_penultimate () {
+  local rebase_todo_path="$1"
+
+  print_todo_maybe "before"
+
+  # This awk moves the first commit to the last commit line,
+  # which is followed by an empty line, followed by the
+  # rebase todo comment lines (hints/instructions).
+  awk -i inplace "
+    BEGIN { state = 0 }
+    state == 0 { first_commit = \$0; state = 1; next };
+    \$0 ~ /^\$/ && state == 1 { print first_commit; state = 2; }
+    1" ${rebase_todo_path}
+
+  print_todo_maybe "post/1"
+
+  # Use case: If user had unstaged changes and made a WIP commit,
+  # promote selected revision to penultimate position (second-to-
+  # last), so the user can pop their WIP and resume work.
+  # - CXREF: https://stackoverflow.com/questions/46161324/
+  #     awk-to-copy-and-move-of-file-last-line-to-previous-line-above
+  # - TRYME:
+  #     seq 7 | awk 'NR>2{print p2} {p2=p1; p1=$0} END{print p1 ORS p2}'
+  # - This awk strips the trailing comment lines.
+  # - Note ORS operator adds newline (default separator) between vars.
+  awk -i inplace "
+    BEGIN { state = 1 }
+    NR > 3 && state == 1 { print p3 }
+    { p3 = p2; p2 = p1; p1 = \$0 }
+    \$0 ~ /^\$/ && state == 1 { print p2 ORS p3; state = 2; }
+    " ${rebase_todo_path}
+
+  print_todo_maybe "post/2"
+}
+
+print_todo_maybe () {
+  local context="$1"
+
+  ${DX_SHOW_TODO} || return 0
+
+  >&2 echo
+  >&2 echo "rebase-todo ${context}:"
+  >&2 cat "${rebase_todo_path}"
+  >&2 echo
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  git_rebase_bubble_oldest_penultimate "${@}"
+}
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  main "${@}"
+fi
+
