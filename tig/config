@@ -500,7 +500,7 @@ bind generic & >sh -c " \
     echo; \
     local wipped=false; \
     git add -A \
-      && git commit --no-verify -m 'PRIVATE: WIP [tig <\">]' \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig &]' \
       && wipped=true; \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
@@ -518,7 +518,7 @@ bind generic * <sh -c " \
     echo; \
     local wipped=false; \
     git add -A \
-      && git commit --no-verify -m 'PRIVATE: WIP [tig <C-*>]'; \
+      && git commit --no-verify -m 'PRIVATE: WIP [tig *]' \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
       sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
