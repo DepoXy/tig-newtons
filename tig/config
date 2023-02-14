@@ -84,6 +84,11 @@ set ignore-case = smart-case
 # (But if you're like me, you almost always open in 'v' gVim.)
 set diff-options = --src-prefix=a/ --dst-prefix=b/
 
+# Some of the tig-newton commands shell-out and rebase,
+# so ensure tig updates the view after any command runs.
+# - Values: manual|auto|after-command|periodic|<bool>
+set refresh-mode = after-command
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # *** COLORS
