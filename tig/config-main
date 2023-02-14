@@ -31,7 +31,7 @@ bind main ! >sh -c " \
     echo; \
     local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
-      >&2 echo \"ERROR: Please install tig-newtons to\"; \
+      >&2 echo \"ERROR: To use this feature, please install tig-newtons to:\"; \
       >&2 echo \"  ${tnewtons}\"; \
       >&2 echo \"Or use the TIGNEWTONSPATH environ.\"; \
       >&2 echo; \
