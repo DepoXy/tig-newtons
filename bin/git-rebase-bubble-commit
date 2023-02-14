@@ -49,6 +49,7 @@ main () {
 }
 
 if [ -z "${BASH_SOURCE}" ] || [ "$0" != "${BASH_SOURCE[0]}" ]; then
+  # Though really `tig` runs this script with /bin/sh, so be POSIX.
   >&2 echo "ERROR: Run this script with bash"
 
   exit 1
