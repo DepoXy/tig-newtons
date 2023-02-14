@@ -29,6 +29,31 @@
 | -------: | :---------- |
 |     `!`  | Make the selected revision the most recent revision (aka, bubble-up) |
 
+'Main' view bindings:
+
+| Binding  | Description |
+| -------: | :---------- |
+|     `[`  | Select a start commit for the `]` command (sets a special "🚩-START-HERE-🚩" tag) |
+|     `]`  | Select a final commit for the `]` command (see next table for available actions) |
+|     `{`  | Remove all special "🚩-START-HERE-🚩" tags (i.e., "cancel" the `[`..`]` command) |
+
+`]` command actions:
+
+- These actions work on either two commits, or a range of commits.
+
+- First use the `[` command to select a start commit,
+  then select a separate commit and press `]` to perform
+  one of the following actions using the two commits you
+  chose:
+
+| Action   | Description |
+| -------: | :---------- |
+|      `p` | Cherry pick first through second commits |
+|      `b` | Move first commit (chronologically) before second commit |
+|      `a` | Move first commit (chronologically) after second commit |
+|      `s` | Squash first commit into second commit |
+|      `f` | Fixup first commit into second commit |
+
 Masked:
 
 - The `^` mapping masks tig's built-in `:toggle rev-filter` binding [but I tested `rev-filter` and it changes nothing for me, so I'm not remapping the command elsewhere, like I did with `V`/`:show-version`]

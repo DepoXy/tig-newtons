@@ -81,13 +81,99 @@ bind main ! >sh -c " \
 #       The ^^-underscored emoji appear in tig,
 #       and any emoji followed by a dash appears only uses a single
 #       character width in tig though the emoji is 2 em, so it bleeds.
+#     - Though maybe the "red flag" emoji isn't the worst, it does
+#       draw the eye better than green, methinks.
 # - I originally thought user could '@' once to mark first commit, then
 #   '@' again to mark second commit. But if we want to use tig's %(prompt),
 #   which tig resolves before running the shell command, we should use a
 #   separate final-commit binding, so the user is not %(prompt)ed on the
 #   first-commit binding.
-#   - Some options I consider:
+#   - Some bindings I considered:
 #     - Use '@' for first, and <C-@> (with inherent <C-Space> alias) for final.
 #     - Use '(' for first, and ')' for final.
 #     - Or use '[' and ']', and save user two Shift presses.
+# - Note using `+sh` vs. `>sh`:
+#   - The 'main' view updates immediately on `bind main [ >sh ...`,
+#     but it doesn't update on `bind main [ +sh ...`. But it's
+#     the latter that lets us echo to the status line. Phooey.
+#   - I tested each refresh-mode, including periodic, and only
+#     `refresh-mode = after-command` with `>sh` causes refresh.
+#   - It'd be nice to print a status message, e.g.,
+#       echo \"Now select a later commit and press ']'...\";
+#     but, oh well, nothing we can't solve in post!:
+#     - MAYBE/2023-02-13: Another tig PR idea: Refresh view on '+sh';
+#       or maybe it's that 'periodic' or 'auto' only check if commit
+#       history changed, but don't monitor tags.
+
+bind main [ >sh -c " \
+  revision_range_cmd__select_first_commit___ () { \
+    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    if [ ! -d \"${tnewtons}\" ]; then \
+      >&2 echo \"ERROR: To use this feature, please install tig-newtons to:\"; \
+      >&2 echo \"  ${tnewtons}\"; \
+      >&2 echo \"Or use the TIGNEWTONSPATH environ.\"; \
+      >&2 echo; \
+      return 1; \
+    fi; \
+    local tag_prefix='🚩-START-HERE-🚩'; \
+    local starting_tag=\"${tag_prefix}--🍏-PPID-${PPID}-🍏\"; \
+    git tag | grep \"^${tag_prefix}.*\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+    git tag -f \"${starting_tag}\" \"%(commit)\"; \
+  }; revision_range_cmd__select_first_commit___"
+
+# I'm torn on using %(prompt) or shelling-out and prompting user.
+# - The %(prompt) resolves before the shell code runs, so there's a chance
+#   user didn't set the beginning tag, and we'll prompt and then fail.
+# - On the other hand, if we don't %(prompt), we can fail if not starting
+#   tag, but then we'll have to prompt user through the shell, which is
+#   not as elegant and using the status line.
+# - We'll keep it in-house for now and see how it goes; user's will
+#   probably quickly learn to set the starting tag first, and also
+#   this way new users will more easily discover what this binding
+#   does.
+#   - Oh, another benefit to the shell-out prompt is `read -n 1`,
+#     saving user a carriage return.
+bind main ] >sh -c " \
+  revision_range_cmd__select_final_commit___ () { \
+    local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [s]quash, or [f]ixup ? )\"; \
+    local tag_prefix='🚩-START-HERE-🚩'; \
+    local starting_tag=\"${tag_prefix}--🍏-PPID-${PPID}-🍏\"; \
+    local second_commit; \
+    second_commit=\"$(git rev-parse \"refs/tags/${starting_tag}\" 2> /dev/null)\"; \
+    if [ $? -ne 0 ]; then \
+      git tag | grep \"^${tag_prefix}.*\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+      >&2 echo \"ERROR: Please set the starting commit first to use this feature\"; \
+      >&2 echo \"- Select the starting commit and press '['\"; \
+      >&2 echo \"- Next select another commit and press ']'\"; \
+      >&2 echo \"- Bonus: To \\\"cancel\\\", press '{'\"; \
+      >&2 echo; \
+      return 1; \
+    fi; \
+    echo; \
+    local wipped=false; \
+    git add -A \
+      && git commit -q --no-verify -m 'PRIVATE: WIP <tig ]>' \
+      && wipped=true; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    local range_cmd=\"${tnewtons}/bin/two-part-tig-command-rebaser\"; \
+    local exit_val; \
+    ${range_cmd} \"${action}\" \"${second_commit}\" \"%(commit)\"; \
+    exit_val=$?; \
+    if [ ${exit_val} -eq 0 ]; then \
+      git tag | grep \"^${tag_prefix}.*\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+    fi; \
+    ${wipped} && git reset --mixed @~1; \
+    echo; \
+    return ${exit_val}; \
+  }; revision_range_cmd__select_final_commit___"
+
+# Might as well have a way to decide not to complete the mission...
+# though not sure Shift-[ is the best binding. But maybe it is?
+bind main { >sh -c " \
+  revision_range_cmd__select_first_commit___ () { \
+    local tag_prefix='🚩-START-HERE-🚩'; \
+    git tag | grep \"^${tag_prefix}.*\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+  }; revision_range_cmd__select_first_commit___"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
