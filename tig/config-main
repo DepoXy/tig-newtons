@@ -53,3 +53,41 @@ bind main ! >sh -c " \
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# The following commands work on a range on commits.
+# - The mechanism works across two commands:
+#   - The user first selects a starting commit.
+#   - Then the user selects an ending commit and is prompted to
+#     choose the action:
+#     - Cherry-pick range, but insist commits not in HEAD history
+#       (i.e., only works if user runs `tig <some-other-branch>`,
+#        use case being user wants to cherry-pick commits from a
+#        separate branch (DUNNO: Is there a use case for picking
+#        commits from the same branch?));
+#     - Move first rev. before or after second rev.; or
+#     - Squash or Fixup first rev. into second rev.
+#   - Note we could instead create multiple bindings, one for each
+#     action, but that's at least 5 commands and we don't have many
+#     available keyboard bindings remaining from which to pick.
+# - Perhaps one day we'll PR tig to highlight the first commit selected,
+#   but for now we'll use a temporary tag to mark the first selection.
+#   - There are emoji racing flags, but not the green starting flag.
+#     - So what's a good, catchy symbol to use?
+#     - Note that tig doesn't show all emoji characters, or at least
+#       that's my experience on Linux Mint 19.3 (which is weird,
+#       because I see these same symbols fine in gVim and bash).
+#     - Looking at the green emojis and flags:
+#         git tag -f "🚩🍏🪴🌱🐲🐉🦕🦚💚🫑🥒🥦🔋📗💵💹🧪♎✅✳️-❇️-🈯🟢-🟩🏁🎌🏴🏳-🏳️"
+#                     ^^^^  ^^^^^^^^  ^^  ^^^^^^^^^^^^  ^^^^^^^^^^     ^^^^^^^^^^^
+#       The ^^-underscored emoji appear in tig,
+#       and any emoji followed by a dash appears only uses a single
+#       character width in tig though the emoji is 2 em, so it bleeds.
+# - I originally thought user could '@' once to mark first commit, then
+#   '@' again to mark second commit. But if we want to use tig's %(prompt),
+#   which tig resolves before running the shell command, we should use a
+#   separate final-commit binding, so the user is not %(prompt)ed on the
+#   first-commit binding.
+#   - Some options I consider:
+#     - Use '@' for first, and <C-@> (with inherent <C-Space> alias) for final.
+#     - Use '(' for first, and ')' for final.
+#     - Or use '[' and ']', and save user two Shift presses.
+
