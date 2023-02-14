@@ -39,7 +39,7 @@ bind main ! >sh -c " \
     fi; \
     local wipped=false; \
     git add -A \
-      && git commit --no-verify -m 'PRIVATE: WIP [tig !]' \
+      && git commit -q --no-verify -m 'PRIVATE: WIP [tig !]' \
       && wipped=true; \
     local bubble_cmd=\"${tnewtons}/bin/git-rebase-bubble-commit\"; \
     echo \"git rebase -i %(commit)^\"; \
