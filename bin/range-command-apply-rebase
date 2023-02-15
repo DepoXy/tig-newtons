@@ -1,0 +1,314 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# ***
+
+two_part_tig_command_rebaser () {
+  local action="$1"
+  local rev_first="$2"
+  local rev_final="$3"
+  local wipped="$4"
+
+  local tnewtons_bin="$(dirname "$0")"
+  local seditor="${tnewtons_bin}/range-seditor-bubble-up"
+
+  # Load TNEWTONS_CRUMB_PATH.
+  . "${tnewtons_bin}/range-command-common.sh"
+
+  local exit_code=0
+
+  case "${action}" in
+    p | P | pick)
+      do_action_pick "${rev_first}" "${rev_final}" "${seditor}" "${wipped}"
+      exit_code=$?
+      ;;
+
+    # *** The next four actions are alike and are handled by one function.
+
+    b | B | before)
+      action="before"
+      # Remember that ;;& means keep testing case conditions.
+      ;;&
+
+    a | A | after)
+      action="after"
+      ;;&
+
+    s | S | squash)
+      action="squash"
+      ;;&
+
+    f | F | fixup)
+      action="fixup"
+      ;;&
+
+    # ***
+
+    # A plain bubble-up is only a single tig command invocation (unlike
+    # the other actions that require user to use two tig commands), but
+    # it uses same sequence editor and tag cleanup, so including here.
+    l | L | latest)
+      do_action_latest "${rev_first}" "${rev_final}" "${seditor}" "${wipped}"
+      exit_code=$?
+      ;;
+
+    # ***
+
+    *)
+      if [ -n "${action}" ]; then
+        do_action_action "${action}" "${rev_first}" "${rev_final}" "${seditor}"
+        exit_code=$?
+      else
+        >&2 echo "ERROR: Unknown action: ${action}"
+
+        false
+      fi
+      ;;
+  esac
+
+  del_command_crumb
+
+  if [ ${exit_code} -ne 0 ]; then
+    >&2 echo
+    >&2 echo "Killing \`tig\` because you got work to do"
+    >&2 echo "  🥩 🥩 chop chop"
+
+    # Cannot redirect stderr to suppress "Killed" message,
+    # which is redundant to what we just said. Oh, well
+    # (I checked StackOverflow and there doesn't seem to
+    #  be a way, not even `exec 2>/dev/null`, oh well).
+    kill -s 9 $(tig_pid)
+
+    return 1  # The tig caller continues to run unabated.
+  fi
+
+  # Clean up tags (using somewhat misnamed function).
+  revision_range_cmd__cancel________________
+
+  return 0
+}
+
+# ***
+
+# Ascertain tig process ID by considering the process hierarcy:
+#   gpid: tig
+#   ppid: tig config shell command
+#   pid: <this command>
+tig_pid () {
+  # Parent process is the tig config shell command,
+  # and its parent is tig.
+  # - Note that many `ps` commands' output "may contain spaces."
+  ps -o ppid= -p ${PPID} | tr -d " "
+}
+
+# ***
+
+add_final_tag () {
+  local commit="$1"
+
+  # SYNC_ME: See final_tag usage throughout tig-newtons.
+  local final_tag="🏁-UNTIL-HERE-🏁--🍏-PPID-$(tig_pid)-🍏"
+
+  git tag -f "${final_tag}" "${commit}"
+}
+
+# ***
+
+set_command_crumb () {
+  local rebase_cmd="$1"
+
+  if [ "${rebase_cmd}" = "before" ] || [ "${rebase_cmd}" = "after" ]; then
+    rebase_cmd="pick"
+  fi
+
+  if [ -e "${TNEWTONS_CRUMB_PATH}" ]; then
+    # DEV: This is in case the cleanup code is lacking.
+    >&2 echo "ERROR: tig-newtons range command already in progress"
+    >&2 echo "- Hint: You could delete the crumb-command: ${TNEWTONS_CRUMB_PATH}"
+    >&2 echo "  - But I bet tig-newtons failed to cleanup properly from before"
+
+    return 1
+  fi
+
+  printf "${rebase_cmd}" > "${TNEWTONS_CRUMB_PATH}"
+}
+
+del_command_crumb () {
+  /bin/rm -f "${TNEWTONS_CRUMB_PATH}"
+}
+
+# SYNC_ME: See same-named function in tig config.
+revision_range_cmd__cancel________________ () {
+  git tag | grep "^[🚩🏁]-.\+-🍏$" | xargs -n 1 -I % git tag -d % > /dev/null
+}
+
+# ***
+
+# Note that cherry-picking, especially from the current branch, might
+# result in no changes, in which case Git will by default stop the
+# rebase and error at you, e.g.,
+#
+#   On branch main
+#   You are currently cherry-picking commit 26edb92.
+#   You are currently cherry-picking commit 26edb92.
+#     (all conflicts fixed: run "git cherry-pick --continue")
+#     (use "git cherry-pick --skip" to skip this patch)
+#     (use "git cherry-pick --abort" to cancel the cherry-pick operation)
+#
+#   nothing to commit, working tree clean
+#   The previous cherry-pick is now empty, possibly due to conflict resolution.
+#   If you wish to commit it anyway, use:
+#
+#       git commit --allow-empty
+#
+#   Otherwise, please use 'git cherry-pick --skip'
+#
+# Which requires `git cherry-pick --skip` or `--abort`.
+#
+# So instead we'll call `git cherry-pick --allow-empty`. Then Git will
+# ignore any no-op picks (despite the possibly misleading option name,
+# "--allow-empty").
+
+do_action_pick () {
+  local rev_first="$1"
+  local rev_final="$2"
+  local seditor="$3"
+  local wipped="$4"
+
+  # Just to be clear.
+  revision_range_cmd__cancel________________
+
+  local rev_range="${rev_first}"
+  if [ "${rev_final}" != "${rev_first}" ]; then
+    # If rev_first later than rev_final, Git fails with a pedantic message:
+    #   $ git cherry-pick HEAD..HEAD^
+    #   error: empty commit set passed
+    #   fatal: cherry-pick failed
+    # We could choose to let Git fail; to fail ourselves (perhaps with a
+    # more instructive message); or we could just assume user knows what
+    # they're doing, which is that they picked a range of commits, and
+    # that we should be smart enought to make it happen.
+    if git merge-base --is-ancestor "${rev_first}" "${rev_final}"; then
+      rev_range="${rev_first}..${rev_final}"
+    else
+      rev_range="${rev_final}..${rev_first}"
+    fi
+  fi
+
+  # After picking, bubble-up WIP, because caller (tig command) pops latest.
+  local rev_wip=""
+  if ${wipped}; then
+    rev_wip="$(git rev-parse HEAD)"
+  fi
+
+  local exit_code=0
+
+  # See note above for why --allow-empty.
+  echo "git cherry-pick --allow-empty ${rev_range}"
+  git cherry-pick --allow-empty ${rev_range}
+  exit_code=$?
+
+  if [ ${exit_code} -eq 0 ] && [ -n "${rev_wip}" ]; then
+    # Clear final_tag, so range-seditor-bubble-up doesn't see it.
+    revision_range_cmd__cancel________________
+
+    GIT_SEQUENCE_EDITOR="${seditor}" \
+      git rebase -i "${rev_wip}^"
+    exit_code=$?
+  fi
+
+  return ${exit_code}
+}
+
+# ***
+
+do_action_action () {
+  local action="$1"
+  local rev_first="$2"
+  local rev_final="$3"
+  local seditor="$4"
+
+  if [ "${rev_first}" = "${rev_final}" ]; then
+    >&2 echo "NO-OP: Cannot '${action}' a commit unto itself"
+    >&2 echo "- Hint: Try selecting two *separate* revisions next time"
+
+    return 1
+  fi
+
+  add_final_tag "${rev_final}"
+
+  local upstream
+  if git merge-base --is-ancestor "${rev_first}" "${rev_final}"; then
+    # Rebase one before rev_first, which we need to move.
+    upstream="${rev_first}^"
+    if [ "${action}" = "before" ]; then
+      # Placing a rev. before another is really just placing it after
+      # the one before.
+      add_final_tag "${rev_final}^"
+    fi
+  else
+    # The rev_final stays put; we put rev_first immediately after.
+    upstream="${rev_final}"
+    add_final_tag "${rev_first}"
+    # Bubble-down, not -up.
+    seditor="$(dirname ${seditor})/range-seditor-bubble-down"
+    # If before target (which is earliest commit), back up one for rebase.
+    # - Also back up for squash or fixup, which needs before commit, too.
+    # - Basically any action other than "after".
+    if [ "${action}" != "after" ]; then
+      upstream="${rev_final}^"
+    fi
+  fi
+
+  set_command_crumb "${action}" || return $?
+
+  # Set rebase.instructionFormat=%H so sequence editor can
+  # more easily grep for the matching final_tag revision.
+  GIT_SEQUENCE_EDITOR="${seditor}" \
+    git -c rebase.instructionFormat=%H \
+      rebase -i "${upstream}"
+}
+
+# ***
+
+# Aka bubble-up-up-up.
+do_action_latest () {
+  local rev_first="$1"
+  local rev_final="$2"
+  local seditor="$3"
+  local wipped="$4"
+
+  # Just to be clear.
+  revision_range_cmd__cancel________________
+
+  # If wipped, move bubble target before it, because tig config
+  # shell command pops latest.
+  if ${wipped}; then
+    add_final_tag "HEAD^"
+  fi
+
+  # Set rebase.instructionFormat=%H so sequence editor can
+  # more easily grep for the matching final_tag revision.
+  GIT_SEQUENCE_EDITOR="${seditor}" \
+    git -c rebase.instructionFormat=%H \
+      rebase -i "${rev_first}^"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  two_part_tig_command_rebaser "$@"
+}
+
+if [ -z "${BASH_SOURCE}" ] || [ "$0" != "${BASH_SOURCE[0]}" ]; then
+  # Though really `tig` runs this script with /bin/sh, so be POSIX.
+  >&2 echo "ERROR: Run this script with bash"
+
+  exit 1
+else
+  main "$@"
+fi
+

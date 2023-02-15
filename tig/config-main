@@ -41,10 +41,10 @@ bind main ! >sh -c " \
     git add -A \
       && git commit -q --no-verify -m 'PRIVATE: WIP [tig !]' \
       && wipped=true; \
-    local bubble_cmd=\"${tnewtons}/bin/git-rebase-bubble-commit\"; \
-    echo \"git rebase -i %(commit)^\"; \
+    local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
     local exit_val; \
-    ${bubble_cmd} \"%(commit)^\" ${wipped}; \
+    echo \"git rebase -i %(commit)^\"; \
+    ${range_cmd} \"latest\" \"%(commit)\" \"\" \"${wipped}\"; \
     exit_val=$?; \
     ${wipped} && git reset --mixed @~1; \
     echo; \
@@ -58,11 +58,8 @@ bind main ! >sh -c " \
 #   - The user first selects a starting commit.
 #   - Then the user selects an ending commit and is prompted to
 #     choose the action:
-#     - Cherry-pick range, but insist commits not in HEAD history
-#       (i.e., only works if user runs `tig <some-other-branch>`,
-#        use case being user wants to cherry-pick commits from a
-#        separate branch (DUNNO: Is there a use case for picking
-#        commits from the same branch?));
+#     - Cherry-pick range (or single commit if user selected same rev
+#       for both first and final);
 #     - Move first rev. before or after second rev.; or
 #     - Squash or Fixup first rev. into second rev.
 #   - Note we could instead create multiple bindings, one for each
@@ -115,10 +112,9 @@ bind main [ >sh -c " \
       >&2 echo; \
       return 1; \
     fi; \
-    local tag_prefix='🚩-START-HERE-🚩'; \
-    local starting_tag=\"${tag_prefix}--🍏-PPID-${PPID}-🍏\"; \
-    git tag | grep \"^${tag_prefix}.*\" | xargs -n 1 -I % git tag -d % > /dev/null; \
-    git tag -f \"${starting_tag}\" \"%(commit)\"; \
+    local first_tag=\"🚩-START-HERE-🚩--🍏-PPID-${PPID}-🍏\"; \
+    git tag | grep \"^[🚩🏁]-.\\+-🍏$\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+    git tag -f \"${first_tag}\" \"%(commit)\"; \
   }; revision_range_cmd__select_first_commit___"
 
 # I'm torn on using %(prompt) or shelling-out and prompting user.
@@ -136,16 +132,15 @@ bind main [ >sh -c " \
 bind main ] >sh -c " \
   revision_range_cmd__select_final_commit___ () { \
     local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [s]quash, or [f]ixup ? )\"; \
-    local tag_prefix='🚩-START-HERE-🚩'; \
-    local starting_tag=\"${tag_prefix}--🍏-PPID-${PPID}-🍏\"; \
-    local second_commit; \
-    second_commit=\"$(git rev-parse \"refs/tags/${starting_tag}\" 2> /dev/null)\"; \
+    local first_tag=\"🚩-START-HERE-🚩--🍏-PPID-${PPID}-🍏\"; \
+    local first_commit; \
+    first_commit=\"$(git rev-parse \"refs/tags/${first_tag}\" 2> /dev/null)\"; \
     if [ $? -ne 0 ]; then \
-      git tag | grep \"^${tag_prefix}.*\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+      git tag | grep \"^[🚩🏁]-.\\+-🍏$\" | xargs -n 1 -I % git tag -d % > /dev/null; \
       >&2 echo \"ERROR: Please set the starting commit first to use this feature\"; \
       >&2 echo \"- Select the starting commit and press '['\"; \
       >&2 echo \"- Next select another commit and press ']'\"; \
-      >&2 echo \"- Bonus: To \\\"cancel\\\", press '{'\"; \
+      >&2 echo \"- Bonus: To \\\"cancel\\\" the command press '{'\"; \
       >&2 echo; \
       return 1; \
     fi; \
@@ -155,13 +150,11 @@ bind main ] >sh -c " \
       && git commit -q --no-verify -m 'PRIVATE: WIP <tig ]>' \
       && wipped=true; \
     local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
-    local range_cmd=\"${tnewtons}/bin/two-part-tig-command-rebaser\"; \
+    local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
     local exit_val; \
-    ${range_cmd} \"${action}\" \"${second_commit}\" \"%(commit)\"; \
+    echo \"git rebase -i %(commit)^\"; \
+    ${range_cmd} \"${action}\" \"${first_commit}\" \"%(commit)\" \"${wipped}\"; \
     exit_val=$?; \
-    if [ ${exit_val} -eq 0 ]; then \
-      git tag | grep \"^${tag_prefix}.*\" | xargs -n 1 -I % git tag -d % > /dev/null; \
-    fi; \
     ${wipped} && git reset --mixed @~1; \
     echo; \
     return ${exit_val}; \
@@ -170,10 +163,9 @@ bind main ] >sh -c " \
 # Might as well have a way to decide not to complete the mission...
 # though not sure Shift-[ is the best binding. But maybe it is?
 bind main { >sh -c " \
-  revision_range_cmd__select_first_commit___ () { \
-    local tag_prefix='🚩-START-HERE-🚩'; \
-    git tag | grep \"^${tag_prefix}.*\" | xargs -n 1 -I % git tag -d % > /dev/null; \
-  }; revision_range_cmd__select_first_commit___"
+  revision_range_cmd__cancel________________ () { \
+    git tag | grep \"^[🚩🏁]-.\\+-🍏$\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+  }; revision_range_cmd__cancel________________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
