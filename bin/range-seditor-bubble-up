@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=bash
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Author: Landon Bouma <https://tallybark.com/>
 # Project: https://github.com/depoxy/tig-newtons#🍎
 # License: MIT. Please find more in the LICENSE file.
 
@@ -12,8 +12,9 @@
 #
 # USETO:
 #
-#   Rebase so the first commit in the range (the ancestor commit)
-#   becomes the latest commit (the new HEAD), or is placed after
+#   Rebase so the first commit or range of commits become the latest
+#   commit(s) (where the last commit in the range is the new HEAD),
+#   or os that the first commit or range of commits is placed after
 #   another commit ahead of it (which is specified by a special
 #   Git tag).
 #
@@ -21,7 +22,7 @@
 #
 #   - The special tag feature only works when called via tig config
 #     shell command (specifically tig-newton's). If called otherwise,
-#     the editor will only move the bubble target to be latest commit.
+#     the editor will only move the oldest commit to be latest commit.
 #
 # REFER:
 #
@@ -34,9 +35,6 @@
 DX_SHOW_TODO=${DX_SHOW_TODO:-false}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# SYNC_ME: The two bubble editors are similar:
-#   meld range-seditor-bubble-down range-seditor-bubble-up &
 
 # Git passes todo path, e.g., /proj/.git/rebase-merge/git-rebase-todo
 range_seditor_bubble_up () {
@@ -55,18 +53,45 @@ range_seditor_bubble_up () {
 
   local rebase_cmd="$(range_command_print_command)"
   local target_match="$(range_command_print_target_match)"
+  # The until_match is unset if only one commit being moved, else
+  # it represents the end of the selected commit range.
+  local until_match="$(range_command_print_until_match)"
 
   # DEV: This'd be your error.
-  [ -z "${rebase_cmd}" ] && >&2 echo "ERROR: What's command?" && exit 1 || true
+  if [ -z "${rebase_cmd}" ]; then
+    >&2 echo "ERROR: DEV: Missing rebase_cmd"
 
-  # Use state to print first commit after target rev.
+    exit 1
+  fi
+
+  # Use arrays and state to print first commit, or a range of commits,
+  # after target rev.
   # - Also discard comment lines, who needs 'em.
   awk -i inplace "
-    BEGIN { state = 0 }
-    state == 0 { first_commit = \$2; state = 1; next; }
-    state == 2 { print \"${rebase_cmd} \" first_commit; state = 3; }
-    \$0 ~ ${target_match} && state == 1 { state = 2; }
-    \$0 ~ /^\$/ && state == 1 { print \"${rebase_cmd} \" first_commit; state = 3; }
+    BEGIN { state = 0; i_range = 0; }
+    state == 0 {
+      range_commits[i_range] = \$2;
+      i_range++;
+      if ((\"${until_match}\" == \"//\") || (\$0 ~ ${until_match})) {
+        state = 1;
+      }
+      next;
+    }
+    state == 2 {
+      for (i_todo = 0; i_todo < i_range; i_todo++) {
+        print \"${rebase_cmd} \" range_commits[i_todo];
+      }
+      state = 3;
+    }
+    \$0 ~ ${target_match} && state == 1 {
+      state = 2;
+    }
+    \$0 ~ /^\$/ && state == 1 {
+      for (i_todo = 0; i_todo < i_range; i_todo++) {
+        print \"${rebase_cmd} \" range_commits[i_todo];
+      }
+      state = 3;
+    }
     \$0 ~ /^\$/ { next; }
     \$0 ~ /^#/ { next; }
     1" ${rebase_todo_path}

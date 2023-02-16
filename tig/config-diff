@@ -1,5 +1,5 @@
 # vim:tw=0:ts=2:sw=2:et:norl:ft=conf
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Author: Landon Bouma <https://tallybark.com/>
 # Project: https://github.com/depoxy/tig-newtons#🍎
 # License: MIT. Please find more in the LICENSE file.
 
@@ -12,44 +12,171 @@
 #
 # Only difference should be 'bind main...' vs. 'bind diff', so commands
 # don't apply to other views (pager, reflog, refs, stage, stash, status),
-# because tig config doesn't support reusing code for multiple commands
-# (alternating, we could immediately shell-out, but I'd rather not).
+# because tig config doesn't support reusing code for multiple commands.
+# - Note we try to shell-out as earlier as possible (to stay as DRY as
+#   possible), but there's still a bit of boilerplate, like verifying
+#   we can locate the shell script.
 #
-# In many case, using 'generic' is fine, if the binding doesn't shadow
-# other view bindings. But there are a few symbols defined only for the
-# special views, e.g., the ! binding is defined separately for multiple
-# views (reflogs, refs, stage, status).
-
-# YOU: Per DepoXy convention (htt
+# Not also that, in many cases, we prefer 'generic' to keep the config
+# simpler, which is fine if the binding doesn't shadow other view bindings.
+# But there are a few symbols defined only for the special views, e.g.,
+# the ! binding is defined separately for multiple views (reflogs, refs,
+# stage, status). It's those latter symbols that force us to use 'main'
+# and 'diff', so we don't clobber their use in other views.
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # SAVVY: If this returns nonzero, tig prints "Press Enter to continue".
-# - Otherwise we could prompt ourselves and return 0, but let's tig it.
+# - Otherwise we could wait-prompt ourselves and return 0, but let's tig it.
 bind diff ! >sh -c " \
   git_upraise_revision______________________ () { \
-    echo; \
     local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
-      >&2 echo \"ERROR: Please install tig-newtons to\"; \
+      >&2 echo; \
+      >&2 echo \"ERROR: To use this feature, please install tig-newtons to:\"; \
       >&2 echo \"  ${tnewtons}\"; \
       >&2 echo \"Or use the TIGNEWTONSPATH environ.\"; \
       >&2 echo; \
       return 1; \
     fi; \
-    local wipped=false; \
-    git add -A \
-      && git commit -q --no-verify -m 'PRIVATE: WIP [tig !]' \
-      && wipped=true; \
-    local bubble_cmd=\"${tnewtons}/bin/git-rebase-bubble-commit\"; \
-    echo \"git rebase -i %(commit)^\"; \
-    local exit_val; \
-    ${bubble_cmd} \"%(commit)^\" ${wipped}; \
-    exit_val=$?; \
-    ${wipped} && git reset --mixed @~1; \
-    echo; \
-    return ${exit_val}; \
+    \
+    local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
+    ${range_cmd} \"latest\" \"%(branch)\" \"%(commit)\"; \
   }; git_upraise_revision______________________"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# The following commands work on a range on commits.
+#
+# - The mechanism works across two or three commands:
+#
+#   - The user first selects and marks a commit with a special tag.
+#     - This will either be one end of a range, or it'll be a single
+#       commit the user wants to act upon.
+#   - The user may then optionally select another commit to mark the
+#     other end of the range, if they want to act on a range of commits
+#     as opposed to just one.
+#   - Finally, the use selects a target commit and chooses an action:
+#     - Cherry-pick first rev. or range to latest;
+#     - Move first rev. or range before or after target rev.; or
+#     - Squash or Fixup first rev. or range into target rev.
+#   - Note that user cannot move, squash, or fixup commits if viewing
+#     a branch other than the current branch (and similarly, while you
+#     can cherry-pick from the current branch, the more popular use case
+#     is cherry-picking from a different branch into the current branch).
+#   - Note we could instead create multiple bindings, one for each
+#     action, but that's at least 5 commands, and we don't have many
+#     available keyboard bindings remaining from which to pick. So when
+#     the user selects the target commit, we'll prompt them for the action.
+#
+# - Note using `+sh` vs. `>sh`:
+#   - The 'main' view updates immediately on `bind main [ >sh ...`,
+#     but it doesn't update on `bind main [ +sh ...`. But it's
+#     the latter that lets us echo to the status line. Phooey.
+#   - I tested each refresh-mode, including periodic, and only
+#     `refresh-mode = after-command` with `>sh` causes refresh.
+#   - It'd be nice to print a status message, e.g.,
+#       echo \"Now select a later commit and press ']'...\";
+#     but, oh well, nothing we can't solve in post!:
+#     - MAYBE/2023-02-13: Another tig PR idea: Refresh view on '+sh';
+#       or maybe it's that 'periodic' or 'auto' only check if commit
+#       history changed, but don't monitor tags.
+#       - For now, prefer >sh over +sh so 'main' refreshes and shows
+#         tag changes.
+
+# ***
+
+# Note: Cannot print URL with anchor link:
+#   https://github.com/DepoXy/tig-newtons#setup
+# Because tig replies "No output" when you try to run the function
+# (an educated guesser might assume tig doesn't allow comment
+#  characters in inline shell code).
+# - I tried `echo -e` but tig echoes the '-e', oddly, e.g.,
+#     echo -e \"https://github.com/DepoXy/tig-newtons\\x23setup\";
+#   Prints to status:
+#     -e https://github.com/DepoXy/tig-newtons\x23setup
+# - Nor does `printf \"\\x23\"` work (prints '\x23').
+# - However, Bash'ing out works fine (`/bin/bash -c ...`).
+
+bind diff [ >sh -c " \
+  revision_range_cmd__select_first_commit___ () { \
+    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    if [ ! -d \"${tnewtons}\" ]; then \
+      local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
+      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
+      return 1; \
+    fi; \
+    \
+    local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
+    ${range_cmd} \"mark_first\" \"%(branch)\" \"%(commit)\"; \
+  }; revision_range_cmd__select_first_commit___"
+
+bind diff ] >sh -c " \
+  revision_range_cmd__select_final_commit___ () { \
+    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    if [ ! -d \"${tnewtons}\" ]; then \
+      local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
+      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
+      return 1; \
+    fi; \
+    \
+    local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
+    ${range_cmd} \"mark_final\" \"%(branch)\" \"%(commit)\"; \
+  }; revision_range_cmd__select_final_commit___"
+
+# ***
+
+# MAYBE: Should '{' clear start_tag(s), and '}' clear until_tag(s)?
+#        Or should just '{' (and/or '}') clear all tags?
+#        - For now, '{' clears all tags, but this might change.
+
+# SYNC_ME: See same-named function in range-command-apply-rebase.
+bind diff { >sh -c " \
+  tags_delete_range_tags____________________ () { \
+    git tag | grep \"^[🚩🏁]-.\\+-🍏$\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+  }; tags_delete_range_tags____________________"
+
+# ***
+
+# Notes on %(prompt) usage:
+# - While %(prompt) is nice because you can interact with user within tig,
+#   it has some limitations:
+#   - The %(prompt) resolves before the shell code runs, so there's a chance
+#     user didn't set start_tag or until_tag, and we'll prompt and then fail.
+#   - If we shelled-out to prompt, we could `read -n 1` and save user an Enter.
+# - We'll try %(prompt) for now and see how it goes.
+#   - For successful rebases, tig will momentarily shell-out to show rebase
+#     output, but no further interaction will be necessary, so user will be
+#     quickly returned to tig. This seems like smoother UX than shelling-out
+#     to prompt user, then returning to tig.
+
+# Note we use >sh and not +sh because user will need to review git-rebase
+# output if there's a conflict.
+
+bind diff \ >sh -c " \
+  revision_range_cmd__apply_range_action____ () { \
+    local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [s]quash, or [f]ixup ? )\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    if [ ! -d \"${tnewtons}\" ]; then \
+      local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
+      >&2 echo \"ERROR: To use this feature, please install tig-newtons to:\"; \
+      >&2 echo \"  ${tnewtons}\"; \
+      >&2 echo \"Or use the TIGNEWTONSPATH environ.\"; \
+      >&2 echo; \
+      /bin/bash -c \">&2 echo -e '- Hint: Read the README — ${readme_url}'\"; \
+      >&2 echo; \
+      return 1; \
+    fi; \
+    \
+    local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
+    ${range_cmd} \"${action}\" \"%(branch)\" \"%(commit)\"; \
+  }; revision_range_cmd__apply_range_action____"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# FIXME/2023-02-13 16:46: Add 'undo-rebase' command.
+# - Can I use reflog and find previous HEAD?
+# - Or you could record HEAD (after WIPing) to .git/.tignewtons-foo
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 

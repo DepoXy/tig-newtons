@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=bash
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Author: Landon Bouma <https://tallybark.com/>
 # Project: https://github.com/depoxy/tig-newtons#🍎
 # License: MIT. Please find more in the LICENSE file.
 
@@ -9,9 +9,6 @@
 DX_SHOW_TODO=${DX_SHOW_TODO:-false}
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# SYNC_ME: The two bubble editors are similar:
-#   meld range-seditor-bubble-down range-seditor-bubble-up &
 
 # Git passes todo path, e.g., /proj/.git/rebase-merge/git-rebase-todo
 range_seditor_bubble_down () {
@@ -22,35 +19,85 @@ range_seditor_bubble_down () {
   # So do that now.
   echo
 
-  # Load `range_command_print_target_match`, `print_todo_maybe`.
+  # Load `range_command_print_start_match`, `print_todo_maybe`, etc.
   local tnewtons_bin="$(dirname "$0")"
   . "${tnewtons_bin}/range-command-common.sh"
 
   print_todo_maybe "${rebase_todo_path}" "before"
 
+  # Get the rebase command that our tig shell command stashed in
+  # the TNEWTONS_CRUMB_PATH=".git/tig-newtons-range-command" file.
   local rebase_cmd="$(range_command_print_command)"
-  local target_rev="$(range_command_print_target_object)"
-  local target_match="$(range_command_print_target_match)"
+  # Get the range tag commit grep strings (which may be same if
+  # only one commit selected -- i.e., the chosen_rev).
+  local start_match="$(range_command_print_start_match)"
+  local until_match="$(range_command_print_until_match)"
 
-  # DEV: This'd be your error.
-  [ -z "${rebase_cmd}" ] && >&2 echo "ERROR: What's command?" && exit 1 || true
+  # DEV: These'd be your error.
+  if false \
+    || [ -z "${rebase_cmd}" ] \
+    || [ -z "${start_match}" ] \
+    || [ "${start_match}" = "//" ] \
+    || [ -z "${until_match}" ] \
+    || [ "${until_match}" = "//" ] \
+  ; then
+    >&2 echo "ERROR: DEV: Missing one or more of:"
+    >&2 echo "- rebase_cmd: ${rebase_cmd}"
+    >&2 echo "- start_match: ${start_match}"
+    >&2 echo "- until_match: ${until_match}"
 
-  # If 'squash' or 'fixup', caller included previous commit that
-  # we need to 'squash' or 'fixup' into, in which case target_rev
-  # gets placed second, not first.
+    exit 1
+  fi
+
+  # If 'squash' or 'fixup', caller included previous commit that we
+  # need to 'squash' or 'fixup' into, in which case range_commits
+  # get placed second, not first.
   local is_first=1
   if [ "${rebase_cmd}" = "squash" ] || [ "${rebase_cmd}" = "fixup" ]; then
     is_first=0
   fi
 
-  # Use state to print target_rev commit first.
+  # Use arrays and state to print range_commits commits first.
   # - Also discard comment lines, who needs 'em.
+  # - Note using `print` from END sends output to terminal (stdout),
+  #   not to the inplace file; so use ENDFILE instead.
   awk -i inplace "
-    BEGIN { state = 0 }
-    state == 0 && ( ${is_first} || FNR == 2 ) { print \"${rebase_cmd} ${target_rev}\"; state = 1; }
-    \$0 ~ ${target_match} { next; }
+    BEGIN { state = 0; i_range = 0; i_other = 0; }
     \$0 ~ /^\$/ { next; }
     \$0 ~ /^#/ { next; }
+    state == 0 {
+      if (${is_first} || FNR >= 2) {
+        if (\$0 ~ ${start_match}) {
+          state = 1;
+        }
+        else {
+          other_commits[i_other] = \$2;
+          i_other++;
+          next;
+        }
+      }
+    }
+    state == 1 {
+      range_commits[i_range] = \$2;
+      i_range++;
+      if (\$0 ~ ${until_match}) {
+        state = 2;
+      }
+      next;
+    }
+    state == 2 {
+      other_commits[i_other] = \$2;
+      i_other++;
+      next;
+    }
+    ENDFILE {
+      for (i_todo = 0; i_todo < i_range; i_todo++) {
+        print \"${rebase_cmd} \" range_commits[i_todo];
+      }
+      for (i_todo = 0; i_todo < i_other; i_todo++) {
+        print \"pick \" other_commits[i_todo];
+      }
+    }
     1" ${rebase_todo_path}
 
   print_todo_maybe "${rebase_todo_path}" "after"

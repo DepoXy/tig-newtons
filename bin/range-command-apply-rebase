@@ -1,121 +1,185 @@
 #!/usr/bin/env bash
 # vim:tw=0:ts=2:sw=2:et:norl:ft=bash
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Author: Landon Bouma <https://tallybark.com/>
 # Project: https://github.com/depoxy/tig-newtons#🍎
 # License: MIT. Please find more in the LICENSE file.
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-two_part_tig_command_rebaser () {
-  local action="$1"
-  local rev_first="$2"
-  local rev_final="$3"
-  local wipped="$4"
-
+source_deps () {
   local tnewtons_bin="$(dirname "$0")"
-  local seditor="${tnewtons_bin}/range-seditor-bubble-up"
 
-  # Load TNEWTONS_CRUMB_PATH.
+  # Load TNEWTONS_CRUMB_PATH, range_command_print_until_tag, etc.
   . "${tnewtons_bin}/range-command-common.sh"
 
+  # *** Override tig_pid from common.sh (which assumes run from
+  #     sequence-editor)
+
+  # Ascertain tig process ID by considering the process hierarcy:
+  #   gpid: tig
+  #   ppid: tig config shell command
+  #   pid: <this command>
+  tig_pid () {
+    # Parent process is the tig config shell command,
+    # and its parent is tig.
+    # - Note that many `ps` commands' output "may contain spaces."
+    ps -o ppid= -p ${PPID} | tr -d " "
+  }
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+range_command_muxxer () {
+  local action="$1"
+  local branch="$2"
+  local commit="$3"
+
   local exit_code=0
+  local delay_tig_return=false
 
-  case "${action}" in
-    p | P | pick)
-      do_action_pick "${rev_first}" "${rev_final}" "${seditor}" "${wipped}"
-      exit_code=$?
-      ;;
+  local wipped=$(make_wip_commit_if_untidy)
 
-    # *** The next four actions are alike and are handled by one function.
+  # The first two commands are used to mark a revision range,
+  # before the user chooses what action to perform on them.
+  if [ "${action}" = "mark_first" ]; then
+    do_mark_first "${branch}" "${commit}"
+  elif [ "${action}" = "mark_final" ]; then
+    do_mark_final "${branch}" "${commit}"
+    [ $? -eq 0 ] || delay_tig_return=true
+  else
+    # User pressed apply-action ('\'), so check that one or
+    # two revisions are marked, otherwise they missed a step.
+    if [ "${action}" != "latest" ] \
+      && ! insist_marked_select_rev_or_range_revs \
+    ; then
+      delay_tig_return=true
+    else
+      # At this point, we've verified one revision, or a range (indicated
+      # by two revisions), is marked, so proceed with the action.
 
-    b | B | before)
-      action="before"
-      # Remember that ;;& means keep testing case conditions.
-      ;;&
+      # First, normalize the ${action}, which is what user answered
+      # when %(prompt)'ed.
+      case "${action}" in
+        b | B | before | move_before)
+          action="before"
+          ;;
 
-    a | A | after)
-      action="after"
-      ;;&
+        a | A | after | move_after)
+          action="after"
+          ;;
 
-    s | S | squash)
-      action="squash"
-      ;;&
+        s | S | squash | move_after_then_squash)
+          action="squash"
+          ;;
 
-    f | F | fixup)
-      action="fixup"
-      ;;&
+        f | F | fixup | move_after_then_fixup)
+          action="fixup"
+          ;;
 
-    # ***
+        latest)
+          ;;
 
-    # A plain bubble-up is only a single tig command invocation (unlike
-    # the other actions that require user to use two tig commands), but
-    # it uses same sequence editor and tag cleanup, so including here.
-    l | L | latest)
-      do_action_latest "${rev_first}" "${rev_final}" "${seditor}" "${wipped}"
-      exit_code=$?
-      ;;
+        *)
+          >&2 echo "ERROR: Unknown action: ${action}"
+          delay_tig_return=true
+          action=""
+          ;;
+      esac
+ 
+      local tnewtons_bin="$(dirname "$0")"
+      local seditor_up="${tnewtons_bin}/range-seditor-bubble-up"
 
-    # ***
-
-    *)
-      if [ -n "${action}" ]; then
-        do_action_action "${action}" "${rev_first}" "${rev_final}" "${seditor}"
+      if [ "${action}" = "pick" ]; then
+        # Pick always applies to HEAD, so ignore "${commit}" (perhaps
+        # not the best UX, but lets us combine all the rebase actions
+        # into one ('\') command (alternatively, we could make pick
+        # its own command, so user does not conflate needing to pick a
+        # target_rev to use '\' if they just want to pick, but whatever,
+        # I like having the rebase commands grouped as one)).
+        do_action_pick "${seditor_up}" "${wipped}"
         exit_code=$?
-      else
-        >&2 echo "ERROR: Unknown action: ${action}"
-
-        false
+      elif [ -n "${action}" ]; then
+        # The remaining actions only work on current branch.
+        if ! insist_tig_branch_is_current_branch "${branch}" "${action}"; then
+          delay_tig_return=true
+        elif [ "${action}" = "latest" ]; then
+          # A plain bubble-up is only a single tig command invocation (unlike
+          # the other actions that require user to use two tig commands), but
+          # it uses same sequence editor and tag cleanup, so including here.
+          # - Note like do_action_pick, ignore "${commit}" (aka target_rev).
+          do_action_latest "${commit}" "${seditor_up}" "${wipped}"
+          exit_code=$?
+        else
+          do_action_action "${action}" "${commit}" "${seditor_up}"
+          exit_code=$?
+        fi
       fi
-      ;;
-  esac
+    fi
+  fi
 
   del_command_crumb
 
   if [ ${exit_code} -ne 0 ]; then
-    >&2 echo
-    >&2 echo "Killing \`tig\` because you got work to do"
-    >&2 echo "  🥩 🥩 chop chop"
+    kill_tig
 
-    # Cannot redirect stderr to suppress "Killed" message,
-    # which is redundant to what we just said. Oh, well
-    # (I checked StackOverflow and there doesn't seem to
-    #  be a way, not even `exec 2>/dev/null`, oh well).
-    kill -s 9 $(tig_pid)
-
-    return 1  # The tig caller continues to run unabated.
+    # Note the tig caller still finishes, despite tig being dead.
+    return 1
   fi
 
-  # Clean up tags (using somewhat misnamed function).
-  revision_range_cmd__cancel________________
+  pop_wip_commit_if_wipped ${wipped}
 
-  return 0
+  if ! ${delay_tig_return} \
+    && [ "${action}" != "mark_first" ] \
+    && [ "${action}" != "mark_final" ] \
+  ; then
+    # Clean up tags (using somewhat misnamed function).
+    tags_delete_range_tags____________________
+
+    echo
+  fi
+
+  ${delay_tig_return} && return 1 || return 0
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Even using --quiet, Git still blabby if nothing staged:
+#   On branch release
+#   nothing to commit, working tree clean
+# So throwing in a staged diff check.
+make_wip_commit_if_untidy () {
+  local wipped=false
+
+  git add -A \
+    && [ -n "$(git --no-pager diff --cached --shortstat)" ] \
+    && git commit -q --no-verify -m "PRIVATE: WIP [tig ${action}]" \
+    && wipped=true
+
+  printf "%s" "${wipped}"
+}
+
+pop_wip_commit_if_wipped () {
+  local wipped="$1"
+
+  ${wipped} && git reset --mixed @~1
 }
 
 # ***
 
-# Ascertain tig process ID by considering the process hierarcy:
-#   gpid: tig
-#   ppid: tig config shell command
-#   pid: <this command>
-tig_pid () {
-  # Parent process is the tig config shell command,
-  # and its parent is tig.
-  # - Note that many `ps` commands' output "may contain spaces."
-  ps -o ppid= -p ${PPID} | tr -d " "
+kill_tig () {
+  >&2 echo
+  >&2 echo "Killing \`tig\` because you got work to do"
+  >&2 echo "  🥩 🥩 chop chop"
+  >&2 echo
+
+  # Cannot redirect stderr to suppress "Killed" message,
+  # which is redundant to what we just said. Oh, well
+  # (I checked StackOverflow and there doesn't seem to
+  #  be a way, not even `exec 2>/dev/null`, oh well).
+  kill -s 9 $(tig_pid)
 }
 
-# ***
-
-add_final_tag () {
-  local commit="$1"
-
-  # SYNC_ME: See final_tag usage throughout tig-newtons.
-  local final_tag="🏁-UNTIL-HERE-🏁--🍏-PPID-$(tig_pid)-🍏"
-
-  git tag -f "${final_tag}" "${commit}"
-}
-
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 set_command_crumb () {
   local rebase_cmd="$1"
@@ -136,16 +200,176 @@ set_command_crumb () {
   printf "${rebase_cmd}" > "${TNEWTONS_CRUMB_PATH}"
 }
 
+# ***
+
 del_command_crumb () {
   /bin/rm -f "${TNEWTONS_CRUMB_PATH}"
 }
 
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+make_chosen_tag () {
+  local commit="$1"
+
+  local chosen_tag="$(range_command_print_chosen_tag)"
+
+  git tag -f "${chosen_tag}" "${commit}"
+}
+
+make_start_tag () {
+  local commit="$1"
+
+  local start_tag="$(range_command_print_start_tag)"
+
+  git tag -f "${start_tag}" "${commit}"
+}
+
+make_until_tag () {
+  local commit="$1"
+
+  local until_tag="$(range_command_print_until_tag)"
+
+  git tag -f "${until_tag}" "${commit}"
+}
+
+make_target_tag () {
+  local commit="$1"
+
+  local target_tag="$(range_command_print_target_tag)"
+
+  git tag -f "${target_tag}" "${commit}"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 # SYNC_ME: See same-named function in tig config.
-revision_range_cmd__cancel________________ () {
-  git tag | grep "^[🚩🏁]-.\+-🍏$" | xargs -n 1 -I % git tag -d % > /dev/null
+tags_delete_range_tags____________________ () {
+  local first_char="${1:-[🚩🏁]}"
+
+  git tag | grep "^${first_char}-.\+-🍏$" | xargs -n 1 -I % git tag -d % > /dev/null
+}
+
+tags_delete_tags () {
+  tags_delete_range_tags____________________ "[🚩🏁]"
+}
+
+tags_delete_start_tags () {
+  tags_delete_range_tags____________________ "🚩"
+}
+
+tags_delete_until_tags () {
+  tags_delete_range_tags____________________ "🏁"
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Keep tag states simple.
+# - When nothing tagged, the first tag is always the solo chosen_tag.
+#   - The user can pick an action on just the one chosen_tag commit,
+#     as opposed to setting another tag to mark a range of commits.
+# - When the chosen_tag is set, marking another commit replaces
+#   chosen_tag with start_tag and until_tag, marking a commit range.
+# - Once both start_tag and until_tag are set, we could disallow the
+#   user from moving or changing either range tag. Or we could try our
+#   best to oblige; the user can always reset the chosen_tag to begin
+#   marking the range again.
+#   - So we'll move tags as best we can if user retags the range, but
+#     it won't be the best UX (e.g., start_tag can only be moved to
+#     an earlier commit; if user wants later start_tag, they'll have
+#     to use '[' to start over with chosen_tag).
+
+# ***
+
+do_mark_first () {
+  local branch="$1"
+  local commit="$2"
+
+  tags_delete_tags
+
+  make_chosen_tag "${commit}"
 }
 
 # ***
+
+do_mark_final () {
+  local branch="$1"
+  local commit="$2"
+
+  local chosen_rev="$(range_command_print_chosen_rev)"
+  local start_rev="$(range_command_print_start_rev)"
+  local until_rev="$(range_command_print_until_rev)"
+
+  tags_delete_tags
+
+  if [ -n "${chosen_rev}" ]; then
+    if [ "${chosen_rev}" = "${commit}" ]; then
+      # User selected same commit, so leave unchanged.
+      make_chosen_tag "${commit}"
+    elif git merge-base --is-ancestor "${chosen_rev}" "${commit}"; then
+      make_start_tag "${chosen_rev}"
+      make_until_tag "${commit}"
+    else
+      make_start_tag "${commit}"
+      make_until_tag "${chosen_rev}"
+    fi
+  elif [ -n "${start_rev}" ] && [ -n "${until_rev}" ]; then
+    if [ "${start_rev}" = "${commit}" ]; then
+      # Similar to picking same chosen_rev, reduce range to single selection.
+      make_chosen_tag "${commit}"
+    elif git merge-base --is-ancestor "${commit}" "${start_rev}"; then
+      make_start_tag "${commit}"
+      # This is a fudgy decision: Do we keep start_rev, or until_rev?
+      # - User can always set until_rev again (again), so might as well
+      #   keep the larger range, and then user can adjust if they want.
+      make_until_tag "${start_rev}"
+    else
+      make_start_tag "${start_rev}"
+      make_until_tag "${commit}"
+    fi
+  else
+    # Nothing marked, so mark first. (This is a shortcut, in a sense, that
+    # lets user use ']' to mark a single commit, or two use ']' twice to
+    # mark a range, as opposed to using '[', or '[' and then ']'. But we
+    # still want '[' (or at least '{') so user can remark (or delete) the
+    # range tags. (Essentially, we could drop the '[' command (mark_first)
+    # and get by with just ']' (mark_final) and '{' (delete_range_tags);
+    # which maybe we'll do someday (then we only need to consume two of
+    # the limited stock of precious keybindings), but for now, I like the
+    # mnemonic of '[' and ']' being used to mark a [start, until] range.
+    # (If we did remove mark_first, perhaps '[' becomes reset-range (to
+    # delete tags), and ']' remains mark-range... we could even combine
+    # '\' apply-action with ']' command, but then we wouldn't want to
+    # use tig's %(prompt) command but would need to prompt from the
+    # terminal, which I don't find as elegant as prompting via tig's
+    # status window, but wouldn't be too terrible, either.)) /ramble)
+    make_chosen_tag "${commit}"
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+insist_marked_select_rev_or_range_revs () {
+  local chosen_rev="$(range_command_print_chosen_rev)"
+  local start_rev="$(range_command_print_start_rev)"
+  local until_rev="$(range_command_print_until_rev)"
+
+  if true \
+    && [ -z "${chosen_rev}" ] \
+    && [ -z "${start_rev}" ] \
+    && [ -z "${until_rev}" ] \
+  ; then
+    >&2 echo "ERROR: Please select a single commit or commit range to use this feature"
+    >&2 echo "- First select a revision and press '[' to mark it"
+    >&2 echo "- If you want to act on a range use ']' to mark the other range boundary"
+    >&2 echo "- To act on the single revision, or on the range you marked,"
+    >&2 echo "  select a target commit, and press '\' to choose the action"
+    >&2 echo "- To cancel (and delete tags) press '{'"
+
+    return 1
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Note that cherry-picking, especially from the current branch, might
 # result in no changes, in which case Git will by default stop the
@@ -173,28 +397,46 @@ revision_range_cmd__cancel________________ () {
 # "--allow-empty").
 
 do_action_pick () {
-  local rev_first="$1"
-  local rev_final="$2"
-  local seditor="$3"
-  local wipped="$4"
+  local seditor_up="$1"
+  local wipped="$2"
 
-  # Just to be clear.
-  revision_range_cmd__cancel________________
+  local chosen_rev="$(range_command_print_chosen_rev)"
+  local start_rev="$(range_command_print_start_rev)"
+  local until_rev="$(range_command_print_until_rev)"
 
-  local rev_range="${rev_first}"
-  if [ "${rev_final}" != "${rev_first}" ]; then
-    # If rev_first later than rev_final, Git fails with a pedantic message:
-    #   $ git cherry-pick HEAD..HEAD^
-    #   error: empty commit set passed
-    #   fatal: cherry-pick failed
-    # We could choose to let Git fail; to fail ourselves (perhaps with a
-    # more instructive message); or we could just assume user knows what
-    # they're doing, which is that they picked a range of commits, and
-    # that we should be smart enought to make it happen.
-    if git merge-base --is-ancestor "${rev_first}" "${rev_final}"; then
-      rev_range="${rev_first}..${rev_final}"
+  # Ideally, if rebase fails (and user cancels), it'd be nice to
+  # leave their tags. But our tags are annotated with the tig pid,
+  # so they're useless if git-cherry-pick or git-rebase fails.
+  # - So guessing we might as well preemptively cleanup.
+  tags_delete_range_tags____________________
+
+  local rev_range="${chosen_rev}"
+  if [ -z "${chosen_rev}" ]; then
+    # Design-by-contract: Check earlier ran as expected.
+    if [ "${start_rev}" = "${until_rev}" ]; then
+      # Dead path; or DEV error.
+      >&2 echo "ERROR: Unexpected code path: start_rev same as until_rev"
+      rev_range="${start_rev}"
+    elif ! git merge-base --is-ancestor "${start_rev}" "${until_rev}"; then
+      # Dead path; or DEV error.
+      # - Note that do_mark_final orders start_rev and until_rev
+      #   chronologically, but if it didn't we'd want to do that
+      #   here.
+      #   - Otherwise, if start_rev later than until_rev, Git fails
+      #     with a pedantic message:
+      #       $ git cherry-pick HEAD..HEAD^
+      #       error: empty commit set passed
+      #       fatal: cherry-pick failed
+      #     We could choose to let Git fail; to fail ourselves (perhaps
+      #     with a more instructive message); or we could just assume
+      #     user knows what they're doing, which is that they picked a
+      #     range of commits, and that we should be smart enought to make
+      #     it happen.
+      >&2 echo "ERROR: Unexpected code path: until_rev precedes start_rev"
+      rev_range="${until_rev}..${start_rev}"
     else
-      rev_range="${rev_final}..${rev_first}"
+      # This is (should be) only reachable path of this if-elif-else block.
+      rev_range="${start_rev}..${until_rev}"
     fi
   fi
 
@@ -212,10 +454,7 @@ do_action_pick () {
   exit_code=$?
 
   if [ ${exit_code} -eq 0 ] && [ -n "${rev_wip}" ]; then
-    # Clear final_tag, so range-seditor-bubble-up doesn't see it.
-    revision_range_cmd__cancel________________
-
-    GIT_SEQUENCE_EDITOR="${seditor}" \
+    GIT_SEQUENCE_EDITOR="${seditor_up}" \
       git rebase -i "${rev_wip}^"
     exit_code=$?
   fi
@@ -223,84 +462,164 @@ do_action_pick () {
   return ${exit_code}
 }
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-do_action_action () {
-  local action="$1"
-  local rev_first="$2"
-  local rev_final="$3"
-  local seditor="$4"
+# TIGPR: Here's another tig PR: tig doesn't always indicate the branch
+# when it's the current branch.
+# - E.g., put this in your tig config:
+#     bind main \ +sh -c "echo \"Branch: %(branch)\"";
+#   And then run `tig` and press '\' on different commits.
+#   - You'll probably see the branch name echoed on the HEAD commit,
+#     but if you select older commits, tig's %(branch) is sometimes
+#     just the empty string.
+#   - I have not checked tig's source to understand why...
+#     - But I'm assuming an empty %(branch) string means it's the
+#       current branch, because I don't see %(branch) ever empty when
+#       tigging another branch, e.g., `tig some-other-branch`.
 
-  if [ "${rev_first}" = "${rev_final}" ]; then
-    >&2 echo "NO-OP: Cannot '${action}' a commit unto itself"
-    >&2 echo "- Hint: Try selecting two *separate* revisions next time"
+insist_tig_branch_is_current_branch () {
+  local branch="$1"
+  local action="$2"
+
+  if [ -n "${branch}" ] && [ "${branch}" != "$(git_branch_name_full)" ]; then
+    >&2 echo "ERROR: The '${action}' action is only permitted on the current branch."
+    >&2 echo "- You may only cherry-pick commits from a different branch."
+    >&2 echo
 
     return 1
   fi
+}
 
-  add_final_tag "${rev_final}"
+git_branch_name_full () {
+  git rev-parse --symbolic-full-name HEAD \
+    | sed 's#^refs/heads/##'
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+do_action_action () {
+  local action="$1"
+  local target_rev="$2"
+  local seditor_up="$3"
+
+  local chosen_rev="$(range_command_print_chosen_rev)"
+  local start_rev="$(range_command_print_start_rev)"
+  local until_rev="$(range_command_print_until_rev)"
+
+  local rev_first
+  local rev_final
+
+  if [ -n "${chosen_rev}" ]; then
+    if [ "${chosen_rev}" = "${target_rev}" ]; then
+      >&2 echo "NO-OP: Cannot '${action}' a commit unto itself"
+      >&2 echo "- Hint: Try selecting a different target revision next time"
+
+      return 1
+    fi
+    rev_first="${chosen_rev}"
+    rev_final="${chosen_rev}"
+  else
+    # Verify the target_rev is outside the range.
+    # - Note that a commit --is-ancestor of itself.
+    if git merge-base --is-ancestor "${start_rev}" "${target_rev}" \
+      && git merge-base --is-ancestor "${target_rev}" "${until_rev}" \
+    ; then
+      >&2 echo "NO-OP: Cannot '${action}' a range unto itself"
+      >&2 echo "- Hint: Try selecting a target outside the range next time"
+
+      return 1
+    fi
+    rev_first="${start_rev}"
+    rev_final="${until_rev}"
+  fi
+
+  local seditor="${seditor_up}"
 
   local upstream
-  if git merge-base --is-ancestor "${rev_first}" "${rev_final}"; then
-    # Rebase one before rev_first, which we need to move.
+  if git merge-base --is-ancestor "${rev_first}" "${target_rev}"; then
+    # Start rebase one before rev_first, which we need to move.
     upstream="${rev_first}^"
     if [ "${action}" = "before" ]; then
       # Placing a rev. before another is really just placing it after
       # the one before.
-      add_final_tag "${rev_final}^"
+      make_target_tag "${target_rev}^"
+    else
+      make_target_tag "${target_rev}"
     fi
   else
-    # The rev_final stays put; we put rev_first immediately after.
-    upstream="${rev_final}"
-    add_final_tag "${rev_first}"
     # Bubble-down, not -up.
-    seditor="$(dirname ${seditor})/range-seditor-bubble-down"
+    seditor="$(dirname ${seditor_up})/range-seditor-bubble-down"
     # If before target (which is earliest commit), back up one for rebase.
     # - Also back up for squash or fixup, which needs before commit, too.
     # - Basically any action other than "after".
-    if [ "${action}" != "after" ]; then
-      upstream="${rev_final}^"
+    if [ "${action}" = "after" ]; then
+      # The target_rev stays put; we put rev_first immediately after.
+      upstream="${target_rev}"
+    else
+      # The target_rev stays put; but we need to squash/fixup into it,
+      # or action is 'before' so we need preceding revision.
+      upstream="${target_rev}^"
     fi
   fi
 
   set_command_crumb "${action}" || return $?
 
+  editor=""
+  if ${TN_OPTION_EDITOR_VIM:-false}; then
+    editor="EDITOR=\"$(dirname ${seditor_up})/editor-vim-0-0-insert-minimal\""
+  fi
+
   # Set rebase.instructionFormat=%H so sequence editor can
-  # more easily grep for the matching final_tag revision.
-  GIT_SEQUENCE_EDITOR="${seditor}" \
+  # more easily grep for the matching until_tag revision.
+  # - Use eval, otherwise Bash tries to execute ${editor} (and
+  #   we cannot EDITOR="" lest "error: unable to start editor '').
+  eval "GIT_SEQUENCE_EDITOR=\"${seditor}\" \
+    ${editor} \
     git -c rebase.instructionFormat=%H \
-      rebase -i "${upstream}"
+      rebase -i \"${upstream}\"
+  "
 }
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# MAYBE: This is just the '!' command so far,
+#        but we can make this work on a range.
+#        - Or user could mark range, select HEAD,
+#          and use the 'after' command.
+#          - So not like this isn't supported.
 
 # Aka bubble-up-up-up.
 do_action_latest () {
-  local rev_first="$1"
-  local rev_final="$2"
-  local seditor="$3"
-  local wipped="$4"
+  local commit="$1"
+  local seditor_up="$2"
+  local wipped="$3"
 
-  # Just to be clear.
-  revision_range_cmd__cancel________________
+  # Just to be clear that this operation doesn't use the special
+  # chosen_tag tag, or the start_tag and until_tag tags.
+  tags_delete_range_tags____________________
 
   # If wipped, move bubble target before it, because tig config
   # shell command pops latest.
   if ${wipped}; then
-    add_final_tag "HEAD^"
+    make_target_tag "HEAD^"
   fi
 
+  echo "GIT_SEQUENCE_EDITOR=$(basename "${seditor_up}") \\"
+  echo "  git rebase -i ${commit}^"
+
   # Set rebase.instructionFormat=%H so sequence editor can
-  # more easily grep for the matching final_tag revision.
-  GIT_SEQUENCE_EDITOR="${seditor}" \
+  # more easily grep for the matching until_tag revision.
+  GIT_SEQUENCE_EDITOR="${seditor_up}" \
     git -c rebase.instructionFormat=%H \
-      rebase -i "${rev_first}^"
+      rebase -i "${commit}^"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 main () {
-  two_part_tig_command_rebaser "$@"
+  source_deps
+
+  range_command_muxxer "$@"
 }
 
 if [ -z "${BASH_SOURCE}" ] || [ "$0" != "${BASH_SOURCE[0]}" ]; then

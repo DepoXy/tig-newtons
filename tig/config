@@ -1,4 +1,4 @@
-# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Author: Landon Bouma <https://tallybark.com/>
 # Project: https://github.com/depoxy/tig-newtons#🍎
 # License: MIT. Please find more in the LICENSE file.
 
@@ -561,6 +561,11 @@ bind generic * <sh -c " \
 #     view.
 # - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
 #   - It does remove git-rebase-todo.
+#
+# FIXME/2023-02-13 10:27: Try: :screen-redraw
+#
+# FIXME/2023-02-13 16:20: Localize git-smart deps
+#
 bind generic + >sh -c " \
   rebase_fixup_staged__into_selected_rev____ () { \
     if command -v git-fup > /dev/null; then \
@@ -669,6 +674,8 @@ bind generic . !sh -c " \
   }; shell_out_to_view_previous_command_output_"
 
 # ***
+
+# FIXME/2023-02-14 10:29: Use +sh and %(prompt)
 
 # I like <C-x> except implies copied to clipboard and <C-z> undoable.
 bind generic <C-o> >sh -c " \
