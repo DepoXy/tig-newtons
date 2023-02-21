@@ -174,9 +174,3 @@ bind main \ >sh -c " \
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# FIXME/2023-02-13 16:46: Add 'undo-rebase' command.
-# - Can I use reflog and find previous HEAD?
-# - Or you could record HEAD (after WIPing) to .git/.tignewtons-foo
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
