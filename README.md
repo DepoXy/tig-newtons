@@ -71,6 +71,7 @@ and optionally squash or fixup those commits:
 |      `p` | Cherry pick the selected commit or range of commits (the target commit is ignored) |
 |      `b` | Move the selected commit or range of commits (chronologically) before target commit |
 |      `a` | Move the selected commit or range of commits (chronologically) after target commit |
+|      `t` | Move the selected commit or range of commits (chronologically) to be latest commits |
 |      `s` | Squash the selected commit or range of commits into the target commit |
 |      `f` | Fixup the selected commit or range of commits into the target commit |
 

@@ -41,7 +41,7 @@ bind main ! >sh -c " \
     fi; \
     \
     local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
-    ${range_cmd} \"latest\" \"%(branch)\" \"%(commit)\"; \
+    ${range_cmd} \"make_latest\" \"%(branch)\" \"%(commit)\"; \
   }; git_upraise_revision______________________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -155,7 +155,8 @@ bind main { >sh -c " \
 
 bind main \ >sh -c " \
   revision_range_cmd__apply_range_action____ () { \
-    local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [s]quash, or [f]ixup ? )\"; \
+    local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [t]op, [s]quash, or [f]ixup ? )\"; \
+    \
     local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \

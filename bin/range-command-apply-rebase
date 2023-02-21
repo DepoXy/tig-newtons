@@ -76,7 +76,12 @@ range_command_muxxer () {
           action="fixup"
           ;;
 
-        latest)
+        t | T | top)
+          action="top"
+          ;;
+
+        make_latest)
+          action="latest"
           ;;
 
         *)
@@ -110,7 +115,7 @@ range_command_muxxer () {
           do_action_latest "${commit}" "${seditor_up}" "${wipped}"
           exit_code=$?
         else
-          do_action_action "${action}" "${commit}" "${seditor_up}"
+          do_action_action "${action}" "${commit}" "${seditor_up}" "${wipped}"
           exit_code=$?
         fi
       fi
@@ -501,6 +506,7 @@ do_action_action () {
   local action="$1"
   local target_rev="$2"
   local seditor_up="$3"
+  local wipped="$4"
 
   local chosen_rev="$(range_command_print_chosen_rev)"
   local start_rev="$(range_command_print_start_rev)"
@@ -508,6 +514,15 @@ do_action_action () {
 
   local rev_first
   local rev_final
+
+  if [ "${action}" = "top" ]; then
+    if ${wipped}; then
+      target_rev="HEAD^"
+    else
+      target_rev="HEAD"
+    fi
+    action="after"
+  fi
 
   if [ -n "${chosen_rev}" ]; then
     if [ "${chosen_rev}" = "${target_rev}" ]; then
