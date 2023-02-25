@@ -475,6 +475,9 @@ bind generic P @sh -c " \
 bind generic <C-r> >sh -c " \
   rebase_interactive___from_selected_rev____ () { \
     echo; \
+    ! git diff --cached --quiet \
+      && printf '%s\\n\\n' 'ERROR: <Ctrl-r> disabled while staging' \
+      && return 1 || true; \
     local wipped=false; \
     git add -A \
       && git commit -q --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
@@ -503,6 +506,9 @@ bind generic <C-r> >sh -c " \
 bind generic & >sh -c " \
   rebase_reword________selected_rev_________ () { \
     echo; \
+    ! git diff --cached --quiet \
+      && printf '%s\\n\\n' 'ERROR: <&> disabled while staging' \
+      && return 1 || true; \
     local wipped=false; \
     git add -A \
       && git commit -q --no-verify -m 'PRIVATE: WIP [tig &]' \
@@ -521,6 +527,9 @@ bind generic & >sh -c " \
 bind generic * <sh -c " \
   rebase_edit__________selected_rev_________ () { \
     echo; \
+    ! git diff --cached --quiet \
+      && printf '%s\\n\\n' 'ERROR: <*> disabled while staging' \
+      && return 1 || true; \
     local wipped=false; \
     git add -A \
       && git commit -q --no-verify -m 'PRIVATE: WIP [tig *]' \
