@@ -60,6 +60,10 @@ range_command_muxxer () {
       # First, normalize the ${action}, which is what user answered
       # when %(prompt)'ed.
       case "${action}" in
+        p | P | pick)
+          action="pick"
+          ;;
+
         b | B | before | move_before)
           action="before"
           ;;
