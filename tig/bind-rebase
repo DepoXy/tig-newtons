@@ -109,9 +109,6 @@ bind generic * <sh -c " \
 #     view.
 # - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
 #   - It does remove git-rebase-todo.
-#
-# FIXME/2023-02-13 10:27: Try: :screen-redraw
-#
 # FIXME/2023-02-13 16:20: Localize git-smart deps
 #
 bind generic + >sh -c " \
