@@ -1,0 +1,82 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=conf
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Git-pwip binding.
+# - <C-w> available, but I feel it's overloaded (kill word, close window, etc.).
+#   <C-i> available, meh.
+#   <C-t> could work, as in *Tidy*.
+# - Note that I tried sync style, which lets us 'echo' message to status line:
+#     bind generic <C-t> +sh -c "
+#   Unfortunately the main display is not updated, and I don't know how to tell
+#   tig to update the revision list. Fortunately, we can just use the '@sh'
+#   binding, which blocks tig to run, and tig doesn't show its output, but
+#   user at least sees revision list update to show new WIP commit. (See
+#   also '!sh' option, but that hides tig window to show output in terminal
+#   and prompts user to acknowledge.)
+# - Note @sh better than >sh, so tig doesn't shell out for a blip.
+bind generic <C-t> @sh -c " \
+  wip_commit__push__aka_tidy_up_____________ () { \
+    git_status_porcelain () { git status --porcelain=v1; }; \
+    if [ -n \"$(git_status_porcelain)\" ]; then \
+      git add -A \
+        && git commit -q --no-verify -m 'PRIVATE: WIP'; \
+    else \
+      echo 'Already pristine'; \
+    fi; \
+  }; wip_commit__push__aka_tidy_up_____________"
+
+# ***
+
+# Git-pop binding.
+
+# A very conversative git-pop binding:
+# - Only pops the youngest commit.
+# - Only pops a WIP commit.
+
+# Note that running '+sh' synchronously, you can show status line upate,
+# but after WIP removed, the tig view is not updated.
+# - Fortunately running '@sh' in background, view updates immediately,
+#   and no other user interaction happens, which is nice, because user
+#   can see that the WIP commit was replaced with "Unstaged changes",
+#   which is exactly my use case: pop the WIP commit, then stage and
+#   commit it for reals [I seriously cannot think of a better term
+#   than "for reals", seriously, what's the synonym I'm looking for?
+#   "professionally"? "legitimately"? "deliberately"? for reals!].
+# - Hrm, tig's built-in '^' command calls `:toggle rev-filter`, but a few
+#   issues: "rev-filter" is not mentioned in the docs. `man tigmanual`
+#   mentions "revision filtering" once:
+#       ^   Toggle revision filtering in the main view.
+#   But -- most importantly -- when I demo the toggle (it defaults so
+#   revision filtering is on), I don't see a lick of change in the main
+#   view. So, like, whatever, I'll mask this option if I want to, nothing
+#   apparently lost.
+#   - I originally used the unbound '_' binding:
+#       bind generic _ @sh -c ...
+#    but I'm gonna steal '^' because I like the mnemonic better --
+#    pointing up, as in "popping off". (And I'm not going to remap
+#    `:toggle rev-filter` because I don't use that setting/does nothing
+#    for me.) (Also note this command changes revisions, and I like to
+#    use a two-key press for changy commands, which this command
+#    satisfies because it uses two keys: Shift and '6'.) (Also nice
+#    about '^': it's above Ctrl-t (US American keyboard at least)
+#    which is the wip-create command. So you can Ctrl-t/^/Ctrl-t/^/...
+#    all day long.)
+# - Note @sh better than >sh, so tig doesn't shell out for a blip.
+bind generic ^ @sh -c " \
+  wip_commit__pop___iff_youngest_rev________ () { \
+    git_grep_youngest_rev () { \
+      git --no-pager log --pretty=format:\"%H\" --grep \"$1\" HEAD^..HEAD; \
+    }; \
+    if [ -n \"$(git_grep_youngest_rev \"\\bWIP\\b\")\" ]; then \
+      git reset --mixed @~1 > /dev/null; \
+    else \
+      echo 'Nothing WIPped'; \
+    fi; \
+  }; wip_commit__pop___iff_youngest_rev________"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
