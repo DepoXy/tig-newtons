@@ -115,39 +115,29 @@ Masked bindings:
 
 ### Option 1 — Specify at runtime
 
-```sh
-  XDG_CONFIG_HOME=path/to/tig-newtons/tig/config tig
-```
+    XDG_CONFIG_HOME=path/to/tig-newtons/tig/config tig
 
 ### Option 2 — Make your default config
 
-```sh
-  mkdir -p ~/.config/tig
-  ln -s /path/to/tig-newtons/tig/config ~/.config/tig/config
-```
+    mkdir -p ~/.config/tig
+    ln -s /path/to/tig-newtons/tig/config ~/.config/tig/config
 
 ### Option 3 — Source from your own config
 
 Edit `~/.config/tig/config` and add:
 
-```config
-  source /path/to/tig-newtons/tig/config
-```
+    source /path/to/tig-newtons/tig/config
 
 ## Setup
 
 If you want to use certain bindings (like `!` bubble-up, or most of the
 rebase commands), you'll need to install tig-newtons to a specific path:
 
-```sh
-  ~/.kit/git/tig-newtons
-```
+    ~/.kit/git/tig-newtons
 
 Or you'll need to use the `TIGNEWTONSPATH` environ, e.g.,
 
-```sh
-  TIGNEWTONSPATH=path/to/tig-newtons tig
-```
+    TIGNEWTONSPATH=path/to/tig-newtons tig
 
 ### EDITOR
 
@@ -155,16 +145,12 @@ If you'd like to use Vim as your editor with a minimal config that includes
 some convenience functions — like `<Ctrl-s>` to save your commit message and
 exit Vim in one fell swoop — set the `TN_OPTION_EDITOR_VIM` environ, e.g.,
 
-```sh
-  export TN_OPTION_EDITOR_VIM=true
-  tig
-```
+    export TN_OPTION_EDITOR_VIM=true
+    tig
 
 Or:
 
-```sh
-  TN_OPTION_EDITOR_VIM=true tig
-```
+    TN_OPTION_EDITOR_VIM=true tig
 
 Please inspect
 [bin/editor-vim-0-0-insert-minimal.vimrc](bin/editor-vim-0-0-insert-minimal.vimrc)
@@ -172,11 +158,10 @@ to see the special Vim commands you can use.
 
 ## Bibliography
 
-```sh
-  man tig
-  man tigrc
-  man tigmanual
-```
+    man tig
+    man tigrc
+    man tigmanual
+
 https://jonas.github.io/tig/doc/tigrc.5.html
 
 https://github.com/jonas/tig/blob/master/tigrc
