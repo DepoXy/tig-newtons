@@ -1,0 +1,133 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=conf
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Git-rebase binding.
+# - Note the selected commit is not included in the rebase, i.e.,
+#   calls `git rebase -i %(commit)`, not `git rebase -i %(commit)^`
+bind generic <C-r> >sh -c " \
+  rebase_interactive___from_selected_rev____ () { \
+    echo; \
+    ! git diff --cached --quiet \
+      && printf '%s\\n\\n' 'ERROR: <Ctrl-r> disabled while staging' \
+      && return 1 || true; \
+    local wipped=false; \
+    git add -A \
+      && git commit -q --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
+      && wipped=true; \
+    if ! git rebase -i %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+      >&2 echo; \
+      >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+      >&2 echo \"  🥩 🥩 chop chop\"; \
+      kill -s 9 $PPID; \
+    fi; \
+    ${wipped} && git reset --mixed @~1; \
+    echo; \
+  }; rebase_interactive___from_selected_rev____"
+
+# ***
+
+# COPYD: See git-reword/git_reword_revision in git-smart
+#   https://github.com/landonb/git-smart#💡
+# If using DepoXy, it's at ~/.kit/git/git-smart/bin/git-reword
+#
+# YOU: If you use Vim and find your EDITOR slow to open,
+#      consider running it without plugs to help diagnose:
+#        ...
+#        EDITOR='vim --noplugin' \
+#        GIT_SEQUENCE_EDITOR='f () { ...
+bind generic & >sh -c " \
+  rebase_reword________selected_rev_________ () { \
+    echo; \
+    ! git diff --cached --quiet \
+      && printf '%s\\n\\n' 'ERROR: <&> disabled while staging' \
+      && return 1 || true; \
+    local wipped=false; \
+    git add -A \
+      && git commit -q --no-verify -m 'PRIVATE: WIP [tig &]' \
+      && wipped=true; \
+    GIT_SEQUENCE_EDITOR='f () { \
+      local rebase_todo_path=\"$1\"; \
+      sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
+    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+    ${wipped} && git reset --mixed @~1; \
+    echo; \
+  }; rebase_reword________selected_rev_________"
+
+# ***
+
+# COPYD: See git-edit/git_edit_revision in git-smart
+#   https://github.com/landonb/git-smart#💡
+# If using DepoXy, it's at ~/.kit/git/git-smart/bin/git-edit
+bind generic * <sh -c " \
+  rebase_edit__________selected_rev_________ () { \
+    echo; \
+    ! git diff --cached --quiet \
+      && printf '%s\\n\\n' 'ERROR: <*> disabled while staging' \
+      && return 1 || true; \
+    local wipped=false; \
+    git add -A \
+      && git commit -q --no-verify -m 'PRIVATE: WIP [tig *]' \
+      && wipped=true; \
+    GIT_SEQUENCE_EDITOR='f () { \
+      local rebase_todo_path=\"$1\"; \
+      sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
+    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+    ${wipped} && git reset --mixed @~1; \
+    echo; \
+  }; rebase_edit__________selected_rev_________"
+
+# ***
+
+# Fixup commit. Usage: Stage your changes, then select commit and press '+'.
+# - Note we use 'generic', but we could use 'main' and 'diff' to be more
+#   precise, except then we'd need two separate bind commands, AFAIK.
+# - Also, I wanted to use Ctrl-Up, but after investigating, I don't
+#   think tig does Ctrl-Arrow bindings. Then I thought maybe <C-f>
+#   could be a decent choice. But now thinking '+', which has the
+#   mnemonic that you're 'adding' to commit, would could be helpful.
+# - Consider the tig options for shelling out:
+#     '!' (runs in fg; full i/o)
+#     '@' (runs in bg; no i/o)
+#     '+' (runs sync; shows 1st line of output)
+#     '?' (Prompt the user before executing the command)
+#     '<' (Exit Tig after executing the command)
+#     '>' (Re-open Tig instantly ... after executing the command -- aka quick)
+# - With '!', user can interact with command; also, user can see the
+#   git-rebase output, which can be nice for review and confirmation (as
+#   opposed to just silently fup'ping, and user just assuming it ran).
+#   - Except user will see changes in the revision history in tig,
+#     and being prompted to return to tig gets annoying after a while,
+#     so author prefers '>' vs. '!'.
+#   - Note, too, `bind generic + +sh` is nice because we could print
+#     a one-line message to the status window, with no shell-out
+#     disruption. But it's not nice because it doesn't update the
+#     view.
+# - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
+#   - It does remove git-rebase-todo.
+#
+# FIXME/2023-02-13 10:27: Try: :screen-redraw
+#
+# FIXME/2023-02-13 16:20: Localize git-smart deps
+#
+bind generic + >sh -c " \
+  rebase_fixup_staged__into_selected_rev____ () { \
+    if command -v git-fup > /dev/null; then \
+      echo; \
+      if ! git fup %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+        >&2 echo; \
+        >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+        >&2 echo \"  🥩 🥩 chop chop\"; \
+        kill -s 9 $PPID; \
+      fi; \
+      echo; \
+    else \
+      echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
+    fi; \
+  }; rebase_fixup_staged__into_selected_rev____"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
