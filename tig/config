@@ -56,7 +56,10 @@
 
 # ***
 
-# 2020-12-14 15:04: Press 'x' to copy the commid ID/SHA1 hash.
+# Show commit ID by default.
+set main-view-id = yes
+
+# USAGE: Press 'x' to copy the commid ID/SHA1 hash.
 #
 # - From `man tigrc`:
 #
@@ -87,9 +90,6 @@ bind generic x @sh -c " \
       && printf %(commit) | xclip -selection c \
       || printf %(commit) | pbcopy; \
   }; clipboard_copy__selected_commit_sha_______"
-
-# 2020-12-14 15:05: Show commit ID by default.
-set main-view-id = yes
 
 # ***
 
