@@ -174,9 +174,36 @@ Or:
 
     TN_OPTION_EDITOR_VIM=true tig
 
+You can also use the same config for the commit (`C`) and reword (`&`)
+commands if you uncomment a few lines in your custom `tig/config`:
+
+    source /home/landonb/.kit/git/tig-newtons/tig/bind-commit--minimal-editor
+    source /home/landonb/.kit/git/tig-newtons/tig/bind-rebase--minimal-editor
+
 Please inspect
 [bin/editor-vim-0-0-insert-minimal.vimrc](bin/editor-vim-0-0-insert-minimal.vimrc)
 to see the special Vim commands you can use.
+
+### Gvim-Open-Kindness
+
+The GVim open command (`v`) prefers `gvim-open-kindness`
+if available, otherwise it falls back on raw `gvim` calls.
+
+- You can clone and install `gvim-open-kindness` from sources:
+
+  [https://github.com/DepoXy/gvim-open-kindness#🐬](https://github.com/DepoXy/gvim-open-kindness#🐬)
+
+- The `gvim-open-kindness` adds a few niceties, such as fronting
+  GVim after opening the file.
+
+  - If `gvim-open-kindness` is not installed, you will have to
+    to manually switch to the GVim app if the opened file is
+    sent to an existing GVim instance.
+
+Whether or not you install `gvim-open-kindness`, you can use the
+`GVIM_OPEN_SERVERNAME` environ to set the GVim `--servername`, e.g.,
+
+    GVIM_OPEN_SERVERNAME="my-gvim-server" tig
 
 ## Bibliography
 
