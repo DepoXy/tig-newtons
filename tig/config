@@ -56,43 +56,6 @@
 
 # ***
 
-# Show commit ID by default.
-set main-view-id = yes
-
-# USAGE: Press 'x' to copy the commid ID/SHA1 hash.
-#
-# - From `man tigrc`:
-#
-#     Example 1. Configure a binding to copy the current commit ID to the clipboard.
-#     bind generic I @sh -c "echo -n %(commit) | xclip -selection c"
-#
-#   - I'm guessing the 'I' chosen in the example stands for commit [I]D.
-#
-#   - I also like 'x', which is unbound, because 'X' is the commit ID toggle.
-#
-#   - Both c's are taken: 'c' is switch to stage view, and 'C' is cherry-pick
-#     in main, and commit in status. Which is fine, I like 'x'.
-#
-# - How this works: Try xclip first (Linux), then fallback pbcopy (macOS).
-#
-# - Note that `xclip -selection c` is `xclip -selection clipboard` (XA_CLIPBOARD),
-#   i.e., not the "primary" (XA_PRIMARY) X selection (which is the default).
-#
-# - Note also that tig ignores (doesn't show the user) any command output.
-#
-#   E.g., I had only `2> /dev/null` here first (i.e., not redirecting stdout)
-#   but tig was nonetheless not showing any stdout when `type xclip` printed
-#   "xclip is /usr/bin/xclip". Just an FYI, for whatever reason.
-#
-bind generic x @sh -c " \
-  clipboard_copy__selected_commit_sha_______ () { \
-    type xclip > /dev/null 2>&1 \
-      && printf %(commit) | xclip -selection c \
-      || printf %(commit) | pbcopy; \
-  }; clipboard_copy__selected_commit_sha_______"
-
-# ***
-
 # Copy filepath to clipboard
 # - Mnemonic: Copy 'P'ath
 # - Note: This strips leading "b/" that tig prints, e.g., "a/path" and "b/path"
