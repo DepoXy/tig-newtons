@@ -1,6 +1,6 @@
 # vim:tw=0:ts=2:sw=2:et:norl:ft=conf
 # Author: Landon Bouma <https://tallybark.com/>
-# Project: https://github.com/depoxy/tig-newtons#🍎
+# Project: https://github.com/DepoXy/tig-newtons#🍎
 # License: MIT. Please find more in the LICENSE file.
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -10,7 +10,7 @@
 #   https://github.com/jonas/tig/blob/master/tigrc
 #   - If you're using DepoXy, locally at:
 #       ~/.kit/git/tig/tigrc
-#     https://github.com/depoxy/depoxy#🍯
+#     https://github.com/DepoXy/depoxy#🍯
 #   - See also:
 #       man tig
 #       man tigrc

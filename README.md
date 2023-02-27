@@ -193,5 +193,5 @@ https://github.com/jonas/tig/blob/master/tigrc
 `tig-newtons` maintained by DepoXy dev
 environment orchestration project
 
-https://github.com/depoxy/depoxy#🍯 _[COMING 2023!]_
+https://github.com/DepoXy/depoxy#🍯 _[COMING 2023!]_
 

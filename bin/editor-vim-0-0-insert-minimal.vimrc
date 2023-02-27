@@ -1,6 +1,6 @@
 " vim:tw=0:ts=2:sw=2:et:norl:ft=vim
 " Author: Landon Bouma <https://tallybark.com/>
-" Project: https://github.com/depoxy/tig-newtons#🍎
+" Project: https://github.com/DepoXy/tig-newtons#🍎
 " License: MIT. Please find more in the LICENSE file.
 
 " Copyright (c) © 2020-2023 Landon Bouma. All Rights Reserved.
