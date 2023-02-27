@@ -335,18 +335,20 @@ bind generic R :set main-view-date = width:6,display:relative
 #   a help window, etc.
 #     https://github.com/landonb/home-fries/blob/release/bin/gvim-open-kindness
 #
-# - I usually postfix project URLs with a pound '#', but that character's
-#   presense breaks tig command. So using '?', which user can include in
-#   copy-paste to browser location, no biggee. /home-fries#🍟
+# - I like to postfix project URLs with a pound '#' followed by an emoji.
+#   But cannot use '#' in a tig config shell command string, or tig breaks.
+#   One could substitute '?', which can be pasted to browser location, e.g.,
+#   /gvim-open-kindness?🐬. Another option is resolving \\x23 using bash -c.
 bind generic v +sh -c " \
   open_line_under_cursor__gVim______________ () { \
     if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
       if command -v gvim-open-kindness > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
       else \
+        local gvok_url=\"https://github.com/DepoXy/gvim-open-kindness\\x23🐬\"; \
         gvim --remote-silent \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
         gvim --remote-send \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
-        echo \"Improve 'v' with gvim-open-kindness: https://github.com/landonb/home-fries?🍟\" ; \
+        /bin/bash -c \"echo -e 'Improve ‘v’ with gvim-open-kindness: ${gvok_url}'\"; \
       fi; \
     else \
       echo \"Nothing to edit\"; \
