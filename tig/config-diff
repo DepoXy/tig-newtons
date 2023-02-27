@@ -30,7 +30,7 @@
 # - Otherwise we could wait-prompt ourselves and return 0, but let's tig it.
 bind diff ! >sh -c " \
   git_upraise_revision______________________ () { \
-    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       >&2 echo; \
       >&2 echo \"ERROR: To use this feature, please install tig-newtons to:\"; \
@@ -100,7 +100,7 @@ bind diff ! >sh -c " \
 
 bind diff [ >sh -c " \
   revision_range_cmd__select_first_commit___ () { \
-    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
       /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
@@ -113,7 +113,7 @@ bind diff [ >sh -c " \
 
 bind diff ] >sh -c " \
   revision_range_cmd__select_final_commit___ () { \
-    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
       /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
@@ -156,7 +156,7 @@ bind diff { >sh -c " \
 bind diff \ >sh -c " \
   revision_range_cmd__apply_range_action____ () { \
     local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [s]quash, or [f]ixup ? )\"; \
-    local tnewtons=\"${TIGNEWTONSPATH:-${TIGNEWTONSPATH:-${HOME}/.kit/git}/tig-newtons}\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
       >&2 echo \"ERROR: To use this feature, please install tig-newtons to:\"; \
