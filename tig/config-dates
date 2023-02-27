@@ -1,0 +1,64 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=conf
+# Author: Landon Bouma <https://tallybark.com/>
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# 2020-12-16 18:56: Show commit date as elapsed time before now.
+#
+# - display (mixed) [relative|relative-compact|custom|default|<bool>]
+#
+#      If set to "relative" or "relative-compact" a relative date will be used,
+#      e.g. "2 minutes ago" or "2m".
+#
+# - E.g's., 'default':
+#
+#             6848284 2020-12-16 usernom      o message foo
+#             2dc2ab9 2020-12-15 usernom      o message bar
+#             5033f9e 2020-12-14 usernom      o message baz
+#
+#           'relative':
+#
+#             6848284 20 minutes ago usernom      o message foo
+#             2dc2ab9   27 hours ago usernom      o message bar
+#             5033f9e     2 days ago usernom      o message baz
+#
+#           'relative-compact':
+#
+#             6848284 20M usernom      o message foo
+#             2dc2ab9 27h usernom      o message bar
+#             5033f9e 2d  usernom      o message baz
+#
+#   I think I like 'relative' because at a glance you can tell what's
+#   recent (more letters) and what's older (fewer letters), just because
+#   of how len('minutes') > len('hours') > len('days).
+#
+#   Or, perhaps a compromise solution that's more compact than
+#   'relative', but where "20M" is more easily distinguisable
+#   from "27h":
+#
+#           'relative' w/ width 6:
+#
+#             6848284 27 min usernom      o message foo
+#             2dc2ab9 27 hou usernom      o message bar
+#             5033f9e 2 days usernom      o message baz
+#
+# - tig's built-in 'D' cycles the date format, but not the column width.
+#   - You can press ':' and enter the `set` command directly.
+#   - Or you can use the bindings we've specified below.
+set main-view-date-display = relative
+set main-view-date-width = 6
+
+# Mnemonic: 'T' for dateTime display.
+# - Make date column wider, and change to datetime format.
+bind generic T :set main-view-date = width:16,display:default
+
+# Mnemonic: 'R' for relative date.
+# - Make date column narrower, and change to relative format.
+# - Note that 'R' by default also mapped to reload, but so is F5:
+#           'R, <F5> refresh             Reload and refresh view'
+bind generic R :set main-view-date = width:6,display:relative
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
