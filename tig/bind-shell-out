@@ -1,0 +1,17 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=conf
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Press . to shell-out to view output from previous command.
+# - Mnemonic: Period is near Enter, which you hit to return
+#             to tig when it prompts you to continue.
+bind generic . !sh -c " \
+  shell_out_to_view_previous_command_output_ () { \
+    :; \
+  }; shell_out_to_view_previous_command_output_"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+

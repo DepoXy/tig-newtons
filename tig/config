@@ -54,15 +54,5 @@
 # - Run tig and press 'h' to see it's bound, but same as 's': `s, S view-status`.
 #   So you could remap 'S' and not lose any functionality.
 
-# ***
-
-# Press . to shell-out to view output from previous command.
-# - Mnemonic: Period is near Enter, which you hit to return
-#             to tig when it prompts you to continue.
-bind generic . !sh -c " \
-  shell_out_to_view_previous_command_output_ () { \
-    :; \
-  }; shell_out_to_view_previous_command_output_"
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
