@@ -1,0 +1,232 @@
+#!/usr/bin/env bash
+# vim:tw=0:ts=2:sw=2:et:norl:ft=bash
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/landonb/git-smart#💡
+# License: MIT. Please find more in the LICENSE file.
+
+# Creates a fixup commit and then rebases it where it needs to be.
+#
+# Assuming you've added the files you want fixed-up, e.g.,
+#
+#   git add {some-changes}
+#
+# Then running `git fup {commit}` is similar to the following steps:
+#
+#   git commit --no-verify --fixup={commit}
+#   git add -A && git ci -m WIP
+#   git rebase -i --autosquash {commit}^
+#   # Save the file
+#   git pop1  # Undo the WIP.
+
+# USAGE: git fup {commit}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+GITSMART_GIT_FUP_WIP_COMMIT_MESSAGE="PRIVATE: WIP [git-fup]"
+
+git_fixup_and_rebase () {
+  local commit="$1"
+
+  if [ -z "${commit}" ]; then
+    >&2 echo "ERROR: Please specify a commit"
+
+    exit 1
+  fi
+
+  # The `git --no-pager diff --name-only` returns paths relative to
+  # root, which is used by must_not_have_unstaged_hard_link_changes.
+  git_root() {
+    git rev-parse --show-toplevel
+  }
+
+  cd "$(git_root)"
+
+  must_not_have_unstaged_hard_link_changes
+
+  git commit -q --no-verify --fixup ${commit}
+
+  local pop_after=false
+  ! maybe_commit_uncommitted || pop_after=true
+
+  # Have the interactive rebase sequence editor complete automatically
+  # by specifying the Bash `:` no-op.
+  # See:
+  #   https://stackoverflow.com/questions/29094595/
+  #     git-interactive-rebase-without-opening-the-editor
+
+  local rebase_failed=false
+
+  # Aka `git ria ${commit}^`
+  #  echo "GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash ${commit}^"
+  if ! GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash ${commit}^; then
+    # MEH: We could wait for user to resolve conflicts (like git-put-wise
+    # does (see: must_await_user_resolve_conflicts)). But all user has to
+    # do to clean up is pop the WIP commit. So unless that's too annoying,
+    # we'll just remind user about the WIP commit; otherwise we can take
+    # the time to add code to prompt-loop until .git/REBASE_HEAD gone.
+    print_error_rebase_failed_shared
+    if ${pop_after}; then
+      print_error_rebase_failed_wipped
+    fi
+
+    rebase_failed=true
+  fi
+
+  # Before we pop the temporary "WIP" commit that we made before the rebase:
+  # - Beware a failed rebase -- we don't want to pop the latest commit
+  #   if the rebase stopped to ask the user to intervene, because that's
+  #   nor our temporary commit.
+  # - AFAIK, .git/REBASE_HEAD exists until the rebase is complete.
+  # - We can also to check if the repo is tidy. If it's not tidy,
+  #   we can assume the rebase failed.
+  # - While we're at it -- or just being unnecessarily paranoid --
+  #   verify that the latest commit has the "WIP" message we used.
+  if ${pop_after} && ! ${rebase_failed}; then
+    double_triple_quadruple_check_rebase_complete \
+      || exit 1
+
+    # Aka `git pop1 --quiet`.
+    git reset -q --mixed @~1
+  fi
+}
+
+# ***
+
+maybe_commit_uncommitted () {
+  local pop_after=false
+
+  if [ -n "$(git_status_porcelain)" ]; then
+    # Untracked, Unstaged, or Staged changes not committed.
+    pop_after=true
+
+    # Aka `git wip`
+    git add -A
+    git commit -q --no-verify -m "${GITSMART_GIT_FUP_WIP_COMMIT_MESSAGE}"
+  fi
+
+  ${pop_after}
+}
+
+# ***
+
+print_error_rebase_failed_shared () {
+  >&2 echo
+  >&2 echo "ERROR: The rebase failed."
+}
+
+print_error_rebase_failed_wipped () {
+  >&2 echo "- You'll find the WIP commit we made after you finish rebasing."
+  >&2 echo "  You can easily remove this commit:"
+  >&2 echo "    git-pop1 { git reset --mixed @~1; }"
+}
+
+# ***
+
+double_triple_quadruple_check_rebase_complete () {
+  local rebase_complete=true
+
+  # MAYBE/2023-01-15: Take page from git-put-wise playbook and
+  # wait for user to resolve rebase conflicts, so we can pop the
+  # wip commit. / But that's only reason to offer to run to
+  # completion, so really a big deal if we don't add such a
+  # mechanism.
+  if [ -f ".git/REBASE_HEAD" ]; then
+    # 2023-01-16: I squashed @^ in @^^ via my new tig <C-r> command,
+    # and tig command said failed because .git/REBASE_HEAD exists,
+    # but rebase clearly-obviously completed, so looks like (via the
+    # empherical evidence) that Git won't always cleanup .git/REBASE_HEAD.
+    echo
+    # LATER/2023-01-16: Revisit and remove this if-block (confirm that
+    # you start seeing this error sometimes).
+    echo "ERROR?: .git/REBASE_HEAD still exists [but does it matter?]"
+    #echo "- This is likely a DEV error, so please take it from here."
+
+    # rebase_complete=false
+  fi
+
+  if [ -f ".git/rebase-merge/git-rebase-todo" ]; then
+    # 2023-01-16: This is the file the definitely should not exist if
+    # the rebase was sucessful.
+    echo
+    echo "ERROR: .git/rebase-merge/git-rebase-todo still exists"
+    echo "- This is likely a DEV error, so please take it from here."
+
+    rebase_complete=false
+  fi
+
+  if [ -n "$(git_status_porcelain)" ]; then
+    echo
+    echo "ERROR: There was an unexpected error:"
+    echo "- Git status reports the project is not tidy,"
+    echo "  but we didn't detect a .git/REBASE_HEAD file."
+    echo "- This is likely a DEV error, so please take it from here."
+
+    rebase_complete=false
+  fi
+
+  if [ "$(git_latest_commit_message)" != "${GITSMART_GIT_FUP_WIP_COMMIT_MESSAGE}" ]; then
+    echo
+    echo "ERROR: There was an unexpected error:"
+    echo "- The latest commit is not the \"WIP\" we made."
+    echo "- This is likely a DEV error, so please take it from here."
+
+    rebase_complete=false
+  fi
+
+  ${rebase_complete}
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+git_status_porcelain () {
+  git status --porcelain=v1
+}
+
+git_latest_commit_message () {
+  git --no-pager log -1 --pretty=%B
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# BEWARE: git-reset is not nice to hard links -- if we were to WIP-commit
+# uncommitted changes from a hard link, a git-reset breaks the hard link.
+#
+# - So examine changed files, and check if any have +1 links:
+#     find . ! -name . -prune -links +1  # report files in current directory
+#     find . ! -name . -prune ! -type d -links +1  # exclude directories
+#     find . ! -name . ! -type d -links +1  # descend into directories
+#   Check a single file instead...
+#     find ${file} -prune ! -type d -links +1
+#   List staged files (which we don't care about; these get fup'ed):
+#     git --no-pager diff --name-only --cached
+#     git --no-pager diff --name-only --staged  # Newer Git alias option
+#   List modified, unstaged files (what we want to check for links):
+#     git ls-files -m  # aka `git ls-files --modified`
+#     git --no-pager diff --name-only
+#   Altogether now:
+#     git --no-pager diff --name-only | xargs -I {} find {} -links +1 | wc -l
+
+must_not_have_unstaged_hard_link_changes () {
+  if [ -n "$( \
+    git --no-pager diff --name-only | xargs -I {} find {} -links +1 \
+  )" ]; then
+    echo "ERROR: Cannot process: There are hard links with unstaged changes."
+    echo "       This command clobbers such hard links. You don't want that."
+    echo "       HINT: Commit hard linked changes first, then retry git-fup."
+
+    return 1
+  fi
+}
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+main () {
+  set -e
+
+  git_fixup_and_rebase "$@"
+}
+
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  main "${@}"
+fi
+

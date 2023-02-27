@@ -109,22 +109,25 @@ bind generic * <sh -c " \
 #     view.
 # - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
 #   - It does remove git-rebase-todo.
-# FIXME/2023-02-13 16:20: Localize git-smart deps
-#
 bind generic + >sh -c " \
   rebase_fixup_staged__into_selected_rev____ () { \
-    if command -v git-fup > /dev/null; then \
-      echo; \
-      if ! git fup %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
-        >&2 echo; \
-        >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
-        >&2 echo \"  🥩 🥩 chop chop\"; \
-        kill -s 9 $PPID; \
-      fi; \
-      echo; \
-    else \
-      echo \"Cannot fixup without git-fup: https://github.com/landonb/git-smart?💡\" ; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
+    if [ ! -d \"${tnewtons}\" ]; then \
+      local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
+      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
+      return 1; \
     fi; \
+    \
+    echo; \
+    local git_fup=\"${tnewtons}/deps/git-smart/bin/git-fup\"; \
+    if ! \"${git_fup}\" %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+      >&2 echo; \
+      >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+      >&2 echo \"  🥩 🥩 chop chop\"; \
+      \
+      kill -s 9 $PPID; \
+    fi; \
+    echo; \
   }; rebase_fixup_staged__into_selected_rev____"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
