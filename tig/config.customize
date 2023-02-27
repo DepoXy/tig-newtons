@@ -1,0 +1,30 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=conf
+# Author: YOU
+# Project: https://github.com/depoxy/tig-newtons#🍎
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# USAGE: Comment out config or bindings you don't want.
+# - Or leave be and enjoy all the features.
+source ${TIGNEWTONSPATH}/tig/config-color
+source ${TIGNEWTONSPATH}/tig/config-dates
+source ${TIGNEWTONSPATH}/tig/config-opinionated
+source ${TIGNEWTONSPATH}/tig/bind-clip-path
+source ${TIGNEWTONSPATH}/tig/bind-clip-sha
+source ${TIGNEWTONSPATH}/tig/bind-commit
+source ${TIGNEWTONSPATH}/tig/bind-commit-wip
+source ${TIGNEWTONSPATH}/tig/bind-file-edit
+source ${TIGNEWTONSPATH}/tig/bind-rebase
+source ${TIGNEWTONSPATH}/tig/bind-rebase-range--diff
+source ${TIGNEWTONSPATH}/tig/bind-rebase-range--main
+source ${TIGNEWTONSPATH}/tig/bind-shell-out
+
+# USAGE: Uncomment if you'd like to use a miminal Vim EDITOR:
+#  source ${TIGNEWTONSPATH}/tig/bind-commit--minimal-editor
+#  source ${TIGNEWTONSPATH}/tig/bind-rebase--minimal-editor
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# USAGE: Below you could supply your own custom 'tig' config and commands.
+#        Or you could `source` your own config. Whatever you want.
+

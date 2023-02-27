@@ -111,27 +111,12 @@ Masked bindings:
 | `set blame-view = date:default \`<br>`      author:abbreviated \`<br>`      file-name:auto \`<br>`      id:yes,color \`<br>`      line-number:yes,interval=5 text` | Configure blame view columns |
 -->
 
-## Usage
-
-### Option 1 — Specify at runtime
-
-    XDG_CONFIG_HOME=path/to/tig-newtons/tig/config tig
-
-### Option 2 — Make your default config
-
-    mkdir -p ~/.config/tig
-    ln -s /path/to/tig-newtons/tig/config ~/.config/tig/config
-
-### Option 3 — Source from your own config
-
-Edit `~/.config/tig/config` and add:
-
-    source /path/to/tig-newtons/tig/config
-
 ## Setup
 
-If you want to use certain bindings (like `!` bubble-up, or most of the
-rebase commands), you'll need to install tig-newtons to a specific path:
+### Choose a checkout location for this repo
+
+If you want to use certain bindings (including bubble-up `<!>`, and most of
+the rebase commands), you'll need to install tig-newtons to a specific path:
 
     ~/.kit/git/tig-newtons
 
@@ -139,11 +124,48 @@ Or you'll need to use the `TIGNEWTONSPATH` environ, e.g.,
 
     TIGNEWTONSPATH=path/to/tig-newtons tig
 
+Which you could also export from your Bashrc or similar:
+
+    export TIGNEWTONSPATH=path/to/tig-newtons
+
+### Generate a custom `tig/config` file
+
+The `tig/config` has to use full paths to `source` files,
+so you need to generate a custom `tig/config` file.
+
+Run the [customize.sh](customize.sh) command to generate the file.
+It uses a template ([tig/config.customize](tig/config.customize))
+to generate a similar file that uses your local project's path.
+
+- After cloning the project, change to the root directory and
+  create your `tig/config` file:
+
+      cd path/to/tig-newtons
+      ./customize.sh > tig/config
+
+### Use your custom `tig/config` when you run `tig`
+
+#### Option 1 — Specify at runtime
+
+    XDG_CONFIG_HOME=path/to/tig-newtons/tig/config tig
+
+#### Option 2 — Make your default config
+
+    mkdir -p ~/.config/tig
+    ln -s /path/to/tig-newtons/tig/config ~/.config/tig/config
+
+#### Option 3 — Source from your own config
+
+Edit `~/.config/tig/config` and add:
+
+    source /path/to/tig-newtons/tig/config
+
 ### EDITOR
 
-If you'd like to use Vim as your editor with a minimal config that includes
-some convenience functions — like `<Ctrl-s>` to save your commit message and
-exit Vim in one fell swoop — set the `TN_OPTION_EDITOR_VIM` environ, e.g.,
+For the rebase range commands, if you'd like to use Vim as your editor with
+a minimal config that includes some convenience functions — like `<Ctrl-s>`
+to save your commit message and exit Vim in one fell swoop — set the
+`TN_OPTION_EDITOR_VIM` environ, e.g.,
 
     export TN_OPTION_EDITOR_VIM=true
     tig
