@@ -1,0 +1,31 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=conf
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** Overrides tig-newton's git-commit bindings to use `minimal` Vim.
+#
+# If using DepoXy, CXREF: ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal.vimrc
+
+bind generic C >sh -c " \
+  git_commit_verbose________________________ () { \
+    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
+    echo; \
+    EDITOR=\"${tnewtons}/bin/editor-vim-0-0-insert-minimal\" git commit -v; \
+    echo; \
+  }; git_commit_verbose________________________"
+
+# The 'generic' binding does not shadow the same key bound
+# to specific keymaps, so we must repeat ourself.
+bind main C >sh -c " \
+  git_commit_verbose________________________ () { \
+    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
+    echo; \
+    EDITOR=\"${tnewtons}/bin/editor-vim-0-0-insert-minimal\" git commit -v; \
+    echo; \
+  }; git_commit_verbose________________________"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
