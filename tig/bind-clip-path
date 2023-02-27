@@ -1,0 +1,21 @@
+# vim:tw=0:ts=2:sw=2:et:norl:ft=conf
+# Author: Landon Bouma (landonb &#x40; retrosoft &#x2E; com)
+# Project: https://github.com/depoxy/tig-newtons#🍎
+# License: MIT. Please find more in the LICENSE file.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# Copy filepath to clipboard
+# - Mnemonic: Copy 'P'ath
+# - Note: This strips leading "b/" that tig prints, e.g., "a/path" and "b/path"
+# - Note: This strips realpath newline using tr, but here's alt: | sed -z 's/\\n$//g'
+bind generic P @sh -c " \
+  clipboard_copy__file_path_________________ () { \
+    local path=\"$(realpath -- \"%(directory)$(printf '%(file)' | sed 's/^b//')\" | tr -d '\\n')\"; \
+    type xclip > /dev/null 2>&1 \
+      && printf $path | xclip -selection c \
+      || printf $path | pbcopy; \
+  }; clipboard_copy__file_path_________________"
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
