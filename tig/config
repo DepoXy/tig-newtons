@@ -43,43 +43,6 @@
 
 # ***
 
-# Default 'main' 'C' binding prompts ('?') and runs cherry-pick:
-#   C ?git cherry-pick %(commit)
-# But, like, why? I rarely cherry-pick, and I think it's always been
-# revisions not reachable from HEAD. So I wouldn't care about the 'C'
-# binding unless I was running tig on a disparate lineage. But I also
-# do this operation so rarely, I'd probably want to run it more manually.
-# - All that said, no shame in masking built-in 'main' 'C' cherry-pick
-#   command. (Note that nothing built-in at 'C' for 'diff'.)
-# - Note the default commit bindings only apply to main and diff,
-#   so a mostly-truthful re-mapping is simply these two lines:
-#     bind main C !sh -c "git commit -v"
-#     bind diff C !sh -c "git commit -v"
-#   But note (at least) one peculiar use case: I was in 'diff' view
-#   and mashed 'u' until all chunks were staged. This left the 'diff'
-#   view blank, so I hit 'C' think I could commit. Alas, "Unknown key".
-#   So just bind to generic. Then user won't be aghast when binding
-#   doesn't work. Also keeps our code DRY (because we don't have to
-#   specify the same command for multiple keymaps (main, diff, etc.)).
-
-bind generic C >sh -c " \
-  git_commit_verbose________________________ () { \
-    echo; \
-    git commit -v; \
-    echo; \
-  }; git_commit_verbose________________________"
-
-# The 'generic' binding does not shadow the same key bound
-# to specific keymaps, so we must needs repeat ourself.
-bind main C >sh -c " \
-  git_commit_verbose________________________ () { \
-    echo; \
-    git commit -v; \
-    echo; \
-  }; git_commit_verbose________________________"
-
-# ***
-
 # 2020-12-16 18:56: Show commit date as elapsed time before now.
 #
 # - display (mixed) [relative|relative-compact|custom|default|<bool>]
