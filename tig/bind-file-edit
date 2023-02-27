@@ -66,9 +66,16 @@ bind generic v +sh -c " \
       if command -v gvim-open-kindness > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
       else \
+        local servername=\"\"; \
+        if [ -n \"${GVIM_OPEN_SERVERNAME}\" ] || [ -z \"${GVIM_OPEN_SERVERNAME+x}\" ]; then \
+          servername=\"--servername ${GVIM_OPEN_SERVERNAME:-SAMPI}\"; \
+        fi; \
+        gvim ${servername} --remote-silent \
+          \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
+        gvim ${servername} --remote-send \
+          \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
+        \
         local gvok_url=\"https://github.com/DepoXy/gvim-open-kindness\\x23🐬\"; \
-        gvim --remote-silent \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
-        gvim --remote-send \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
         /bin/bash -c \"echo -e 'Improve ‘v’ with gvim-open-kindness: ${gvok_url}'\"; \
       fi; \
     else \
