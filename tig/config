@@ -355,6 +355,8 @@ bind generic v +sh -c " \
 
 bind generic V :show-version
 
+# ***
+
 # Here's how you might diagnose issues with open/edit commands:
 #
 #   bind generic V !sh -c " \
