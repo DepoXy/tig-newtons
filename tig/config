@@ -321,9 +321,7 @@ bind generic . !sh -c " \
 
 # ***
 
-# FIXME/2023-02-14 10:29: Use +sh and %(prompt)
-
-# I like <C-x> except implies copied to clipboard and <C-z> undoable.
+# I like <C-x> except suggests copy to clipboard (and <C-z> undoable).
 bind generic <C-o> >sh -c " \
   git_drop_revision_________________________ () { \
     echo; \
