@@ -16,26 +16,22 @@
 #       man tigrc
 #       man tigmanual
 
+# ***
+
 # HINT/2020-12-14: Test/Run `tig` without loading this config:
 #
 #   XDG_CONFIG_HOME=not-a-path tig
+
+# ***
 
 # BWARE/2021-01-28: If a comment ends with a trailing slash \
 # then next line or command will be ignored, commented or not.
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# *** MOUSE
-
-# set mouse = yes
-# set mouse-scroll = 1
-# set mouse-wheel-cursor = yes
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 # *** BIND(INGS)
 
-# CXREF: See also `man tigmanual`, in addition to `man tig` and `man tigrc`.
+# CXREF: See especially `man tigmanual`, in addition to `man tig` and `man tigrc`.
 
 # ***
 
@@ -53,6 +49,17 @@
 # NOTE/2021-01-27: 'S' is already mapped, though it's not mentioned in the docs.
 # - Run tig and press 'h' to see it's bound, but same as 's': `s, S view-status`.
 #   So you could remap 'S' and not lose any functionality.
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+# *** MOUSE
+
+# tig-newtons does not configure any mouse settings, but these are
+# available:
+
+#  set mouse = yes
+#  set mouse-scroll = 1
+#  set mouse-wheel-cursor = yes
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
