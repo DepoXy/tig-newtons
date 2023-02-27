@@ -37,13 +37,15 @@
 
 # CXREF: See also `man tigmanual`, in addition to `man tig` and `man tigrc`.
 
+# ***
+
 # TRYME: Test binding:
 #
 #   bind generic <C-x> +sh -c "echo You got me!"
 
 # ***
 
-# 2021-01-27: From `man tigrc` examples, might be useful if working on this file:
+# DEV: From `man tigrc`, this might be useful when working on tig config:
 #
 #   # "User-defined internal command that reloads ~/.tigrc"
 #   bind generic S :source ~/.tigrc
