@@ -130,5 +130,28 @@ bind generic + >sh -c " \
     echo; \
   }; rebase_fixup_staged__into_selected_rev____"
 
+# ***
+
+# I like <C-x> except suggests copy to clipboard (and <C-z> undoable).
+bind generic <C-o> >sh -c " \
+  git_drop_revision_________________________ () { \
+    echo; \
+    printf \"Really drop %(commit)? [Y/n] \"; \
+    read input; \
+    if [ -z \"${input}\" ] || [ \"${input}\" = \"Y\" ] || [ \"${input}\" = \"y\" ]; then \
+      echo \"git rebase --onto %(commit)^ %(commit)\"; \
+      if ! git rebase --onto %(commit)^ %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+        >&2 echo; \
+        >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+        >&2 echo \"  🥩 🥩 chop chop\"; \
+        \
+        kill -s 9 $PPID; \
+      fi; \
+    else \
+      echo \"Ope\"; \
+    fi; \
+    echo; \
+  }; git_drop_revision_________________________"
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
