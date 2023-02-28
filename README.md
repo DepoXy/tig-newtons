@@ -1,4 +1,4 @@
-# Supercharged `tig` config
+# Supercharged `tig` config 🍎
 
 *The [tig](https://github.com/jonas/tig) config that does your laundry.*
 
