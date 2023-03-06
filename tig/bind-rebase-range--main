@@ -32,11 +32,8 @@ bind main ! >sh -c " \
   git_upraise_revision______________________ () { \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
-      >&2 echo; \
-      >&2 echo \"ERROR: To use this feature, please install tig-newtons to:\"; \
-      >&2 echo \"  ${tnewtons}\"; \
-      >&2 echo \"Or use the TIGNEWTONSPATH environ.\"; \
-      >&2 echo; \
+      local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
+      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
       return 1; \
     fi; \
     \
@@ -160,12 +157,7 @@ bind main \ >sh -c " \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
-      >&2 echo \"ERROR: To use this feature, please install tig-newtons to:\"; \
-      >&2 echo \"  ${tnewtons}\"; \
-      >&2 echo \"Or use the TIGNEWTONSPATH environ.\"; \
-      >&2 echo; \
-      /bin/bash -c \">&2 echo -e '- Hint: Read the README — ${readme_url}'\"; \
-      >&2 echo; \
+      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
       return 1; \
     fi; \
     \
