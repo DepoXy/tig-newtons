@@ -38,7 +38,7 @@ bind main ! >sh -c " \
     fi; \
     \
     local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
-    ${range_cmd} \"make_latest\" \"%(branch)\" \"%(commit)\"; \
+    ${range_cmd} \"make_latest\" \"%(commit)\"; \
   }; git_upraise_revision______________________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -105,7 +105,7 @@ bind main [ >sh -c " \
     fi; \
     \
     local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
-    ${range_cmd} \"mark_first\" \"%(branch)\" \"%(commit)\"; \
+    ${range_cmd} \"mark_first\" \"%(commit)\"; \
   }; revision_range_cmd__select_first_commit___"
 
 bind main ] >sh -c " \
@@ -118,7 +118,7 @@ bind main ] >sh -c " \
     fi; \
     \
     local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
-    ${range_cmd} \"mark_final\" \"%(branch)\" \"%(commit)\"; \
+    ${range_cmd} \"mark_final\" \"%(commit)\"; \
   }; revision_range_cmd__select_final_commit___"
 
 # ***
@@ -162,7 +162,7 @@ bind main \ >sh -c " \
     fi; \
     \
     local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
-    ${range_cmd} \"${action}\" \"%(branch)\" \"%(commit)\"; \
+    ${range_cmd} \"${action}\" \"%(commit)\"; \
   }; revision_range_cmd__apply_range_action____"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

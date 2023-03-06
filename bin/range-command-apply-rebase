@@ -31,8 +31,7 @@ source_deps () {
 
 range_command_muxxer () {
   local action="$1"
-  local branch="$2"
-  local commit="$3"
+  local commit="$2"
 
   local exit_code=0
   local delay_tig_return=false
@@ -42,9 +41,9 @@ range_command_muxxer () {
   # The first two commands are used to mark a revision range,
   # before the user chooses what action to perform on them.
   if [ "${action}" = "mark_first" ]; then
-    do_mark_first "${branch}" "${commit}"
+    do_mark_first "${commit}"
   elif [ "${action}" = "mark_final" ]; then
-    do_mark_final "${branch}" "${commit}"
+    do_mark_final "${commit}"
     [ $? -eq 0 ] || delay_tig_return=true
   else
     # User pressed apply-action ('\'), so check that one or
@@ -109,7 +108,7 @@ range_command_muxxer () {
         exit_code=$?
       elif [ -n "${action}" ]; then
         # The remaining actions only work on current branch.
-        if ! insist_tig_branch_is_current_branch "${branch}" "${action}"; then
+        if ! insist_tig_branch_is_current_branch "${commit}" "${action}"; then
           delay_tig_return=true
         elif [ "${action}" = "latest" ]; then
           # A plain bubble-up is only a single tig command invocation (unlike
@@ -290,8 +289,7 @@ tags_delete_until_tags () {
 # ***
 
 do_mark_first () {
-  local branch="$1"
-  local commit="$2"
+  local commit="$1"
 
   tags_delete_tags
 
@@ -301,8 +299,7 @@ do_mark_first () {
 # ***
 
 do_mark_final () {
-  local branch="$1"
-  local commit="$2"
+  local commit="$1"
 
   local chosen_rev="$(range_command_print_chosen_rev)"
   local start_rev="$(range_command_print_start_rev)"
@@ -476,21 +473,20 @@ do_action_pick () {
 # TIGPR: Here's another tig PR: tig doesn't always indicate the branch
 # when it's the current branch.
 # - E.g., put this in your tig config:
-#     bind main \ +sh -c "echo \"Branch: %(branch)\"";
-#   And then run `tig` and press '\' on different commits.
+#     bind main B +sh -c "echo \"Branch: %(branch)\"";
+#   And then run `tig` and press 'B' on different commits.
 #   - You'll probably see the branch name echoed on the HEAD commit,
 #     but if you select older commits, tig's %(branch) is sometimes
-#     just the empty string.
+#     just the empty string. Or if you travel past another branch in
+#     the history, %(branch) will show that branch's name.
 #   - I have not checked tig's source to understand why...
-#     - But I'm assuming an empty %(branch) string means it's the
-#       current branch, because I don't see %(branch) ever empty when
-#       tigging another branch, e.g., `tig some-other-branch`.
+# Work-around: Use commit, and check ancestor of HEAD.
 
 insist_tig_branch_is_current_branch () {
-  local branch="$1"
+  local commit="$1"
   local action="$2"
 
-  if [ -n "${branch}" ] && [ "${branch}" != "$(git_branch_name_full)" ]; then
+  if ! git merge-base --is-ancestor "${commit}" "HEAD"; then
     >&2 echo "ERROR: The '${action}' action is only permitted on the current branch."
     >&2 echo "- You may only cherry-pick commits from a different branch."
     >&2 echo
