@@ -8,7 +8,7 @@
 # SYNC_ME:
 #
 #   cd path/to/tig-newtons
-#   meld tig/config-diff tig/config-main &
+#   meld tig/bind-rebase-range--diff tig/bind-rebase-range--main &
 #
 # Only difference should be 'bind main...' vs. 'bind diff', so commands
 # don't apply to other views (pager, reflog, refs, stage, stash, status),

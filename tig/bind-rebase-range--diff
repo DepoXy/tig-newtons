@@ -8,7 +8,7 @@
 # SYNC_ME:
 #
 #   cd path/to/tig-newtons
-#   meld tig/config-diff tig/config-main &
+#   meld tig/bind-rebase-range--diff tig/bind-rebase-range--main &
 #
 # Only difference should be 'bind main...' vs. 'bind diff', so commands
 # don't apply to other views (pager, reflog, refs, stage, stash, status),
@@ -163,12 +163,6 @@ bind diff \ >sh -c " \
     local range_cmd=\"${tnewtons}/bin/range-command-apply-rebase\"; \
     ${range_cmd} \"${action}\" \"%(branch)\" \"%(commit)\"; \
   }; revision_range_cmd__apply_range_action____"
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# FIXME/2023-02-13 16:46: Add 'undo-rebase' command.
-# - Can I use reflog and find previous HEAD?
-# - Or you could record HEAD (after WIPing) to .git/.tignewtons-foo
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
