@@ -53,7 +53,7 @@ bind generic & >sh -c " \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
       sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
-    }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+    }; f \"$1\"' git rebase -i \"%(commit)^\"; \
     ${wipped} && git reset --mixed @~1; \
     echo; \
   }; rebase_reword________selected_rev_________"
