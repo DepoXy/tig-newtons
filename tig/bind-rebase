@@ -135,6 +135,7 @@ bind generic * <sh -c " \
 #     view.
 # - Huh: Git doesn't always remove .git/REBASE_HEAD after rebase.
 #   - It does remove git-rebase-todo.
+# - See comments above `&` command for `exec` mechanism explanation.
 bind generic + >sh -c " \
   rebase_fixup_staged__into_selected_rev____ () { \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
