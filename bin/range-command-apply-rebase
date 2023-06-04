@@ -36,7 +36,7 @@ range_command_muxxer () {
   local exit_code=0
   local delay_tig_return=false
 
-  local wipped=$(make_wip_commit_if_untidy)
+  local wipped=$(make_wip_commit_if_untidy "${action}")
 
   # The first two commands are used to mark a revision range,
   # before the user chooses what action to perform on them.
@@ -156,6 +156,8 @@ range_command_muxxer () {
 #   nothing to commit, working tree clean
 # So throwing in a staged diff check.
 make_wip_commit_if_untidy () {
+  local action="$1"
+
   local wipped=false
 
   git add -A \
