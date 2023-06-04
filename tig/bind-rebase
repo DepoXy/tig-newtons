@@ -16,7 +16,7 @@ bind generic <C-r> >sh -c " \
       && return 1 || true; \
     local wipped=false; \
     git add -A \
-      && git commit -q --no-verify -m 'PRIVATE: WIP [tig <C-r>]' \
+      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-r>]\" \
       && wipped=true; \
     if ! git rebase -i %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
       >&2 echo; \
@@ -48,7 +48,7 @@ bind generic & >sh -c " \
       && return 1 || true; \
     local wipped=false; \
     git add -A \
-      && git commit -q --no-verify -m 'PRIVATE: WIP [tig &]' \
+      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig &]\" \
       && wipped=true; \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
@@ -96,7 +96,7 @@ bind generic * <sh -c " \
       && return 1 || true; \
     local wipped=false; \
     git add -A \
-      && git commit -q --no-verify -m 'PRIVATE: WIP [tig *]' \
+      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig *]\" \
       && wipped=true; \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \

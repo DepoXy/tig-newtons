@@ -162,7 +162,7 @@ make_wip_commit_if_untidy () {
 
   git add -A \
     && [ -n "$(git --no-pager diff --cached --shortstat)" ] \
-    && git commit -q --no-verify -m "PRIVATE: WIP [tig ${action}]" \
+    && git commit -q --no-verify -m "${PRIVATE_PREFIX:-PRIVATE: }WIP [tig ${action}]" \
     && wipped=true
 
   printf "%s" "${wipped}"
