@@ -46,8 +46,11 @@ bind generic <C-r> >sh -c " \
       && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-r>]\" \
       && wipped=true; \
     if ! git rebase -i --autosquash %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+      local also_why=''; \
+      [ ${retcode} -ne 0 ] || also_why='\n (says .git/rebase-merge/git-rebase-todo)'; \
+      \
       >&2 echo; \
-      >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+      >&2 echo \"Killing \\`tig\\` because you got work to do${also_why}\"; \
       >&2 echo \"  🥩 🥩 chop chop\"; \
       \
       kill -s 9 $PPID; \
