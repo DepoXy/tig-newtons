@@ -8,24 +8,24 @@
 # Git-rebase binding.
 # - Note the selected commit is not included in the rebase, i.e.,
 #   calls `git rebase -i %(commit)`, not `git rebase -i %(commit)^`
+# - Note the `exec` appended to the .git/git-rebase-todo, which
+#   pops the stashed WIP commit after the user finishes rebase.
+#   - It also runs optional post-rebase user hook (GIT_POST_REBASE_EXEC).
+#   - We `&` background the operation so that git-rebase does
+#     not see uncommitted changes, otherwise it'll think the
+#     rebase failed:
 #
-# Note the `exec` appended to the .git/git-rebase-todo, which
-# pops the stashed WIP commit after the user finishes rebase.
-# - We `&` background the operation so that git-rebase does
-#   not see uncommitted changes, otherwise it'll think the
-#   rebase failed:
+#       $ git rc
+#       Executing: git reset --mixed @~1
+#       Unstaged changes after reset:
+#       M	some/file
+#       M	another/f
+#       error: cannot rebase: You have unstaged changes.
+#       warning: execution succeeded: git reset --mixed @~1
+#       but left changes to the index and/or the working tree
+#       Commit or stash your changes, and then run
 #
-#     $ git rc
-#     Executing: git reset --mixed @~1
-#     Unstaged changes after reset:
-#     M	some/file
-#     M	another/f
-#     error: cannot rebase: You have unstaged changes.
-#     warning: execution succeeded: git reset --mixed @~1
-#     but left changes to the index and/or the working tree
-#     Commit or stash your changes, and then run
-#
-#       git rebase --continue
+#         git rebase --continue
 #
 #   - Note also the short sleep, though it works without in practice,
 #     but there's a race condition with the Git tidy work tree check:
