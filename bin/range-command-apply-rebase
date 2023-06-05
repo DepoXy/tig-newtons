@@ -201,7 +201,7 @@ make_wip_commit_if_untidy () {
 pop_wip_commit_if_wipped () {
   local wipped="$1"
 
-  ${wipped} && git reset --mixed @~1
+  ${wipped} && git reset -q --mixed @~1
 }
 
 # ***
