@@ -41,6 +41,13 @@
 #       rebase.
 #       - CXREF: https://github.com/landonb/git-smart#💡
 #           ~/.kit/git/git-smart/bin/git-abort
+#
+# - The `git commit -q` is insufficient and we must use `> /dev/null`,
+#   because Git prints to stderr if there's nothing to commit, e.g.,:
+#
+#     $ test -z "$(git status --porcelain=v1)" && git ci -m "Nothing!"
+#     On branch release
+#     nothing to commit, working tree clean
 
 # ***
 
@@ -58,7 +65,7 @@ bind generic <C-r> >sh -c " \
       && return 1 || true; \
     local wipped=false; \
     git add -A \
-      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-r>]\" \
+      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-r>]\" > /dev/null \
       && wipped=true; \
     local retcode=0; \
     git rebase -i --autosquash %(commit); \
@@ -109,7 +116,7 @@ bind generic & >sh -c " \
       && return 1 || true; \
     local wipped=false; \
     git add -A \
-      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\" \
+      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\" > /dev/null \
       && wipped=true; \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
@@ -135,7 +142,7 @@ bind generic * <sh -c " \
       && return 1 || true; \
     local wipped=false; \
     git add -A \
-      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <*>]\" \
+      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <*>]\" > /dev/null \
       && wipped=true; \
     GITSMART_POST_REBASE_EXECS_TAG=\" $(echo '16i 23 P' | dc)git-abort\"; \
     GIT_SEQUENCE_EDITOR=\"f () { \

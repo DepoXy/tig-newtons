@@ -23,7 +23,7 @@ bind generic & >sh -c " \
       && return 1 || true; \
     local wipped=false; \
     git add -A \
-      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\" \
+      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\" > /dev/null \
       && wipped=true; \
     EDITOR=\"${tnewtons}/bin/editor-vim-0-0-insert-minimal\" \
     GIT_SEQUENCE_EDITOR='f () { \
