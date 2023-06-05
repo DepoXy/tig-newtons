@@ -8,6 +8,9 @@
 # Git-rebase binding.
 # - Note the selected commit is not included in the rebase, i.e.,
 #   calls `git rebase -i %(commit)`, not `git rebase -i %(commit)^`
+# - We throw in `--autosquash` so if user ran, e.g.,
+#   `git commit --fixup <sha>`, or `git commit --squash <sha>`,
+#   then that commit will be fixed up or squashed.
 # - Note the `exec` appended to the .git/git-rebase-todo, which
 #   pops the stashed WIP commit after the user finishes rebase.
 #   - It also runs optional post-rebase user hook (GIT_POST_REBASE_EXEC).
@@ -42,7 +45,7 @@ bind generic <C-r> >sh -c " \
     git add -A \
       && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-r>]\" \
       && wipped=true; \
-    if ! git rebase -i %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+    if ! git rebase -i --autosquash %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
       >&2 echo; \
       >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
       >&2 echo \"  🥩 🥩 chop chop\"; \
