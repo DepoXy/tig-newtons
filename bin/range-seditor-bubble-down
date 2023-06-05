@@ -98,7 +98,7 @@ range_seditor_bubble_down () {
         print \"pick \" other_commits[i_todo];
       }
     }
-    1" ${rebase_todo_path}
+    1" "${rebase_todo_path}"
 
   print_todo_maybe "${rebase_todo_path}" "after"
 }
