@@ -6,6 +6,17 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# This is the known Git rebase todo path.
+# - SPIKE: Can we get this from `git` so it's not hardcoded?
+GIT_REBASE_TODO_PATH=".git/rebase-merge/git-rebase-todo"
+
+# This is the special tag at the end of the 'exec' line that
+# you must use if you git-abort to run that 'exec'.
+# - USYNC: This environ is used in git-smart and tig-newtons:
+GITSMART_POST_REBASE_EXECS_TAG=" #git-abort"
+
+# ***
+
 source_deps () {
   local tnewtons_bin="$(dirname "$0")"
 
@@ -36,11 +47,14 @@ range_command_muxxer () {
   local exit_code=0
   local delay_tig_return=false
 
-  local wipped=$(make_wip_commit_if_untidy "${action}")
+  local wipped=false
 
   # The first two commands are used to mark a revision range,
   # before the user chooses what action to perform on them.
-  if [ "${action}" = "mark_first" ]; then
+  # - But before that, do a state check.
+  if ! insist_no_runtime_assets; then
+    exit_code=1
+  elif [ "${action}" = "mark_first" ]; then
     do_mark_first "${commit}"
   elif [ "${action}" = "mark_final" ]; then
     do_mark_final "${commit}"
@@ -93,7 +107,11 @@ range_command_muxxer () {
           action=""
           ;;
       esac
- 
+
+      if [ -n "${action}" ]; then
+        wipped=$(make_wip_commit_if_untidy "${action}")
+      fi
+
       local tnewtons_bin="$(dirname "$0")"
       local seditor_up="${tnewtons_bin}/range-seditor-bubble-up"
 
@@ -130,6 +148,12 @@ range_command_muxxer () {
   if [ ${exit_code} -ne 0 ]; then
     kill_tig
 
+    # Cleanup tags (only `do_action_action` doesn't cleanup tags).
+    tags_delete_range_tags
+
+    # Since we cannot pop WIP yet, do later via rebase-todo 'exec'.
+    set_post_rebase_exec "${wipped}"
+
     # Note the tig caller still finishes, despite tig being dead.
     return 1
   fi
@@ -140,9 +164,10 @@ range_command_muxxer () {
     && [ "${action}" != "mark_first" ] \
     && [ "${action}" != "mark_final" ] \
   ; then
-    # Clean up tags (using somewhat misnamed function).
-    tags_delete_range_tags____________________
+    tags_delete_range_tags
 
+    # Echo blank line, so that output from separate shell-outs
+    # from tig appear more delineated in the terminal.
     echo
   fi
 
@@ -198,22 +223,52 @@ set_command_crumb () {
     rebase_cmd="pick"
   fi
 
-  if [ -e "${TNEWTONS_CRUMB_PATH}" ]; then
-    # DEV: This is in case the cleanup code is lacking.
-    >&2 echo "ERROR: tig-newtons range command already in progress"
-    >&2 echo "- Hint: You could delete the crumb-command: ${TNEWTONS_CRUMB_PATH}"
-    >&2 echo "  - But I bet tig-newtons failed to cleanup properly from before"
+  printf "${rebase_cmd}" > "${TNEWTONS_CRUMB_PATH}"
+}
 
-    return 1
+# When rebase fails, append 'exec' to rebase-todo to pop WIP,
+# if necessary, and to run optional post-rebase user hook.
+set_post_rebase_exec () {
+  local wipped="$1"
+
+  local todo_exec=""
+
+  if ${wipped}; then
+    todo_exec="${todo_exec} && git reset --mixed @~1 > /dev/null"
   fi
 
-  printf "${rebase_cmd}" > "${TNEWTONS_CRUMB_PATH}"
+  if [ -n "${todo_exec}" ]; then
+    # Magic, explained:
+    # - Send 'exec' operation to `&` background, so that git-rebase does
+    #   not see uncommitted changes (from git-reset). Otherwise Git will
+    #   think the rebase failed. See more in tig-newtons/tig/bind-rebase.
+    # - Use #git-abort tag so git-smart/bin/git-abort knows to run 'exec'.
+    #   - Because Git only runs the 'exec' after a successful rebase.
+    echo "exec sleep 0.1${todo_exec} & ${GITSMART_POST_REBASE_EXECS_TAG}" \
+      >> "${GIT_REBASE_TODO_PATH}"
+  fi
 }
 
 # ***
 
 del_command_crumb () {
   command rm -f "${TNEWTONS_CRUMB_PATH}"
+}
+
+# ***
+
+# DEV: This shouldn't ever return nonzero, because code always cleans up.
+insist_no_runtime_assets () {
+  true \
+    && [ ! -e "${TNEWTONS_CRUMB_PATH}" ] \
+    && return 0
+
+  >&2 echo "ERROR: tig-newtons range command might already in progress?"
+  >&2 echo "- It's more likely tig-newtons failed to cleanup from before"
+  >&2 echo "  - Delete this runtime asset and try again:"
+  >&2 echo "      command rm -f ${TNEWTONS_CRUMB_PATH}"
+
+  return 1
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -259,17 +314,21 @@ tags_delete_range_tags____________________ () {
   git tag | grep "^${first_char}-.\+-🍏$" | xargs -n 1 -I % git tag -d % > /dev/null
 }
 
-tags_delete_tags () {
+# Ideally, if rebase fails (and user cancels), it'd be nice to
+# leave their tags. But the tags are annotated with the tig pid,
+# so they're useless if git-cherry-pick or git-rebase fails,
+# or if user aborts.
+tags_delete_range_tags () {
   tags_delete_range_tags____________________ "[🚩🏁]"
 }
 
-tags_delete_start_tags () {
-  tags_delete_range_tags____________________ "🚩"
-}
+# tags_delete_start_tags () {
+#   tags_delete_range_tags____________________ "🚩"
+# }
 
-tags_delete_until_tags () {
-  tags_delete_range_tags____________________ "🏁"
-}
+# tags_delete_until_tags () {
+#   tags_delete_range_tags____________________ "🏁"
+# }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
@@ -293,7 +352,7 @@ tags_delete_until_tags () {
 do_mark_first () {
   local commit="$1"
 
-  tags_delete_tags
+  tags_delete_range_tags
 
   make_chosen_tag "${commit}"
 }
@@ -307,7 +366,7 @@ do_mark_final () {
   local start_rev="$(range_command_print_start_rev)"
   local until_rev="$(range_command_print_until_rev)"
 
-  tags_delete_tags
+  tags_delete_range_tags
 
   if [ -n "${chosen_rev}" ]; then
     if [ "${chosen_rev}" = "${commit}" ]; then
@@ -398,7 +457,8 @@ insist_marked_select_rev_or_range_revs () {
 #
 #   Otherwise, please use 'git cherry-pick --skip'
 #
-# Which requires `git cherry-pick --skip` or `--abort`.
+# Which requires `git cherry-pick --skip` or `--abort` — or `git abort` (
+#   https://github.com/landonb/git-smart/blob/release/bin/git-abort ).
 #
 # So instead we'll call `git cherry-pick --allow-empty`. Then Git will
 # ignore any no-op picks (despite the possibly misleading option name,
@@ -415,8 +475,8 @@ do_action_pick () {
   # Ideally, if rebase fails (and user cancels), it'd be nice to
   # leave their tags. But our tags are annotated with the tig pid,
   # so they're useless if git-cherry-pick or git-rebase fails.
-  # - So guessing we might as well preemptively cleanup.
-  tags_delete_range_tags____________________
+  # - So we might as well preemptively cleanup.
+  tags_delete_range_tags
 
   local rev_range="${chosen_rev}"
   if [ -z "${chosen_rev}" ]; then
@@ -513,6 +573,10 @@ do_action_action () {
   local chosen_rev="$(range_command_print_chosen_rev)"
   local start_rev="$(range_command_print_start_rev)"
   local until_rev="$(range_command_print_until_rev)"
+
+  # Leave tags, which the sequence editor looks for.
+  # - Don't call this here:
+  #     tags_delete_range_tags
 
   local rev_first
   local rev_final
@@ -613,7 +677,7 @@ do_action_latest () {
 
   # Just to be clear that this operation doesn't use the special
   # chosen_tag tag, or the start_tag and until_tag tags.
-  tags_delete_range_tags____________________
+  tags_delete_range_tags
 
   # If wipped, move bubble target before it, because tig config
   # shell command pops latest.

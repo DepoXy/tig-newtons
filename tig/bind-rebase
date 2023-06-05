@@ -35,6 +35,17 @@
 #
 #       https://github.com/git/git/blob/5bc069e383539824fd3a0d897100d44bbe1f8a24/sequencer.c#L3620
 #
+#   - Furthermore, the `$(echo '16i 23 P' | dc)` prints "#", because we
+#     cannot use comment character at all anywhere in the `sh -c` command.
+#     ('16i' specifies the radix (hex) and 'P' tells dc to print.)
+#     - And not using simpler `$(printf "\x23")` which is supported
+#       by Bash, by not by default POSIX shell (like dash). (Though
+#       we could call `$(command bash -c "printf '\x23'")` instead.)
+#     - The full text, " #git-smart", is appended to the 'exec' command,
+#       which tells git-abort to run the 'exec' if the user aborts the
+#       rebase.
+#       - CXREF: https://github.com/landonb/git-smart#💡
+#           ~/.kit/git/git-smart/bin/git-abort
 bind generic <C-r> >sh -c " \
   rebase_interactive___from_selected_rev____ () { \
     echo; \
@@ -45,7 +56,17 @@ bind generic <C-r> >sh -c " \
     git add -A \
       && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-r>]\" \
       && wipped=true; \
-    if ! git rebase -i --autosquash %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+    local retcode=0; \
+    git rebase -i --autosquash %(commit); \
+    retcode=$?; \
+    if [ ${retcode} -ne 0 ] || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+      GIT_REBASE_TODO_PATH=\".git/rebase-merge/git-rebase-todo\"; \
+      GITSMART_POST_REBASE_EXECS_TAG=\" $(echo '16i 23 P' | dc)git-abort\"; \
+      echo \"exec sleep 0.1\" \
+        \"&& (! ${wipped} || git reset --mixed @~1 > /dev/null)\" \
+        \"& ${GITSMART_POST_REBASE_EXECS_TAG}\" \
+          >> \"${GIT_REBASE_TODO_PATH}\"; \
+      \
       local also_why=''; \
       [ ${retcode} -ne 0 ] || also_why='\n (says .git/rebase-merge/git-rebase-todo)'; \
       \
@@ -96,6 +117,8 @@ bind generic & >sh -c " \
 #   https://github.com/landonb/git-smart#💡
 # If using DepoXy, it's at ~/.kit/git/git-smart/bin/git-edit
 #   meld ~/.kit/git/git-smart/bin/git-edit ~/.kit/git/tig-newtons/tig/bind-rebase &
+# - See comments above for GITSMART_POST_REBASE_EXECS_TAG
+#   and GIT_SEQUENCE_EDITOR explanations.
 bind generic * <sh -c " \
   rebase_edit__________selected_rev_________ () { \
     echo; \
@@ -106,12 +129,15 @@ bind generic * <sh -c " \
     git add -A \
       && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <*>]\" \
       && wipped=true; \
-    GIT_SEQUENCE_EDITOR='f () { \
-      local rebase_todo_path=\"$1\"; \
-      sed -i \"1 s/^pick/edit/\" \"${rebase_todo_path}\"; \
-      echo \"exec '${wipped}' && sleep 0.1 && git reset --mixed @~1 > /dev/null &\" \
-        >> \"${rebase_todo_path}\"; \
-    }; f \"$1\"' git rebase -i \"%(commit)^\"; \
+    GITSMART_POST_REBASE_EXECS_TAG=\" $(echo '16i 23 P' | dc)git-abort\"; \
+    GIT_SEQUENCE_EDITOR=\"f () { \
+      local rebase_todo_path=\\\"\\$1\\\"; \
+      sed -i '1 s/^pick/edit/' \\\"\\${rebase_todo_path}\\\"; \
+      echo 'exec sleep 0.1' \
+        '&& (! ${wipped} || git reset --mixed @~1 > /dev/null)' \
+        '& ${GITSMART_POST_REBASE_EXECS_TAG}' \
+          >> \\\"\\${rebase_todo_path}\\\"; \
+    }; f \\\"\\$1\\\"\" git rebase -i %(commit)^; \
     echo; \
   }; rebase_edit__________selected_rev_________"
 
