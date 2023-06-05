@@ -22,7 +22,16 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-GITSMART_GIT_FUP_WIP_COMMIT_MESSAGE="PRIVATE: WIP [git-fup]"
+GITSMART_GIT_FUP_WIP_COMMIT_MESSAGE="${PRIVATE_PREFIX:-PRIVATE: }WIP [git-fup]"
+
+# This is the known Git rebase todo path.
+# - SPIKE: Can we get this from `git` so it's not hardcoded?
+GIT_REBASE_TODO_PATH=".git/rebase-merge/git-rebase-todo"
+
+# This is the special tag at the end of the 'exec' line that
+# you must use if you git-abort to run that 'exec'.
+# - USYNC: This environ is used in git-smart and tig-newtons:
+GITSMART_POST_REBASE_EXECS_TAG=" #git-abort"
 
 git_fixup_and_rebase () {
   local commit="$1"
@@ -33,15 +42,15 @@ git_fixup_and_rebase () {
     exit 1
   fi
 
-  # The `git --no-pager diff --name-only` returns paths relative to
-  # root, which is used by must_not_have_unstaged_hard_link_changes.
-  git_root() {
+  # We can run the `git` commands we need from anywhere within the project,
+  # but change to the root directory just to be safe (this is from a
+  # reverted "feature" that called `git --no-pager diff --name-only`,
+  # which returns paths relative to root, so best run from root).
+  git_root () {
     git rev-parse --show-toplevel
   }
 
   cd "$(git_root)"
-
-  must_not_have_unstaged_hard_link_changes
 
   git commit -q --no-verify --fixup ${commit}
 
@@ -65,28 +74,57 @@ git_fixup_and_rebase () {
     # we'll just remind user about the WIP commit; otherwise we can take
     # the time to add code to prompt-loop until .git/REBASE_HEAD gone.
     print_error_rebase_failed_shared
-    if ${pop_after}; then
-      print_error_rebase_failed_wipped
-    fi
 
     rebase_failed=true
   fi
 
-  # Before we pop the temporary "WIP" commit that we made before the rebase:
-  # - Beware a failed rebase -- we don't want to pop the latest commit
-  #   if the rebase stopped to ask the user to intervene, because that's
-  #   nor our temporary commit.
-  # - AFAIK, .git/REBASE_HEAD exists until the rebase is complete.
-  # - We can also to check if the repo is tidy. If it's not tidy,
-  #   we can assume the rebase failed.
-  # - While we're at it -- or just being unnecessarily paranoid --
-  #   verify that the latest commit has the "WIP" message we used.
-  if ${pop_after} && ! ${rebase_failed}; then
+  if ${rebase_failed}; then
+    # This feels a little... backhanded. Or maybe just sneaky.
+    #
+    # Append rebase-todo with 'exec' cleanup commands:
+    # - Pop the WIP, if we used one (with `git reset --mixed @~1`).
+    # - Restage the fixup! (with `git reset --soft @~1`, aka `git undo`).
+    #   - This restages the intermediate commit the `--fixup` created,
+    #     titled like "fixup! <target commit message>". So the user
+    #     can now endlessly loop git-fup, git-abort, git-fup, etc.
+    # - Also sleep first and background `&` the 'exec', so that
+    #   git-rebase does not see uncommitted changes (otherwise it
+    #   thinks the rebase failed).
+    # - Finally, the #git-abort tag tells git-abort to run the execs
+    #   if the user aborts the rebase instead of finishing it.
+    # (At this point, it feels like we should just use a sequence editor
+    #  and write the initial todo ourselves. But there's also nothing that
+    #  says we shouldn't do it this way, and it works. Just hopping on the
+    #  party train a little late.)
+
+    local todo_exec="sleep 0.1"
+
+    if ${pop_after}; then
+      todo_exec="${todo_exec} && git reset --mixed @~1 > /dev/null"
+    fi
+
+    todo_exec="${todo_exec} && git reset --soft @~1"
+
+    if [ -n "${GIT_POST_REBASE_EXEC}" ]; then
+      todo_exec="${todo_exec} && ${GIT_POST_REBASE_EXEC}"
+    fi
+
+    echo "exec ${todo_exec} & ${GITSMART_POST_REBASE_EXECS_TAG}" \
+      >> "${GIT_REBASE_TODO_PATH}"
+  elif ${pop_after}; then
+    # Rebase succeeded without user intervention. We are clear to
+    # pop the WIP commit... but we'll slide in an unnecessary and
+    # unnecessarily complex state check first just to be paranoid.
     double_triple_quadruple_check_rebase_complete \
       || exit 1
 
     # Aka `git pop1 --quiet`.
     git reset -q --mixed @~1
+
+    # Run any post-rebase user hooks.
+    if [ -n "${GIT_POST_REBASE_EXEC}" ]; then
+      eval ${GIT_POST_REBASE_EXEC}
+    fi
   fi
 }
 
@@ -111,17 +149,21 @@ maybe_commit_uncommitted () {
 
 print_error_rebase_failed_shared () {
   >&2 echo
-  >&2 echo "ERROR: The rebase failed."
-}
-
-print_error_rebase_failed_wipped () {
-  >&2 echo "- You'll find the WIP commit we made after you finish rebasing."
-  >&2 echo "  You can easily remove this commit:"
-  >&2 echo "    git-pop1 { git reset --mixed @~1; }"
+  >&2 echo "ERROR: The git-fup rebase failed."
+  >&2 echo "- Hint: Resolve conflicts and run \`git rc\`" \
+    "(or \`git rebase --continue\`)"
+  >&2 echo "        Or, give up using \`git abort\`" \
+    "(a fancy \`git rebase --abort\`"
+  >&2 echo "        that restages your changes)"
 }
 
 # ***
 
+# - AFAIK, .git/REBASE_HEAD exists until the rebase is complete.
+# - We can also to check if the repo is tidy. If it's not tidy,
+#   we can assume the rebase failed.
+# - While we're at it -- or just being unnecessarily paranoid --
+#   verify that the latest commit has the "WIP" message we used.
 double_triple_quadruple_check_rebase_complete () {
   local rebase_complete=true
 
@@ -184,41 +226,6 @@ git_status_porcelain () {
 
 git_latest_commit_message () {
   git --no-pager log -1 --pretty=%B
-}
-
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-# BEWARE: git-reset is not nice to hard links -- if we were to WIP-commit
-# uncommitted changes from a hard link, a git-reset breaks the hard link.
-#
-# - So examine changed files, and check if any have +1 links:
-#     find . ! -name . -prune -links +1  # report files in current directory
-#     find . ! -name . -prune ! -type d -links +1  # exclude directories
-#     find . ! -name . ! -type d -links +1  # descend into directories
-#   Check a single file instead...
-#     find ${file} -prune ! -type d -links +1
-#   List staged files (which we don't care about; these get fup'ed):
-#     git --no-pager diff --name-only --cached
-#     git --no-pager diff --name-only --staged  # Newer Git alias option
-#   List modified, unstaged files (what we want to check for links):
-#     git ls-files -m  # aka `git ls-files --modified`
-#     git --no-pager diff --name-only
-#   Altogether now:
-#     git --no-pager diff --name-only | xargs -I {} find {} -links +1 | wc -l
-
-must_not_have_unstaged_hard_link_changes () {
-  if [ -n "$( \
-    git --no-pager diff --name-only | xargs -I {} find {} -links +1 \
-  )" ]; then
-    >&2 echo "ERROR: Cannot process: There are hard links with unstaged changes."
-    >&2 echo "       This command clobbers such hard links. You don't want that."
-    >&2 echo "       HINT: Commit hard linked changes first, then retry git-fup."
-    >&2 echo
-    >&2 echo "The culprit is one of more of:"
-    >&2 echo "$( git --no-pager diff --name-only 2>&1 | xargs -I {} find {} -links +1 )"
-
-    return 1
-  fi
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
