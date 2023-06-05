@@ -5,12 +5,7 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Git-rebase binding.
-# - Note the selected commit is not included in the rebase, i.e.,
-#   calls `git rebase -i %(commit)`, not `git rebase -i %(commit)^`
-# - We throw in `--autosquash` so if user ran, e.g.,
-#   `git commit --fixup <sha>`, or `git commit --squash <sha>`,
-#   then that commit will be fixed up or squashed.
+# Command boilerplate notes:
 # - Note the `exec` appended to the .git/git-rebase-todo, which
 #   pops the stashed WIP commit after the user finishes rebase.
 #   - It also runs optional post-rebase user hook (GIT_POST_REBASE_EXEC).
@@ -46,6 +41,15 @@
 #       rebase.
 #       - CXREF: https://github.com/landonb/git-smart#💡
 #           ~/.kit/git/git-smart/bin/git-abort
+
+# ***
+
+# Git-rebase binding.
+# - Note the selected commit is not included in the rebase, i.e.,
+#   calls `git rebase -i %(commit)`, not `git rebase -i %(commit)^`
+# - We throw in `--autosquash` so if user ran, e.g.,
+#   `git commit --fixup <sha>`, or `git commit --squash <sha>`,
+#   then that commit will be fixed up or squashed.
 bind generic <C-r> >sh -c " \
   rebase_interactive___from_selected_rev____ () { \
     echo; \
