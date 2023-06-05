@@ -16,12 +16,12 @@
 #   rebase failed:
 #
 #     $ git rc
-#     Executing: true && git reset --mixed @~1
+#     Executing: git reset --mixed @~1
 #     Unstaged changes after reset:
 #     M	some/file
 #     M	another/f
 #     error: cannot rebase: You have unstaged changes.
-#     warning: execution succeeded: true && git reset --mixed @~1
+#     warning: execution succeeded: git reset --mixed @~1
 #     but left changes to the index and/or the working tree
 #     Commit or stash your changes, and then run
 #
