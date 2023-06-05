@@ -64,6 +64,7 @@ bind generic <C-r> >sh -c " \
       GITSMART_POST_REBASE_EXECS_TAG=\" $(echo '16i 23 P' | dc)git-abort\"; \
       echo \"exec sleep 0.1\" \
         \"&& (! ${wipped} || git reset --mixed @~1 > /dev/null)\" \
+        \"&& ${GIT_POST_REBASE_EXEC}\" \
         \"& ${GITSMART_POST_REBASE_EXECS_TAG}\" \
           >> \"${GIT_REBASE_TODO_PATH}\"; \
       \
@@ -77,6 +78,9 @@ bind generic <C-r> >sh -c " \
       kill -s 9 $PPID; \
     else \
       ${wipped} && git reset --mixed @~1; \
+      \
+      [ -n \"${GIT_POST_REBASE_EXEC}\" ] \
+        && eval ${GIT_POST_REBASE_EXEC}; \
     fi; \
     \
     echo; \
@@ -135,6 +139,7 @@ bind generic * <sh -c " \
       sed -i '1 s/^pick/edit/' \\\"\\${rebase_todo_path}\\\"; \
       echo 'exec sleep 0.1' \
         '&& (! ${wipped} || git reset --mixed @~1 > /dev/null)' \
+        '&& ${GIT_POST_REBASE_EXEC} > /dev/null 2>&1' \
         '& ${GITSMART_POST_REBASE_EXECS_TAG}' \
           >> \\\"\\${rebase_todo_path}\\\"; \
     }; f \\\"\\$1\\\"\" git rebase -i %(commit)^; \

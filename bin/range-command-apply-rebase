@@ -166,6 +166,11 @@ range_command_muxxer () {
   ; then
     tags_delete_range_tags
 
+    # Run optional post-rebase user hook.
+    if [ -n "${GIT_POST_REBASE_EXEC}" ]; then
+      eval ${GIT_POST_REBASE_EXEC}
+    fi
+
     # Echo blank line, so that output from separate shell-outs
     # from tig appear more delineated in the terminal.
     echo
@@ -235,6 +240,14 @@ set_post_rebase_exec () {
 
   if ${wipped}; then
     todo_exec="${todo_exec} && git reset --mixed @~1 > /dev/null"
+  fi
+
+  # Let user add there own sauce.
+  # - UCASE: DepoXy uses this to repair broken hard links (because rebase
+  #          breaks hard links) which are used to keeps deps/ dependencies
+  #          synced across disparate Git repos.
+  if [ -n "${GIT_POST_REBASE_EXEC}" ]; then
+    todo_exec="${todo_exec} && ${GIT_POST_REBASE_EXEC}"
   fi
 
   if [ -n "${todo_exec}" ]; then
