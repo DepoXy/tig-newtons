@@ -239,7 +239,7 @@ set_post_rebase_exec () {
   local todo_exec=""
 
   if ${wipped}; then
-    todo_exec="${todo_exec} && git reset --mixed @~1 > /dev/null"
+    todo_exec="${todo_exec} && git reset -q --mixed @~1"
   fi
 
   # Let user add there own sauce.

@@ -72,7 +72,7 @@ bind generic ^ @sh -c " \
       git --no-pager log --pretty=format:\"%H\" --grep \"$1\" HEAD^..HEAD; \
     }; \
     if [ -n \"$(git_grep_youngest_rev \"\\bWIP\\b\")\" ]; then \
-      git reset --mixed @~1 > /dev/null; \
+      git reset -q --mixed @~1; \
     else \
       echo 'Nothing WIPped'; \
     fi; \

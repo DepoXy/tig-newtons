@@ -63,7 +63,7 @@ bind generic <C-r> >sh -c " \
       GIT_REBASE_TODO_PATH=\".git/rebase-merge/git-rebase-todo\"; \
       GITSMART_POST_REBASE_EXECS_TAG=\" $(echo '16i 23 P' | dc)git-abort\"; \
       echo \"exec sleep 0.1\" \
-        \"&& (! ${wipped} || git reset --mixed @~1 > /dev/null)\" \
+        \"&& (! ${wipped} || git reset -q --mixed @~1)\" \
         \"&& ${GIT_POST_REBASE_EXEC}\" \
         \"& ${GITSMART_POST_REBASE_EXECS_TAG}\" \
           >> \"${GIT_REBASE_TODO_PATH}\"; \
@@ -138,7 +138,7 @@ bind generic * <sh -c " \
       local rebase_todo_path=\\\"\\$1\\\"; \
       sed -i '1 s/^pick/edit/' \\\"\\${rebase_todo_path}\\\"; \
       echo 'exec sleep 0.1' \
-        '&& (! ${wipped} || git reset --mixed @~1 > /dev/null)' \
+        '&& (! ${wipped} || git reset -q --mixed @~1)' \
         '&& ${GIT_POST_REBASE_EXEC} > /dev/null 2>&1' \
         '& ${GITSMART_POST_REBASE_EXECS_TAG}' \
           >> \\\"\\${rebase_todo_path}\\\"; \
