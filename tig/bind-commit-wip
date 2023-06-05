@@ -66,6 +66,10 @@ bind generic <C-t> @sh -c " \
 #    which is the wip-create command. So you can Ctrl-t/^/Ctrl-t/^/...
 #    all day long.)
 # - Note @sh better than >sh, so tig doesn't shell out for a blip.
+#   - Also means output not captured.
+#     - But cannot use +sh to output first line because tig doesn't
+#       update commit list!
+#       - FIXME/2023-06-05: Fix in tig: Refresh after +sh.
 bind generic ^ @sh -c " \
   wip_commit__pop___iff_youngest_rev________ () { \
     git_grep_youngest_rev () { \
