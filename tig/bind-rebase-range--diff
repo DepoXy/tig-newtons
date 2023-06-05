@@ -33,7 +33,7 @@ bind diff ! >sh -c " \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
-      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
+      command bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
       return 1; \
     fi; \
     \
@@ -93,14 +93,14 @@ bind diff ! >sh -c " \
 #   Prints to status:
 #     -e https://github.com/DepoXy/tig-newtons\x23setup
 # - Nor does `printf \"\\x23\"` work (prints '\x23').
-# - However, Bash'ing out works fine (`/bin/bash -c ...`).
+# - However, Bash'ing out works fine (`command bash -c ...`).
 
 bind diff [ >sh -c " \
   revision_range_cmd__select_first_commit___ () { \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
-      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
+      command bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
       return 1; \
     fi; \
     \
@@ -113,7 +113,7 @@ bind diff ] >sh -c " \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
-      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
+      command bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
       return 1; \
     fi; \
     \
@@ -157,7 +157,7 @@ bind diff \ >sh -c " \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
-      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
+      command bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
       return 1; \
     fi; \
     \

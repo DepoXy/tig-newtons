@@ -76,7 +76,7 @@ bind generic v +sh -c " \
           \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
         \
         local gvok_url=\"https://github.com/DepoXy/gvim-open-kindness\\x23🐬\"; \
-        /bin/bash -c \"echo -e 'Improve ‘v’ with gvim-open-kindness: ${gvok_url}'\"; \
+        command bash -c \"echo -e 'Improve ‘v’ with gvim-open-kindness: ${gvok_url}'\"; \
       fi; \
     else \
       echo \"Nothing to edit\"; \

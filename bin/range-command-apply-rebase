@@ -213,7 +213,7 @@ set_command_crumb () {
 # ***
 
 del_command_crumb () {
-  /bin/rm -f "${TNEWTONS_CRUMB_PATH}"
+  command rm -f "${TNEWTONS_CRUMB_PATH}"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

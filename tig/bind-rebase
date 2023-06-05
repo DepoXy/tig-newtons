@@ -141,7 +141,9 @@ bind generic + >sh -c " \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
-      /bin/bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
+      command bash -c \
+        \"echo -e 'ERROR: Setup tig-newtons properly' \
+          'to use this feature — ${readme_url}'\"; \
       return 1; \
     fi; \
     \
