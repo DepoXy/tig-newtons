@@ -158,8 +158,6 @@ range_command_muxxer () {
     return 1
   fi
 
-  pop_wip_commit_if_wipped ${wipped}
-
   if ! ${delay_tig_return} \
     && [ "${action}" != "mark_first" ] \
     && [ "${action}" != "mark_final" ] \
@@ -175,6 +173,8 @@ range_command_muxxer () {
     # from tig appear more delineated in the terminal.
     echo
   fi
+
+  pop_wip_commit_if_wipped ${wipped}
 
   ${delay_tig_return} && return 1 || return 0
 }
@@ -236,28 +236,23 @@ set_command_crumb () {
 set_post_rebase_exec () {
   local wipped="$1"
 
-  local todo_exec=""
-
-  if ${wipped}; then
-    todo_exec="${todo_exec} && git reset -q --mixed @~1"
-  fi
-
   # Let user add there own sauce.
   # - UCASE: DepoXy uses this to repair broken hard links (because rebase
   #          breaks hard links) which are used to keeps deps/ dependencies
   #          synced across disparate Git repos.
   if [ -n "${GIT_POST_REBASE_EXEC}" ]; then
-    todo_exec="${todo_exec} && ${GIT_POST_REBASE_EXEC}"
+    echo "exec ${GIT_POST_REBASE_EXEC} ${GITSMART_POST_REBASE_EXECS_TAG}" \
+      >> "${GIT_REBASE_TODO_PATH}"
   fi
 
-  if [ -n "${todo_exec}" ]; then
-    # Magic, explained:
-    # - Send 'exec' operation to `&` background, so that git-rebase does
-    #   not see uncommitted changes (from git-reset). Otherwise Git will
-    #   think the rebase failed. See more in tig-newtons/tig/bind-rebase.
-    # - Use #git-abort tag so git-smart/bin/git-abort knows to run 'exec'.
-    #   - Because Git only runs the 'exec' after a successful rebase.
-    echo "exec sleep 0.1${todo_exec} & ${GITSMART_POST_REBASE_EXECS_TAG}" \
+  # Magic, explained:
+  # - Send 'exec' operation to `&` background, so that git-rebase does
+  #   not see uncommitted changes (from git-reset). Otherwise Git will
+  #   think the rebase failed. See more in tig-newtons/tig/bind-rebase.
+  # - Use #git-abort tag so git-smart/bin/git-abort knows to run 'exec'.
+  #   - Because Git only runs the 'exec' after a successful rebase.
+  if ${wipped}; then
+    echo "exec sleep 0.1 && git reset -q --mixed @~1 & ${GITSMART_POST_REBASE_EXECS_TAG}" \
       >> "${GIT_REBASE_TODO_PATH}"
   fi
 }

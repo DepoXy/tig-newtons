@@ -32,10 +32,12 @@ bind generic & >sh -c " \
       sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
     \
-    ${wipped} && git reset -q --mixed @~1; \
+    local __comment__='♯ Not checking error; assuming git-reword always a success'; \
     \
     [ -n \"${GIT_POST_REBASE_EXEC}\" ] \
       && eval ${GIT_POST_REBASE_EXEC}; \
+    \
+    ${wipped} && git reset -q --mixed @~1; \
     \
     echo; \
   }; rebase_reword________selected_rev_________"
