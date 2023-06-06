@@ -201,13 +201,25 @@ bind generic + >sh -c " \
     fi; \
     \
     local git_fup=\"${tnewtons}/deps/git-smart/bin/git-fup\"; \
-    if ! \"${git_fup}\" %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
+    local retcode=0; \
+    \"${git_fup}\" %(commit); \
+    retcode=$?; \
+    \
+    GIT_REBASE_TODO_PATH=\".git/rebase-merge/git-rebase-todo\"; \
+    if [ ${retcode} -ne 0 ] || [ -f \"${GIT_REBASE_TODO_PATH}\" ]; then \
+      local __comment__='♯ Not injecting GIT_POST_REBASE_EXEC into rebase-todo b/c git-fup did it'; \
+      \
+      local also_why=''; \
+      [ ${retcode} -ne 0 ] || also_why='\n (says .git/rebase-merge/git-rebase-todo)'; \
+      \
       >&2 echo; \
-      >&2 echo \"Killing \\`tig\\` because you got work to do\"; \
+      >&2 echo \"Killing \\`tig\\` because you got work to do${also_why}\"; \
       >&2 echo \"  🥩 🥩 chop chop\"; \
       \
       kill -s 9 $PPID; \
     fi; \
+    local __comment__='♯ else, not calling GIT_POST_REBASE_EXEC b/c git-fup did it'; \
+    \
     echo; \
   }; rebase_fixup_staged__into_selected_rev____"
 
