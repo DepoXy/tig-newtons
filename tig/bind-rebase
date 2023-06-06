@@ -59,7 +59,6 @@
 #   then that commit will be fixed up or squashed.
 bind generic <C-r> >sh -c " \
   rebase_interactive___from_selected_rev____ () { \
-    echo; \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <Ctrl-r> disabled while staging' \
       && return 1 || true; \
@@ -110,7 +109,6 @@ bind generic <C-r> >sh -c " \
 #        GIT_SEQUENCE_EDITOR='f () { ...
 bind generic & >sh -c " \
   rebase_reword________selected_rev_________ () { \
-    echo; \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <&> disabled while staging' \
       && return 1 || true; \
@@ -142,7 +140,6 @@ bind generic & >sh -c " \
 #   and GIT_SEQUENCE_EDITOR explanations.
 bind generic * <sh -c " \
   rebase_edit__________selected_rev_________ () { \
-    echo; \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <*> disabled while staging' \
       && return 1 || true; \
@@ -203,7 +200,6 @@ bind generic + >sh -c " \
       return 1; \
     fi; \
     \
-    echo; \
     local git_fup=\"${tnewtons}/deps/git-smart/bin/git-fup\"; \
     if ! \"${git_fup}\" %(commit) || [ -f \".git/rebase-merge/git-rebase-todo\" ]; then \
       >&2 echo; \
@@ -220,7 +216,6 @@ bind generic + >sh -c " \
 # I like <C-x> except suggests copy to clipboard (and <C-z> undoable).
 bind generic <C-o> >sh -c " \
   git_drop_revision_________________________ () { \
-    echo; \
     printf \"Really drop %(commit)? [Y/n] \"; \
     read input; \
     if [ -z \"${input}\" ] || [ \"${input}\" = \"Y\" ] || [ \"${input}\" = \"y\" ]; then \
