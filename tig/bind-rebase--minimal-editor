@@ -25,12 +25,18 @@ bind generic & >sh -c " \
     git add -A \
       && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\" > /dev/null \
       && wipped=true; \
+    \
     EDITOR=\"${tnewtons}/bin/editor-vim-0-0-insert-minimal\" \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
       sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
+    \
     ${wipped} && git reset -q --mixed @~1; \
+    \
+    [ -n \"${GIT_POST_REBASE_EXEC}\" ] \
+      && eval ${GIT_POST_REBASE_EXEC}; \
+    \
     echo; \
   }; rebase_reword________selected_rev_________"
 
