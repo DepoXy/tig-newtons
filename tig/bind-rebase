@@ -120,6 +120,7 @@ bind generic & >sh -c " \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <&> disabled while staging' \
       && return 1 || true; \
+    \
     local wipped=false; \
     git add -A \
       && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\" > /dev/null \
@@ -127,6 +128,7 @@ bind generic & >sh -c " \
     \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
+      \
       sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)^\"; \
     \
@@ -155,11 +157,14 @@ bind generic * <sh -c " \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <*> disabled while staging' \
       && return 1 || true; \
+    \
     local wipped=false; \
     git add -A \
       && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <*>]\" > /dev/null \
       && wipped=true; \
+    \
     GITSMART_POST_REBASE_EXECS_TAG=\" $(echo '16i 23 P' | dc)git-abort\"; \
+    \
     GIT_SEQUENCE_EDITOR=\"f () { \
       local rebase_todo_path=\\\"\\$1\\\"; \
       \
