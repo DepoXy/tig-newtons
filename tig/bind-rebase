@@ -99,9 +99,9 @@ bind generic <C-r> >sh -c " \
         && eval ${GIT_POST_REBASE_EXEC}; \
       \
       ${wipped} && git reset -q --mixed @~1; \
+      \
+      echo; \
     fi; \
-    \
-    echo; \
   }; rebase_interactive___from_selected_rev____"
 
 # ***
@@ -238,10 +238,11 @@ bind generic + >sh -c " \
       >&2 echo \"  🥩 🥩 chop chop\"; \
       \
       kill -s 9 $PPID; \
+    else \
+      local __comment__='♯ else, not calling GIT_POST_REBASE_EXEC b/c git-fup did it'; \
+      \
+      echo; \
     fi; \
-    local __comment__='♯ else, not calling GIT_POST_REBASE_EXEC b/c git-fup did it'; \
-    \
-    echo; \
   }; rebase_fixup_staged__into_selected_rev____"
 
 # ***
@@ -280,12 +281,14 @@ bind generic <C-o> >sh -c " \
       else \
         [ -n \"${GIT_POST_REBASE_EXEC}\" ] \
           && eval ${GIT_POST_REBASE_EXEC}; \
+        \
+        echo; \
       fi; \
     else \
       echo \"Ope\"; \
+      \
+      echo; \
     fi; \
-    \
-    echo; \
   }; git_drop_revision_________________________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
