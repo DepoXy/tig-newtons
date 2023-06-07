@@ -87,7 +87,7 @@ bind generic <C-r> >sh -c " \
       fi; \
       \
       local also_why=''; \
-      [ ${retcode} -ne 0 ] || also_why='\n (says .git/rebase-merge/git-rebase-todo)'; \
+      [ ${retcode} -ne 0 ] || also_why=\"\\n (says ${GIT_REBASE_TODO_PATH})\"; \
       \
       >&2 echo; \
       >&2 echo \"Killing \\`tig\\` because you got work to do${also_why}\"; \
@@ -231,7 +231,7 @@ bind generic + >sh -c " \
       local __comment__='♯ Not injecting GIT_POST_REBASE_EXEC into rebase-todo b/c git-fup did it'; \
       \
       local also_why=''; \
-      [ ${retcode} -ne 0 ] || also_why='\n (says .git/rebase-merge/git-rebase-todo)'; \
+      [ ${retcode} -ne 0 ] || also_why=\"\\n (says ${GIT_REBASE_TODO_PATH})\"; \
       \
       >&2 echo; \
       >&2 echo \"Killing \\`tig\\` because you got work to do${also_why}\"; \
@@ -270,7 +270,7 @@ bind generic <C-o> >sh -c " \
         fi; \
         \
         local also_why=''; \
-        [ ${retcode} -ne 0 ] || also_why='\n (says .git/rebase-merge/git-rebase-todo)'; \
+        [ ${retcode} -ne 0 ] || also_why=\"\\n (says ${GIT_REBASE_TODO_PATH})\"; \
         \
         >&2 echo; \
         >&2 echo \"Killing \\`tig\\` because you got work to do${also_why}\"; \
