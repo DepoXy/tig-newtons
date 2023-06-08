@@ -63,22 +63,16 @@ git_fixup_and_rebase () {
   #   https://stackoverflow.com/questions/29094595/
   #     git-interactive-rebase-without-opening-the-editor
 
-  local rebase_failed=false
+  local retcode=0
 
   # Aka `git ria ${commit}^`
   #  echo "GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash ${commit}^"
-  if ! GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash ${commit}^; then
-    # MEH: We could wait for user to resolve conflicts (like git-put-wise
-    # does (see: must_await_user_resolve_conflicts)). But all user has to
-    # do to clean up is pop the WIP commit. So unless that's too annoying,
-    # we'll just remind user about the WIP commit; otherwise we can take
-    # the time to add code to prompt-loop until .git/REBASE_HEAD gone.
-    print_error_rebase_failed_shared
+  GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash ${commit}^ \
+    || retcode=$?
 
-    rebase_failed=true
-  fi
+  if [ ${retcode} -ne 0 ] && [ -f "${GIT_REBASE_TODO_PATH}" ]; then
+    print_error_rebase_failed
 
-  if ${rebase_failed}; then
     # This feels a little... backhanded. Or maybe just sneaky.
     #
     # Append rebase-todo with 'exec' cleanup commands:
@@ -114,7 +108,7 @@ git_fixup_and_rebase () {
 
     echo "exec ${todo_exec} & ${GITSMART_POST_REBASE_EXECS_TAG}" \
       >> "${GIT_REBASE_TODO_PATH}"
-  elif ${pop_after}; then
+  else
     # Rebase succeeded without user intervention. We are clear to
     # pop the WIP commit... but we'll slide in an unnecessary and
     # unnecessarily complex state check first just to be paranoid.
@@ -126,9 +120,13 @@ git_fixup_and_rebase () {
       eval ${GIT_POST_REBASE_EXEC}
     fi
 
-    # Aka `git pop1 --quiet`.
-    git reset -q --mixed @~1
+    if ${pop_after}; then
+      # Aka `git pop1 --quiet`.
+      git reset -q --mixed @~1
+    fi
   fi
+
+  return ${retcode}
 }
 
 # ***
@@ -150,14 +148,11 @@ maybe_commit_uncommitted () {
 
 # ***
 
-print_error_rebase_failed_shared () {
+print_error_rebase_failed () {
   >&2 echo
-  >&2 echo "ERROR: The git-fup rebase failed."
-  >&2 echo "- Hint: Resolve conflicts and run \`git rc\`" \
-    "(or \`git rebase --continue\`)"
-  >&2 echo "        Or, give up using \`git abort\`" \
-    "(a fancy \`git rebase --abort\`"
-  >&2 echo "        that restages your changes)"
+  >&2 echo "ALERT: git-fup stopped on unresolved merge conflict."
+  >&2 echo "  Resolve conflicts and call \`git rebase --continue\`"
+  >&2 echo "   — or \`git abort\` to cancel and restage changes."
 }
 
 # ***
