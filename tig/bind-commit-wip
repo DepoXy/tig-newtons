@@ -34,8 +34,8 @@ bind generic <C-t> @sh -c " \
 # Git-pop binding.
 
 # A very conversative git-pop binding:
-# - Only pops the youngest commit.
-# - Only pops a WIP commit.
+# - Only pops the youngest (last) commit.
+# - Only pops a WIP commit (has "WIP" in its title).
 
 # Note that running '+sh' synchronously, you can show status line upate,
 # but after WIP removed, the tig view is not updated.
