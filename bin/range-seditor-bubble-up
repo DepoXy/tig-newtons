@@ -64,6 +64,11 @@ range_seditor_bubble_up () {
     exit 1
   fi
 
+  ${DX_SHOW_TODO} && >&2 echo -e \
+    "rebase_cmd:   ${rebase_cmd}" \
+    "\nuntil_match:  ${until_match}" \
+    "\ntarget_match: ${target_match}"
+
   # Use arrays and state to print first commit, or a range of commits,
   # after target rev.
   # - Also discard comment lines, who needs 'em.

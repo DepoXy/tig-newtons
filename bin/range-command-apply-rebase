@@ -15,6 +15,10 @@ GIT_REBASE_TODO_PATH=".git/rebase-merge/git-rebase-todo"
 # - USYNC: This environ is used in git-smart and tig-newtons:
 GITSMART_POST_REBASE_EXECS_TAG=" #git-abort"
 
+# DEV: Uncomment to show trace messages:
+#  DX_SHOW_TODO=true
+DX_SHOW_TODO=${DX_SHOW_TODO:-false}
+
 # ***
 
 source_deps () {
@@ -581,6 +585,13 @@ do_action_action () {
   local chosen_rev="$(range_command_print_chosen_rev)"
   local start_rev="$(range_command_print_start_rev)"
   local until_rev="$(range_command_print_until_rev)"
+
+  ${DX_SHOW_TODO} && >&2 echo -e \
+    "action:     ${action}" \
+    "\ntarget_rev: ${target_rev}" \
+    "\nchosen_rev: ${chosen_rev}" \
+    "\nstart_rev:  ${start_rev}" \
+    "\nuntil_rev:  ${until_rev}"
 
   # Leave tags, which the sequence editor looks for.
   # - Don't call this here:
