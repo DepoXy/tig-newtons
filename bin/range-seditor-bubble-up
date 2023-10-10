@@ -78,7 +78,11 @@ range_seditor_bubble_up () {
       range_commits[i_range] = \$2;
       i_range++;
       if ((\"${until_match}\" == \"//\") || (\$0 ~ ${until_match})) {
-        state = 1;
+        if (\"${until_match}\" == \"${target_match}\") {
+          state = 2;
+        } else {
+          state = 1;
+        }
       }
       next;
     }

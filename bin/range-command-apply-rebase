@@ -644,6 +644,16 @@ do_action_action () {
     if [ "${action}" = "before" ]; then
       # Placing a rev. before another is really just placing it after
       # the one before.
+      #
+      # NOTED: We could tell user when their 'before' is a no-op.
+      #        But it's also a valid operation, so why stop them.
+      #
+      #   if [ "${chosen_rev}" = "$(git rev-parse "${target_rev}^")" ]; then
+      #     >&2 echo "NO-OP: Cannot '${action}' a commit unto itself"
+      #     >&2 echo "- Hint: Try selecting a different target revision next time"
+      #  
+      #     return 1
+      #   fi
       make_target_tag "${target_rev}^"
     else
       make_target_tag "${target_rev}"
@@ -656,6 +666,19 @@ do_action_action () {
     # - Basically any action other than "after".
     if [ "${action}" = "after" ]; then
       # The target_rev stays put; we put rev_first immediately after.
+      #
+      # NOTED: Same with 'before' (above), why bother warn-telling user
+      #        when their 'after' is a no-op.
+      #
+      #   if [ "${target_rev}" = "$(git rev-parse "${chosen_rev}^")" ]; then
+      #     # The code *will* 'after' on the commit before the chosen commit,
+      #     # and it works (does a rebase, but keeps same commit order).
+      #     # - We can also tell user what they're doing is a no-op.
+      #     >&2 echo "NO-OP: Cannot '${action}' a commit unto itself"
+      #     >&2 echo "- Hint: Try selecting a different target revision next time"
+      #
+      #     return 1
+      #   fi
       upstream="${target_rev}"
     else
       # The target_rev stays put; but we need to squash/fixup into it,
