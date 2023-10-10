@@ -240,6 +240,8 @@ set_command_crumb () {
 set_post_rebase_exec () {
   local wipped="$1"
 
+  [ -f "${GIT_REBASE_TODO_PATH}" ] || return
+
   # Let user add there own sauce.
   # - UCASE: DepoXy uses this to repair broken hard links (because rebase
   #          breaks hard links) which are used to keeps deps/ dependencies
