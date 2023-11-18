@@ -10,6 +10,16 @@
 
 *Never leave [tig](https://github.com/jonas/tig) again (to run your favorite git commands)*
 
+* [Features](#features)
+* [Defaults](#defaults)
+* [Setup](#setup)
+* [Troubleshooting "loose objects"](#troubleshooting-loose-objects)
+
+<!--
+  https://github.com/ekalinin/github-markdown-toc
+  https://github.blog/changelog/2021-04-13-table-of-contents-support-in-markdown-files/
+-->
+
 ## Features
 
 'Generic' view bindings (that work from any view):
