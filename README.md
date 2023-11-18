@@ -217,6 +217,78 @@ Whether or not you install `gvim-open-kindness`, you can use the
 
     GVIM_OPEN_SERVERNAME="my-gvim-server" tig
 
+## Troubleshooting "loose objects"
+
+Git might complain during garbage collection after you've used
+`tig` and `tig-newtons` a lot.
+
+- To be honest, the author has only seen this happen *once* in their
+  own experience, but it's documented here should it happen again.
+
+- If you see the following warning after git-commit:
+
+    ```
+    warning: The last gc run reported the following.
+      Please correct the root cause and remove .git/gc.log
+    Automatic cleanup will not be performed until the file is removed.
+
+    warning: There are too many unreachable loose objects;
+      run 'git prune' to remove them.
+    ```
+
+  There's likely a very reasonable explanation (and Git maybe should
+  ease off a bit, especially if you're a *power tigger*).
+
+- Git's problem is `too many unreachable loose objects`.
+
+  - The most well known type of "loose object" is the *dangling commit*.
+
+    This will happen because of rebase — all those original commits that
+    were rebased are no longer part of any branch, and are therefore
+    considered loose commits, or *dangling* commits.
+
+    <!-- (At least I think it's all rebased commits. It might just be old HEADs. -->
+
+  - There's also another type of loose object, the *dangling blob*.
+
+    A dangling blob is simply a change to staging that is never committed.
+
+    That is, from the first `git-add` until the subsequent `git-commit`,
+    all the changes are recorded as blobs.
+
+    So whether you use `git add <file>`, or `git add --patch`, or use
+    `tig` to stage line-by-line (`1`), by the chunk-part (`2`), or
+    by the chunk (`u`), each of those actions creates a dangling blob.
+
+  - The author uses single-line staging most of the time, and I rebase
+    so, so often, that I had 700 dangling commits, and ten times as many
+    dangling blobs in the project that
+    [I was hacking on](https://github.com/doblabs/easy-as-pypi#🥧)
+    when Git barked about "too many loose objects".
+
+    <!--
+    (I'm also not sure if "unreachable" and "loose" are mutually *inclusive*,
+    i.e., is there a difference between "unreachable" and "loose", or is the
+    error describing the same thing?)
+    -->
+
+  - To probe your situation, run `git fsck` to see the dangling objects.
+
+    - Use `git show <blob>` to see blobs, and `tig <commit>` to see comits.
+
+- To resolve the situation, run something like this:
+
+  ```
+  git prune
+
+  git fsck | wc -l
+  # EXPECT: 0
+
+  command rm .git/gc.log
+
+  # Git will eventually run git-gc and be happy
+  ```
+
 ## Bibliography
 
     man tig
