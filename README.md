@@ -1,12 +1,14 @@
 # Supercharged `tig` config 🍎
 
-*The [tig](https://github.com/jonas/tig) config that does your laundry.*
+*The [tig](https://github.com/jonas/tig) config that delights you!*
 
-*Add the capability of rebase to [tig](https://github.com/jonas/tig). And much more. Using only your config.*
+*The fastest way to rebase using [tig](https://github.com/jonas/tig), or any other tool*
 
-*"I wanted the power of [git-interactive-rebase-tool](https://github.com/MitMaro/git-interactive-rebase-tool) from within [tig](https://github.com/jonas/tig)."*
+*Fixup, squash, move one, move many, reword, edit, drop, splice, dice, all from tig!*
 
-*Never leave [tig](https://github.com/jonas/tig) again (to run your favorite git commands).*
+*"I wanted the power of [git-interactive-rebase-tool](https://github.com/MitMaro/git-interactive-rebase-tool) from within [tig](https://github.com/jonas/tig)."* *— That's why this exists*
+
+*Never leave [tig](https://github.com/jonas/tig) again (to run your favorite git commands)*
 
 ## Features
 
@@ -215,7 +217,7 @@ https://jonas.github.io/tig/doc/tigrc.5.html
 
 https://github.com/jonas/tig/blob/master/tigrc
 
-## Find Your Awesome
+## More Awesome
 
 `tig-newtons` maintained by DepoXy dev
 environment orchestration project
