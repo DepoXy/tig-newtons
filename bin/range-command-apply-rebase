@@ -22,7 +22,7 @@ DX_SHOW_TODO=${DX_SHOW_TODO:-false}
 # ***
 
 source_deps () {
-  local tnewtons_bin="$(dirname "$0")"
+  local tnewtons_bin="$(dirname -- "$0")"
 
   # Load TNEWTONS_CRUMB_PATH, range_command_print_until_tag, etc.
   . "${tnewtons_bin}/range-command-common.sh"
@@ -116,7 +116,7 @@ range_command_muxxer () {
         wipped=$(make_wip_commit_if_untidy "${action}")
       fi
 
-      local tnewtons_bin="$(dirname "$0")"
+      local tnewtons_bin="$(dirname -- "$0")"
       local seditor_up="${tnewtons_bin}/range-seditor-bubble-up"
 
       if [ "${action}" = "pick" ]; then
@@ -660,7 +660,7 @@ do_action_action () {
     fi
   else
     # Bubble-down, not -up.
-    seditor="$(dirname ${seditor_up})/range-seditor-bubble-down"
+    seditor="$(dirname -- ${seditor_up})/range-seditor-bubble-down"
     # If before target (which is earliest commit), back up one for rebase.
     # - Also back up for squash or fixup, which needs before commit, too.
     # - Basically any action other than "after".
@@ -691,7 +691,7 @@ do_action_action () {
 
   editor=""
   if ${TN_OPTION_EDITOR_VIM:-false}; then
-    editor="EDITOR=\"$(dirname ${seditor_up})/editor-vim-0-0-insert-minimal\""
+    editor="EDITOR=\"$(dirname -- ${seditor_up})/editor-vim-0-0-insert-minimal\""
   fi
 
   # Set rebase.instructionFormat=%H so sequence editor can

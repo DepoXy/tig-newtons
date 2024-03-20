@@ -20,7 +20,7 @@ range_seditor_bubble_down () {
   echo
 
   # Load `range_command_print_start_match`, `print_todo_maybe`, etc.
-  local tnewtons_bin="$(dirname "$0")"
+  local tnewtons_bin="$(dirname -- "$0")"
   . "${tnewtons_bin}/range-command-common.sh"
 
   print_todo_maybe "${rebase_todo_path}" "before"
