@@ -130,7 +130,7 @@ bind diff ] >sh -c " \
 # SYNC_ME: See same-named function in range-command-apply-rebase.
 bind diff { >sh -c " \
   tags_delete_range_tags____________________ () { \
-    git tag | grep \"^[🚩🏁]-.\\+-🍏$\" | xargs -n 1 -I % git tag -d % > /dev/null; \
+    git tag | grep \"^[🚩🏁]-.\\+-🍏$\" | xargs -I % git tag -d % > /dev/null; \
   }; tags_delete_range_tags____________________"
 
 # ***

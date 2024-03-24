@@ -325,7 +325,7 @@ make_target_tag () {
 tags_delete_range_tags____________________ () {
   local first_char="${1:-[🚩🏁]}"
 
-  git tag | grep "^${first_char}-.\+-🍏$" | xargs -n 1 -I % git tag -d % > /dev/null
+  git tag | grep "^${first_char}-.\+-🍏$" | xargs -I % git tag -d % > /dev/null
 }
 
 # Ideally, if rebase fails (and user cancels), it'd be nice to
