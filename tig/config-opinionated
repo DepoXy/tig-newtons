@@ -70,5 +70,9 @@ set diff-options = --src-prefix=a/ --dst-prefix=b/
 # - Values: manual|auto|after-command|periodic|<bool>
 set refresh-mode = after-command
 
+# Show merge commit diff. REFER:
+# https://stackoverflow.com/questions/25967014/how-to-get-proper-diff-of-merge-commit-in-tig
+set diff-options = --diff-merges=m
+
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
