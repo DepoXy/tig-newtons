@@ -167,3 +167,9 @@ autocmd FileType gitcommit setlocal textwidth=0
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+" Optional color-scheme (coupled to author's favorite colorscheme).
+" CXREF: ~/.vim/pack/landonb/start/dubs_after_dark/colors/after-dark.vim
+silent! color after-dark
+
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
