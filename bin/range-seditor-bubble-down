@@ -105,11 +105,18 @@ range_seditor_bubble_down () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+PROG_NAME="range-seditor-bubble-down"
+
 main () {
   range_seditor_bubble_down "$@"
 }
 
-if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+# Complain if sourced (from any shell), or not run via Bash.
+if [ -z "${BASH_SOURCE}" ] || [ "$0" != "${BASH_SOURCE[0]}" ]; then
+  >&2 echo "ERROR: Run this script with Bash [${PROG_NAME}]"
+
+  false
+else
   main "$@"
 fi
 

@@ -741,17 +741,19 @@ do_action_latest () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+PROG_NAME="range-command-apply-rebase"
+
 main () {
   source_deps
 
   range_command_muxxer "$@"
 }
 
+# Complain if sourced (from any shell), or not run via Bash.
 if [ -z "${BASH_SOURCE}" ] || [ "$0" != "${BASH_SOURCE[0]}" ]; then
-  # Though really `tig` runs this script with /bin/sh, so be POSIX.
-  >&2 echo "ERROR: Run this script with bash"
+  >&2 echo "ERROR: Run this script with Bash [${PROG_NAME}]"
 
-  exit 1
+  false
 else
   main "$@"
 fi
