@@ -741,7 +741,18 @@ do_action_latest () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-PROG_NAME="range-command-apply-rebase"
+insist_run_via_bash () {
+  local prog_name="$(basename -- "$0")"
+
+  # Complain if sourced (from any shell), or not run via Bash.
+  if [ -z "${BASH_SOURCE}" ] || [ "$0" != "${BASH_SOURCE[0]}" ]; then
+    >&2 echo "ERROR: Run this script with Bash [${prog_name}]"
+
+    return 1
+  fi
+}
+
+# ***
 
 main () {
   source_deps
@@ -749,12 +760,9 @@ main () {
   range_command_muxxer "$@"
 }
 
-# Complain if sourced (from any shell), or not run via Bash.
-if [ -z "${BASH_SOURCE}" ] || [ "$0" != "${BASH_SOURCE[0]}" ]; then
-  >&2 echo "ERROR: Run this script with Bash [${PROG_NAME}]"
-
-  false
-else
+if insist_run_via_bash; then
   main "$@"
+else
+  false
 fi
 
