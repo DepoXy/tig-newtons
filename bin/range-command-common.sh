@@ -205,8 +205,16 @@ print_todo_maybe () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Complain if executed.
-if [ "$0" = "${BASH_SOURCE}" ]; then
-  >&2 echo "😶"
+PROG_NAME="range-command-common.sh"
+
+# Alert if not being sourced in Bash, or if being executed.
+if [ -z "${BASH_SOURCE}" ]; then
+  >&2 echo "ERROR: Source this script with Bash [${PROG_NAME}]"
+
+  false
+elif [ "$0" = "${BASH_SOURCE[0]}" ]; then
+  >&2 echo "ALERT: You’re better off sourcing this file [${PROG_NAME}]"
+
+  false
 fi
 
