@@ -49,30 +49,18 @@ set line-graphics = utf-8
 
 set ignore-case = smart-case
 
-# 2020-10-21: Repair tig blame to work with git-smart .gitconfig.
-# - The git-smart .gitconfig suppresses the 'a/' and 'b/' path prefixes
-#   to make it easy to double-click and copy paths from terminal session.
-#     https://github.com/landonb/git-smart#💡
-# - But tig blame looks upwards from the cursor for the a/ and b/ paths
-#   to get the blame paths.
-# - I.e., with the cursor in a diff hunk, press 'b', and tig looks
-#   backward lines for the a/ and b/ files with which to run blame.
-#   - What a nifty feature! But git-smart inadvertently breaks it.
-#     Here we restore it.
-# 2023-01-16: Note this breaks tig's built-in 'e' and :edit commands, which
-# do not expect the a/ or b/ prefix. We fix (replace) the 'e' command in
-# another config; but this setting leaves the :edit command broken.
-# (But if you're like me, you almost always open in 'v' gVim.)
+# Show merge commit diff with `--diff-merges=m`.
+# - REFER:
+#   https://stackoverflow.com/questions/25967014/how-to-get-proper-diff-of-merge-commit-in-tig
 #
-#  set diff-options = --src-prefix=a/ --dst-prefix=b/
+# BWARE: This used to also include '--src-prefix=a/ --dst-prefix=b/'
+# here to support the `v` and `e` commands (GVim opener, and EDITOR
+# opener) but the prefix options break the built-in `:edit` command.
+# Fortunately the `v` and `e` commands were adjusted to work regardless
+# of the prefix options.
+# - tl;dr: Don't set prefix options here.
 #
-# Show merge commit diff. REFER:
-# https://stackoverflow.com/questions/25967014/how-to-get-proper-diff-of-merge-commit-in-tig
-#
-#  set diff-options = --diff-merges=m
-
-# Combined diff-options:
-set diff-options = --src-prefix=a/ --dst-prefix=b/ --diff-merges=m
+set diff-options = --diff-merges=m
 
 # Some of the tig-newton commands shell-out and rebase,
 # so ensure tig updates the view after any command runs.

@@ -27,60 +27,89 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Press `v` to open files in GVim.
+# FEATR: Press `v` to open files in an external GVim editor.
 #
-# In diff view, the file that's under the cursor will be opened,
-# and the cursor will be placed on the corresponding line.
+# In diff or stage view, the file that's under the tig cursor will be
+# opened, and the GVim cursor will be placed on the corresponding line.
 #
-# - Note: This works in a tig diff view.
-#         But it does not work in a
-#           `git diff a..b | tig` view.
+# - SAVVY: This only works when you run `tig` normally.
+#   - This does not work if you pipe a diff to tig, e.g.,
+#     `git diff sha1..sha2 | tig`, because tig does not set %(file).
 #
-# - I did not add a similar command to open the file in Vim
-#   in the same terminal as tig, but you could do so with a
-#   `!sh` so tig shows output, e.g.,
-#
-#       bind generic V !sh -c " \
-#         vim -c \"call cursor(%(lineno), 0)\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\""
-#
-# - CAVEAT: tig does not clear %(file) or %(lineno) if user quits 'diff'
-#   view or otherwise moves cursor away from file diff.
-#   - Fortunately, tig set %(lineno_old) to 0 when in such a state.
-#     Use that to know if there's a file to open or not.
-#   - Note also: file_old/lineno_old is the a/path file (the diff lhs).
-#     (If you thought file_old/lineno_old was user's previous selection
-#      in tig, then you're not alone; or maybe I'm the odd one.)
-#     - I wonder if I should open a ticket and MR to also reset %(lineno) to
-#       0 when %(lineno_old) is reset to 0, or if there's a reason it's not.
+# - SAVVY: tig does not clear %(file) or %(lineno) if user quits
+#   the diff view or otherwise moves cursor away from a file diff.
+#   - In such a state, tig sets %(lineno_old) to 0.
+#     - Note that file_old/lineno_old is the a/path file (the diff
+#       lhs).
+#   - We could test if %(lineno_old) is 0 to avoid running this
+#     command in such instances, but then the `v` command won't
+#     work on *added* files, i.e., where the a/ file is /dev/null.
+#     - But if we add a 'main' binding in addition to the 'generic'
+#       binding, the 'main' binding can prevent opening a recently
+#       (but no longer) selected file from the main view.
+#     - Though in 'diff' view, if user moves the cursor down to a
+#       file, but then moves the cursor back up to the diff header,
+#       this command will still open the most recently selected
+#       file. But that's not as annoying as opening some random
+#       file from the main view. So we're not gonna worry about
+#       that.
 #
 # - Mnemonic: Think 'v', as in Vim.
 #
-#   - Note this hides the default tig 'v', which
-#     is show-version, e.g., 'tig-2.5.1'
-#     - To access: :show-version.
-#     - We'll also replace at 'V', why not.
+#   - Note this hides the default tig 'v' binding, which is
+#     show-version, e.g., prints 'tig-2.5.1' to the status line.
+#     - You can also just run `:show-version`.
+#     - But we'll move the version command to `V`.
 #
-# - This calls gvim-open-kindness (from Home Fries) to ensure that
-#   file does not open in quickfix window, or the project tray, or
-#   a help window, etc.
-#     https://github.com/landonb/home-fries/blob/release/bin/gvim-open-kindness
+# - This command prefers to call gvim-open-kindness to ensure that
+#   the file does not open in the quickfix window, or the project
+#   tray, or a help window, etc.
+#   - You can find gvim-open-kindness here:
+#       https://github.com/DepoXy/gvim-open-kindness#🐬
+#   - If that project is not installed, this command calls `gvim`.
+#   - In either case, you can specify the --servername by setting
+#     the GVIM_OPEN_SERVERNAME environ.
+#   - Regarding the URL printed from the command below:
+#     - I like to postfix project URLs with a pound '#' followed by
+#       an emoji.
+#     - But we cannot use '#' in a tig config shell command string,
+#       or tig breaks.
+#     - One option is to substitute '?', which can be pasted to the
+#       browser location, e.g., /gvim-open-kindness?🐬.
+#       - A better option is to resolve '\\x23' to '#' using bash -c.
 #
-# - I like to postfix project URLs with a pound '#' followed by an emoji.
-#   But cannot use '#' in a tig config shell command string, or tig breaks.
-#   One could substitute '?', which can be pasted to browser location, e.g.,
-#   /gvim-open-kindness?🐬. Another option is resolving \\x23 using bash -c.
+# SAVVY: We need to prepare the %(file) string before opening the
+# file.
+# - Depending on the Git diff prefix options, which you could set
+#   via your tig config, e.g.,
+#     set diff-options = --src-prefix=a/ --dst-prefix=b/
+#   the %(file) component might start with "b/".
+#   - Or it might not, e.g., the %(file) might be "b/path/to/file"
+#     or it might just be "path/to/file".
+# - Also note that, usually, the %(directory) string is the relative
+#   path to the current directory, i.e., "."
+# - So we use a sed command to ensure the file name starts with a "/"
+#   - E.g., whether %(file) is "b/foo" or just "foo", the sed will
+#     convert it to "/foo", and then the complete path will be "./foo"
+# - See also git-diff's --no-prefix, and the newer (Git 2.41 and onward)
+#   --default-prefix, in addition to --src-prefix and --dst-prefix.
+#   - This command should handle any configuration of those options.
+#     - Well, it should handle no prefix, or the "b/" prefix.
+
 bind generic v +sh -c " \
   open_line_under_cursor__gVim______________ () { \
     if [ -n \"%(file)\" ]; then \
       if command -v gvim-open-kindness > /dev/null; then \
-        gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
+        gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$( \
+          echo \"%(file)\" | sed \"s/^\\(b\\/\\)\\?/\\//\")\"; \
       else \
         local servername=\"\"; \
         if [ -n \"${GVIM_OPEN_SERVERNAME}\" ] || [ -z \"${GVIM_OPEN_SERVERNAME+x}\" ]; then \
           servername=\"--servername ${GVIM_OPEN_SERVERNAME:-SAMPI}\"; \
         fi; \
         gvim ${servername} --remote-silent \
-          \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
+          \"%(directory)$( \
+          echo \"%(file)\" | sed \"s/^\\(b\\/\\)\\?/\\//\")\"; \
         gvim ${servername} --remote-send \
           \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
         \
@@ -109,45 +138,47 @@ bind generic V :show-version
 
 # ***
 
-# The diff-options option above breaks tig's built-in 'e' and :edit
-# commands. Specifically, this setting above:
+# FEATR: Press `e` to open files in your EDITOR in the same process
+# (and terminal) as tig.
 #
-#   set diff-options = --src-prefix=a/ --dst-prefix=b/
+# - Note this is similar to the built-in `:edit` command.
 #
-# You can test against vanilla tig thusly (though still loads your Git config):
+# - This command is necessary (or at least used to be necessary)
+#   if you use diff prefixing, e.g.,
 #
-#   XDG_CONFIG_HOME=foo tig
+#     set diff-options = --src-prefix=a/ --dst-prefix=b/
 #
-# and you should see that 'e' works, and that the tig 'diff' view
-# shows the `--- file` and `+++ file` without an a/ and b/ prefix
-# (as opposed to how we format it, `--- a/file` and `+++ b/file`,
-#  which makes it so tig-blame works (because tig-blame fails if
-#  the paths *do not* have the a/ and b/ prefix, I know, right)).
+#   which breaks the `:edit` command.
 #
-# I have not searched GitHub Issues, but I would be surprised if
-# this is an issue for the broader public, because it seems like
-# something that would've been fixed (which is why I have not
-# bothered to search GitHub Issues). So I assume it's something
-# with my tig or Git configs, or development environment -- though
-# not to say tig shouldn't be fixed, because this is ultimately a
-# tig issue.
+# - You can test against vanilla tig thusly (though still loads
+#   your Git config) if you're fiddling with the prefix options:
 #
-# Here we replace broken 'e' with a mostly faithful reproduction.
-# Because we use '!' (full i/o, b/c Vim is interactive), even
-# when there's nothing to edit, tig shells out and the user must
-# 'Press Enter to continue'. This is different from the built-in 'e'
-# command, where tig prints "Nothing to edit" to the status line, and
-# tig never shells out and the user is not prompted.
-# - BROKE: Note that the :edit command remains broken. Whatever, just
-#   use 'e'. Or better yet, use 'v'.
-# - SYNCD: See EDITOR resolution in tig/src/display.c open_editor():
-#            Prefers TIG_EDITOR → GIT_EDITOR → VISUAL → EDITOR → vi.
+#     XDG_CONFIG_HOME=foo tig
+#
+#   You should see that 'e' works, and that the tig 'diff' view
+#   shows `--- file` and `+++ file` without an a/ and b/ prefix.
+#
+#   - In old tig versions, or maybe it was old iterations of
+#     tig-newtons config, the tig `blame` mode would fail if
+#     the paths *did not* have the a/ and b/ prefix. But lately
+#     the tig blame view seems to work without those prefixes.
+#     - I sort of assume this was a tig-newton problem, and not
+#       a tig problem. Fortunately I can no longer replicate it.
+#
+# - Note that `:edit` prints "Nothing to edit" to the status line
+#   when run from the main view. But we'll print a hintful message
+#   instead, telling the user to run this command from diff view.
+#
+# - REFER: tig resolves the EDITOR in tig/src/display.c open_editor():
+#   - tig prefers TIG_EDITOR → GIT_EDITOR → VISUAL → EDITOR → vi.
+
 bind generic e >sh -c " \
   open_line_under_cursor__editor____________ () { \
     if [ -n \"%(file)\" ]; then \
       echo; \
       local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
-      ${editor} +%(lineno) \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
+      ${editor} +%(lineno) \"%(directory)$( \
+        echo \"%(file)\" | sed \"s/^\\(b\\/\\)\\?/\\//\")\"; \
       echo; \
     else \
       echo \"Nothing to edit\"; \
