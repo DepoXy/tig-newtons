@@ -5,18 +5,27 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Here's how you might diagnose issues with open/edit commands:
+# CPYST: Here's how you might diagnose issues with open/edit commands:
 #
-#   bind generic V !sh -c " \
-#     print_file_line_info () { \
-#       >&2 echo \"file=%(file)\"; \
-#       >&2 echo \"file_old=%(file_old)\"; \
-#       >&2 echo \"lineno=%(lineno)\"; \
-#       >&2 echo \"lineno_old=%(lineno_old)\"; \
-#       >&2 echo \"directory=%(directory)\"; \
-#     }; print_file_line_info"
+# - Option 1: Change the `+sh` below to `!sh` and echo, e.g.,
+#
+#     bind generic v !sh -c " \
+#       print_file_line_info () { \
+#         >&2 echo \"file=%(file)\"; \
+#         >&2 echo \"file_old=%(file_old)\"; \
+#         >&2 echo \"lineno=%(lineno)\"; \
+#         >&2 echo \"lineno_old=%(lineno_old)\"; \
+#         >&2 echo \"directory=%(directory)\"; \
+#       }; print_file_line_info"
+#
+# - Option 2: Leave the `+sh` below and toast yourself, e.g.,
+#
+#     terminal-notifier -message \"%(directory) — %(file) — $( \
+#       echo \"%(file)\" | sed \"s/^\\(b\\/\\)\\?/\\//\")\"; \
+#
+#   Or use `notify-send` on Linux Mint MATE (GNOME 2).
 
-# ***
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # Press `v` to open files in GVim.
 #
