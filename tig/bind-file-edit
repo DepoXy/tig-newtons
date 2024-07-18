@@ -71,7 +71,7 @@
 #   /gvim-open-kindness?🐬. Another option is resolving \\x23 using bash -c.
 bind generic v +sh -c " \
   open_line_under_cursor__gVim______________ () { \
-    if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
+    if [ -n \"%(file)\" ]; then \
       if command -v gvim-open-kindness > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$(echo '%(file)' | sed 's/^b//')\"; \
       else \
@@ -91,6 +91,14 @@ bind generic v +sh -c " \
       echo \"Nothing to edit\"; \
     fi; \
   }; open_line_under_cursor__gVim______________"
+
+# Define a `v` command for main view that prints a helpful message,
+# rather than opening the most recently (but no longer) selected
+# file (from the most recent diff or stage view).
+bind main v +sh -c " \
+  print_helpful_hint_re_diff_v_binding______ () { \
+    echo 'Try running the \"v\" command from a diff view instead'; \
+  }; print_helpful_hint_re_diff_v_binding______"
 
 # Show the tig version in the status line.
 # - Note that tig binds this to `v` by default, but single-character
@@ -136,7 +144,7 @@ bind generic V :show-version
 #            Prefers TIG_EDITOR → GIT_EDITOR → VISUAL → EDITOR → vi.
 bind generic e >sh -c " \
   open_line_under_cursor__editor____________ () { \
-    if [ -n \"%(file)\" ] && [ %(lineno_old) -ne 0 ]; then \
+    if [ -n \"%(file)\" ]; then \
       echo; \
       local editor=\"${TIG_EDITOR:-${GIT_EDITOR:-${VISUAL:-${EDITOR:-vi}}}}\"; \
       ${editor} +%(lineno) \"%(directory)$(echo \"%(file)\" | sed \"s/^b//\")\"; \
@@ -145,6 +153,14 @@ bind generic e >sh -c " \
       echo \"Nothing to edit\"; \
     fi; \
   }; open_line_under_cursor__editor____________"
+
+# Without this binding, running 'e' from the main view would either
+# print "Nothing to edit", or it would open the most recently (but
+# no longer) selected file (from the last diff or stage view).
+bind main e +sh -c " \
+  print_helpful_hint_re_diff_e_binding______ () { \
+    echo 'Try running the \"e\" command from a diff view instead'; \
+  }; print_helpful_hint_re_diff_e_binding______"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
