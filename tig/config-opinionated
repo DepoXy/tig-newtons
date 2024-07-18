@@ -71,7 +71,7 @@ set ignore-case = smart-case
 #
 #  set diff-options = --diff-merges=m
 
-# Combinaed diff-options:
+# Combined diff-options:
 set diff-options = --src-prefix=a/ --dst-prefix=b/ --diff-merges=m
 
 # Some of the tig-newton commands shell-out and rebase,
