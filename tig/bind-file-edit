@@ -92,6 +92,11 @@ bind generic v +sh -c " \
     fi; \
   }; open_line_under_cursor__gVim______________"
 
+# Show the tig version in the status line.
+# - Note that tig binds this to `v` by default, but single-character
+#   bindings, especially lowercase bindings, are precious, and we've
+#   stolen `v` for our GVim opener.
+# - So we'll remap the version shower to `V`.
 bind generic V :show-version
 
 # ***
