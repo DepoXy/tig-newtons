@@ -189,8 +189,8 @@ Or:
 You can also use the same config for the commit (`C`) and reword (`&`)
 commands if you uncomment a few lines in your custom `tig/config`:
 
-    source /home/landonb/.kit/git/tig-newtons/tig/bind-commit--minimal-editor
-    source /home/landonb/.kit/git/tig-newtons/tig/bind-rebase--minimal-editor
+    source /home/user/.kit/git/tig-newtons/tig/bind-commit--minimal-editor
+    source /home/user/.kit/git/tig-newtons/tig/bind-rebase--minimal-editor
 
 Please inspect
 [bin/editor-vim-0-0-insert-minimal.vimrc](bin/editor-vim-0-0-insert-minimal.vimrc)
