@@ -74,7 +74,7 @@ and optionally squash or fixup those commits:
   following actions.
 
 - To act on a range of commits, first use the `[` command to select
-  one end of then range, then use `]` to select the other end. Finally,
+  one end of the range, then use `]` to select the other end. Finally,
   select the target commit and press `\` to perform one of the
   following actions:
 
