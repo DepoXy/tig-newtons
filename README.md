@@ -66,8 +66,8 @@ and optionally squash or fixup those commits:
 
 - The special tags are necessary to tell the sequence editor what to
   do (we could alternatively use a temporary file under the local
-  `.git/` directory, but using tags lets the user see what commit(s)
-  they selected).
+  `.git/` directory, but using tags lets you see which commit(s)
+  you've selected).
 
 - To act on one commit, first use the `[` command to select a commit,
   then select the target commit and press `\` to perform one of the
