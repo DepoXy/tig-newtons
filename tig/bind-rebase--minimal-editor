@@ -17,10 +17,13 @@
 bind generic & >sh -c " \
   rebase_reword________selected_rev_________ () { \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
+    \
     echo; \
+    \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <&> disabled while staging' \
       && return 1 || true; \
+    \
     local wipped=false; \
     local ci_msg=\"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\"; \
     git add -A \
@@ -32,9 +35,11 @@ bind generic & >sh -c " \
         git reset -q --mixed @~1; \
       fi; \
     }; \
+    \
     EDITOR=\"${tnewtons}/bin/editor-vim-0-0-insert-minimal\" \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
+      \
       sed -i \"1 s/^pick/reword/\" \"${rebase_todo_path}\"; \
     }; f \"$1\"' git rebase -i \"%(commit)\"^; \
     \

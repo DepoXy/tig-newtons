@@ -278,6 +278,7 @@ bind generic + >sh -c " \
 # I like <C-x> except suggests copy to clipboard (i.e., matches
 # conventional "cut" binding; might also suggest <C-z> undoable).
 # - So mapping <C-o> to drop commit (mnemonic: drOp).
+
 bind generic <C-o> >sh -c " \
   git_drop_revision_________________________ () { \
     ! git diff --cached --quiet \
