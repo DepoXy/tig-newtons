@@ -62,6 +62,7 @@ bind generic <C-r> >sh -c " \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <Ctrl-r> disabled while staging' \
       && return 1 || true; \
+    \
     local wipped=false; \
     git add -A \
       && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-r>]\" > /dev/null \
