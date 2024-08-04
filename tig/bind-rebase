@@ -258,6 +258,15 @@ bind generic + >sh -c " \
 # - So mapping <C-o> to drop commit (mnemonic: drOp).
 bind generic <C-o> >sh -c " \
   git_drop_revision_________________________ () { \
+    ! git diff --cached --quiet \
+      && printf '%s\\n\\n' 'ERROR: <C-o> disabled while staging' \
+      && return 1 || true; \
+    \
+    local wipped=false; \
+    git add -A \
+      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-o>]\" > /dev/null \
+      && wipped=true; \
+    \
     printf \"Really drop %(commit)? [Y/n] \"; \
     read input; \
     if [ -z \"${input}\" ] || [ \"${input}\" = \"Y\" ] || [ \"${input}\" = \"y\" ]; then \
@@ -288,10 +297,14 @@ bind generic <C-o> >sh -c " \
         [ -n \"${GIT_POST_REBASE_EXEC}\" ] \
           && eval ${GIT_POST_REBASE_EXEC}; \
         \
+        ${wipped} && git reset -q --mixed @~1; \
+        \
         echo; \
       fi; \
     else \
       echo \"Ope\"; \
+      \
+      ${wipped} && git reset -q --mixed @~1; \
       \
       echo; \
     fi; \
