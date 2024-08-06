@@ -205,7 +205,12 @@ make_wip_commit_if_untidy () {
 pop_wip_commit_if_wipped () {
   local wipped="$1"
 
-  ${wipped} && git reset -q --mixed @~1
+  if ${wipped:-false} \
+    && git log -1 --format=%s \
+      | grep -q -e "^${PRIVATE_PREFIX:-PRIVATE: }WIP \\[tig " \
+  ; then
+    git reset -q --mixed @~1
+  fi
 }
 
 # ***
@@ -258,7 +263,10 @@ set_post_rebase_exec () {
   # - Use #git-abort tag so git-smart/bin/git-abort knows to run 'exec'.
   #   - Because Git only runs the 'exec' after a successful rebase.
   if ${wipped}; then
-    echo "exec sleep 0.1 && git reset -q --mixed @~1 & ${GITSMART_POST_REBASE_EXECS_TAG}" \
+    echo "exec sleep 0.1 \
+      && git log -1 --format=%s \
+        | grep -q -e \"^${PRIVATE_PREFIX:-PRIVATE: }WIP \\\\[tig \" \
+      && git reset -q --mixed @~1 & ${GITSMART_POST_REBASE_EXECS_TAG}" \
       >> "${GIT_REBASE_TODO_PATH}"
   fi
 }

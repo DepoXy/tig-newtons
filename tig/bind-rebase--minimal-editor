@@ -22,10 +22,16 @@ bind generic & >sh -c " \
       && printf '%s\\n\\n' 'ERROR: <&> disabled while staging' \
       && return 1 || true; \
     local wipped=false; \
+    local ci_msg=\"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\"; \
     git add -A \
-      && git commit -q --no-verify -m \"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\" > /dev/null \
+      && git commit -q --no-verify -m \"${ci_msg}\" > /dev/null \
       && wipped=true; \
     \
+    maybe_unstash_changes () { \
+      if ${wipped} && git log -1 --format=%s | grep -q -e \"^${ci_msg}\"; then \
+        git reset -q --mixed @~1; \
+      fi; \
+    }; \
     EDITOR=\"${tnewtons}/bin/editor-vim-0-0-insert-minimal\" \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
@@ -37,7 +43,7 @@ bind generic & >sh -c " \
     [ -n \"${GIT_POST_REBASE_EXEC}\" ] \
       && eval ${GIT_POST_REBASE_EXEC}; \
     \
-    ${wipped} && git reset -q --mixed @~1; \
+    maybe_unstash_changes; \
     \
     echo; \
   }; rebase_reword________selected_rev_________"
