@@ -274,6 +274,10 @@ bind generic + >sh -c " \
 # conventional "cut" binding; might also suggest <C-z> undoable).
 # - So mapping <C-o> to drop commit (mnemonic: drOp).
 
+# Something like this won't work, %(prompt) only receives static
+# strings, AFAIK:
+#   local input=\"%(prompt Really drop %(commit)? [Y/n] )\";
+
 bind generic <C-o> >sh -c " \
   git_drop_revision_________________________ () { \
     ! git diff --cached --quiet \
