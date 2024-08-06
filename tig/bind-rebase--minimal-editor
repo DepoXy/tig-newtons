@@ -31,7 +31,7 @@ bind generic & >sh -c " \
       && wipped=true; \
     \
     maybe_unstash_changes () { \
-      if ${wipped} && git log -1 --format=%s | grep -q -e \"^${ci_msg}\"; then \
+      if ${wipped} && test \"$(git log -1 --format=%s)\" = \"${ci_msg}\"; then \
         git reset -q --mixed @~1; \
       fi; \
     }; \

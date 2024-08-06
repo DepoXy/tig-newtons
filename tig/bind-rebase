@@ -65,12 +65,11 @@ bind generic <C-r> >sh -c " \
     \
     local wipped=false; \
     local ci_msg=\"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-r>]\"; \
-    local ci_grep=\"${PRIVATE_PREFIX:-PRIVATE: }WIP \\\\[tig <C-r>\\\\]\"; \
     git add -A \
       && git commit -q --no-verify -m \"${ci_msg}\" > /dev/null \
       && wipped=true; \
     maybe_unstash_changes () { \
-      if ${wipped} && git log -1 --format=%s | grep -q -e \"^${ci_grep}\"; then \
+      if ${wipped} && test \"$(git log -1 --format=%s)\" = \"${ci_msg}\"; then \
         git reset -q --mixed @~1; \
       fi; \
     }; \
@@ -90,8 +89,7 @@ bind generic <C-r> >sh -c " \
       \
       if ${wipped}; then \
         echo \"exec sleep 0.1 \
-          && git log -1 --format=%s \
-            | grep -q -e \"^${ci_grep}\" \
+          && test \\\"\\$(git log -1 --format=%s)\\\" = \\\"${ci_msg}\\\" \
           && git reset -q --mixed @~1 &\" \
           \"${GITSMART_POST_REBASE_EXECS_TAG}\" \
             >> \"${GIT_REBASE_TODO_PATH}\"; \
@@ -134,12 +132,11 @@ bind generic & >sh -c " \
     \
     local wipped=false; \
     local ci_msg=\"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <&>]\"; \
-    local ci_grep=\"${PRIVATE_PREFIX:-PRIVATE: }WIP \\\\[tig <&>\\\\]\"; \
     git add -A \
       && git commit -q --no-verify -m \"${ci_msg}\" > /dev/null \
       && wipped=true; \
     maybe_unstash_changes () { \
-      if ${wipped} && git log -1 --format=%s | grep -q -e \"^${ci_grep}\"; then \
+      if ${wipped} && test \"$(git log -1 --format=%s)\" = \"${ci_msg}\"; then \
         git reset -q --mixed @~1; \
       fi; \
     }; \
@@ -178,7 +175,6 @@ bind generic * <sh -c " \
     \
     local wipped=false; \
     local ci_msg=\"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <*>]\"; \
-    local ci_grep=\"${PRIVATE_PREFIX:-PRIVATE: }WIP \\\\[tig <\\*>\\\\]\"; \
     git add -A \
       && git commit -q --no-verify -m \"${ci_msg}\" > /dev/null \
       && wipped=true; \
@@ -198,8 +194,7 @@ bind generic * <sh -c " \
       \
       if ${wipped}; then \
         echo 'exec sleep 0.1 \
-          && git log -1 --format=%s \
-            | grep -q -e \"^${ci_grep}\" \
+          && test \\\"\\$(git log -1 --format=%s)\\\" = \\\"${ci_msg}\\\" \
           && git reset -q --mixed @~1 &' \
           '${GITSMART_POST_REBASE_EXECS_TAG}' \
             >> \\\"\\${rebase_todo_path}\\\"; \
@@ -287,12 +282,11 @@ bind generic <C-o> >sh -c " \
     \
     local wipped=false; \
     local ci_msg=\"${PRIVATE_PREFIX:-PRIVATE: }WIP [tig <C-o>]\"; \
-    local ci_grep=\"${PRIVATE_PREFIX:-PRIVATE: }WIP \\\\[tig <C-o>\\\\]\"; \
     git add -A \
       && git commit -q --no-verify -m \"${ci_msg}\" > /dev/null \
       && wipped=true; \
     maybe_unstash_changes () { \
-      if ${wipped} && git log -1 --format=%s | grep -q -e \"^${ci_grep}\"; then \
+      if ${wipped} && test \"$(git log -1 --format=%s)\" = \"${ci_msg}\"; then \
         git reset -q --mixed @~1; \
       fi; \
     }; \
@@ -319,8 +313,7 @@ bind generic <C-o> >sh -c " \
         \
         if ${wipped}; then \
           echo \"exec sleep 0.1 \
-            && git log -1 --format=%s \
-              | grep -q -e \"^${ci_grep}\" \
+            && test \\\"\\$(git log -1 --format=%s)\\\" = \\\"${ci_msg}\\\" \
             && git reset -q --mixed @~1 &\" \
             \"${GITSMART_POST_REBASE_EXECS_TAG}\" \
               >> \"${GIT_REBASE_TODO_PATH}\"; \
