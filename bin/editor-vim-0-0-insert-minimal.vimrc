@@ -136,6 +136,19 @@ call <SID>add_cmd_left_cmd_right_maps_move_cursor_to_line_beg_line_end()
 vnoremap <C-Z> :<C-U> :undo<CR>
 vnoremap <C-Y> :<C-U> :redo<CR>
 
+" l. 753
+" <Alt-T> transpose characters
+function! s:TransposeCharacters()
+  let cursorCol = col('.')
+  if 1 == cursorCol
+    execute 'normal ' . 'xp'
+  else
+    execute 'normal ' . 'Xp'
+  endif
+endfunction
+"
+inoremap <M-T> <C-o>:call <SID>TransposeCharacters()<CR>
+
 " l. 794
 " Tab/Shift-Tab to dedent/indent
 vnoremap <Tab> >gv
