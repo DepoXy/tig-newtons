@@ -103,8 +103,9 @@ endif
 " - Move stuff you want in here into, dunno, dubs_edit_juice.vim,
 "   or dubs_edit_quick.vim, dubs_edit_juicy.vim ha.
 
-" l. 228
-function! s:wire_keys_cursor_to_line_beg_and_end()
+" l. 238
+" <Alt-Left>/<Alt-Right> moves cursor to start/end of line
+function! s:add_alt_left_alt_right_maps_move_cursor_to_line_beg_line_end()
   " Alt-Left moves the cursor to the beginning of the line.
   noremap <M-Left> <Home>
   inoremap <M-Left> <C-O><Home>
@@ -114,8 +115,21 @@ function! s:wire_keys_cursor_to_line_beg_and_end()
   inoremap <M-Right> <C-O><End>
   vnoremap <M-Right> :<C-U> <CR>gvy :execute "normal! $"<CR>
 endfunction
-
-call <SID>wire_keys_cursor_to_line_beg_and_end()
+"
+call <SID>add_alt_left_alt_right_maps_move_cursor_to_line_beg_line_end()
+"
+function! s:add_cmd_left_cmd_right_maps_move_cursor_to_line_beg_line_end()
+  " Cmd-Left moves the cursor to the beginning of the line.
+  noremap <D-Left> <Home>
+  inoremap <D-Left> <C-O><Home>
+  vnoremap <D-Left> :<C-U> <CR>gvy :execute "normal! 0"<CR>
+  " Cmd-Right moves the cursor to the end of the line.
+  noremap <D-Right> <End>
+  inoremap <D-Right> <C-O><End>
+  vnoremap <D-Right> :<C-U> <CR>gvy :execute "normal! $"<CR>
+endfunction
+"
+call <SID>add_cmd_left_cmd_right_maps_move_cursor_to_line_beg_line_end()
 
 " l. 707
 vnoremap <C-Z> :<C-U> :undo<CR>
