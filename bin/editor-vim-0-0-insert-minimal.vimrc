@@ -131,16 +131,18 @@ endfunction
 "
 call <SID>add_cmd_left_cmd_right_maps_move_cursor_to_line_beg_line_end()
 
-" l. 707
+" l. 731
+" <Ctrl-Z>/<Ctrl-Y> undo/redo
 vnoremap <C-Z> :<C-U> :undo<CR>
 vnoremap <C-Y> :<C-U> :redo<CR>
 
-" l. 757
-" Thusly, use Tab/Shift-Tab to add/remove indents
+" l. 794
+" Tab/Shift-Tab to dedent/indent
 vnoremap <Tab> >gv
 vnoremap <S-Tab> <gv
 
 " l. 1676
+" l. 1849
 " https://vim.fandom.com/wiki/Change_cursor_shape_in_different_modes
 let &t_SI = "\<Esc>[6 q"
 let &t_SR = "\<Esc>[4 q"
