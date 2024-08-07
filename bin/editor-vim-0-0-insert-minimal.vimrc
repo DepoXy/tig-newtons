@@ -175,6 +175,24 @@ let &t_SI = "\<Esc>[6 q"
 let &t_SR = "\<Esc>[4 q"
 let &t_EI = "\<Esc>[2 q"
 
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
+" CXREF: ~/.vim/pack/landonb/start/dubs_web_hatch/plugin/dubs_web_hatch.vim
+"   https://github.com/landonb/dubs_web_hatch
+
+" Load optional web opener plugin, and define commands:
+" - <Leader>D — define selected word ('define:<term>') in new browser window
+"                 using URL https://www.google.com/search?q=define+<term>
+" - <Leader>W — search selected word in new browser window
+"                 using URL https://www.google.com/search?q=<term>
+" - <Leader>T, or Normal mode `gW` — open URL under cursor in browser
+let s:web_hatch_plug = $HOME . "/.vim/pack/landonb/start/dubs_web_hatch/plugin/dubs_web_hatch.vim"
+if filereadable(s:web_hatch_plug)
+  exec "source " . s:web_hatch_plug
+endif
+
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 " COPYD: ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/dubs_after_juice.vim
 "   https://github.com/landonb/dubs_edit_juice
 
