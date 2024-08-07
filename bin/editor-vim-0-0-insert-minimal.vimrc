@@ -164,6 +164,11 @@ iabbrev <expr> ttt strftime("%H:%M")
 inoremap <silent> <unique> <Leader>t <C-R>=strftime("/%Y-%m-%d: ")<CR>
 inoremap <F12> <C-R>=strftime("/%Y-%m-%d %H:%M: ")<CR>
 
+" l. 1830
+" Delete word under cursor
+imap <M-d> <C-o>diw
+nmap <M-d> diw
+
 " l. 1849
 " https://vim.fandom.com/wiki/Change_cursor_shape_in_different_modes
 let &t_SI = "\<Esc>[6 q"
