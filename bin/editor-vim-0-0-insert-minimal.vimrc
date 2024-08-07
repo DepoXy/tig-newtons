@@ -154,7 +154,16 @@ inoremap <M-T> <C-o>:call <SID>TransposeCharacters()<CR>
 vnoremap <Tab> >gv
 vnoremap <S-Tab> <gv
 
-" l. 1676
+" l. 1533
+" Insert date abbreviations
+iabbrev <expr> TTT strftime("%Y-%m-%d")
+iabbrev <expr> TTT_ strftime("%Y_%m_%d")
+iabbrev <expr> TTTtt strftime("%Y-%m-%d %H:%M")
+iabbrev <expr> TTTTtt strftime("%Y-%m-%dT%H:%M")
+iabbrev <expr> ttt strftime("%H:%M")
+inoremap <silent> <unique> <Leader>t <C-R>=strftime("/%Y-%m-%d: ")<CR>
+inoremap <F12> <C-R>=strftime("/%Y-%m-%d %H:%M: ")<CR>
+
 " l. 1849
 " https://vim.fandom.com/wiki/Change_cursor_shape_in_different_modes
 let &t_SI = "\<Esc>[6 q"
