@@ -77,27 +77,27 @@ range_command_muxxer () {
       # First, normalize the ${action}, which is what user answered
       # when %(prompt)'ed.
       case "${action}" in
-        p | P | pick)
+        p | pick)
           action="pick"
           ;;
 
-        b | B | before | move_before)
+        b | before | move_before)
           action="before"
           ;;
 
-        a | A | after | move_after)
+        a | after | move_after)
           action="after"
           ;;
 
-        s | S | squash | move_after_then_squash)
+        s | squash | move_after_then_squash)
           action="squash"
           ;;
 
-        t | T | top)
+        t | top)
           action="top"
           ;;
 
-        f | F | fixup | move_after_then_fixup)
+        f | fixup | move_after_then_fixup)
           action="fixup"
           ;;
 
