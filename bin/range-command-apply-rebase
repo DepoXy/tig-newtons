@@ -93,12 +93,12 @@ range_command_muxxer () {
           action="squash"
           ;;
 
-        f | F | fixup | move_after_then_fixup)
-          action="fixup"
-          ;;
-
         t | T | top)
           action="top"
+          ;;
+
+        f | F | fixup | move_after_then_fixup)
+          action="fixup"
           ;;
 
         make_latest)
