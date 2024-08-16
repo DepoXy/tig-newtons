@@ -41,7 +41,7 @@ range_seditor_bubble_down () {
     || [ -z "${until_match}" ] \
     || [ "${until_match}" = "//" ] \
   ; then
-    >&2 echo "ERROR: DEV: Missing one or more of:"
+    >&2 echo "GAFFE: DEV: Missing one or more of:"
     >&2 echo "- rebase_cmd: ${rebase_cmd}"
     >&2 echo "- start_match: ${start_match}"
     >&2 echo "- until_match: ${until_match}"
