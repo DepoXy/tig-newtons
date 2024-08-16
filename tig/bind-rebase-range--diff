@@ -152,7 +152,7 @@ bind diff { >sh -c " \
 
 bind diff \ >sh -c " \
   revision_range_cmd__apply_range_action____ () { \
-    local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [t]op, [s]quash, or [f]ixup ? )\"; \
+    local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [t]op, [s]quash, [f]ixup, or [F]ixup2 ? )\"; \
     \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \

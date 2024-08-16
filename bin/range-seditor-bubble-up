@@ -69,6 +69,16 @@ range_seditor_bubble_up () {
     "\nuntil_match  : ${until_match}" \
     "\ntarget_match : ${target_match}"
 
+  local rewrite_message=""
+  if [ "${rebase_cmd}" = "fixup2" ]; then
+    # Squash commits and use most recent commit's message, aka fixup2.
+    rewrite_message="exec git commit --amend --message \\\"\$( \
+      git log -1 --format=%B $(range_command_print_chosen_or_until_rev) \
+    )\\\""
+
+    rebase_cmd="fixup"
+  fi
+
   # Use arrays and state to print first commit, or a range of commits,
   # after target rev.
   # - Also discard comment lines, so final print_todo_maybe is less noisy.
@@ -77,6 +87,10 @@ range_seditor_bubble_up () {
     function print_rebase_cmd_range_commits() {
       for (i_todo = 0; i_todo < i_range; i_todo++) {
         print \"${rebase_cmd} \" range_commits[i_todo];
+      }
+      if ((i_range > 0) && (\"${rewrite_message}\" !~ /^\$/)) {
+        # action: 'F' fixup2
+        print \"${rewrite_message}\";
       }
     }
     state == 0 {

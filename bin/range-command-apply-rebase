@@ -101,6 +101,10 @@ range_command_muxxer () {
           action="fixup"
           ;;
 
+        F | fixup2 | move_after_then_fixup2)
+          action="fixup2"
+          ;;
+
         make_latest)
           action="latest"
           ;;

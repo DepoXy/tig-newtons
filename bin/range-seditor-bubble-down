@@ -54,6 +54,16 @@ range_seditor_bubble_down () {
     "\nstart_match : ${start_match}" \
     "\nuntil_match : ${until_match}"
 
+  local rewrite_message=""
+  if [ "${rebase_cmd}" = "fixup2" ]; then
+    # Squash commits and use most recent commit's message, aka fixup2.
+    rewrite_message="exec git commit --amend --message \\\"\$( \
+      git log -1 --format=%B $(range_command_print_chosen_or_until_rev) \
+    )\\\""
+
+    rebase_cmd="fixup"
+  fi
+
   # If 'squash' or 'fixup', caller included previous commit that we
   # need to 'squash' or 'fixup' into, in which case range_commits
   # get placed second, not first.
@@ -98,6 +108,10 @@ range_seditor_bubble_down () {
     ENDFILE {
       for (i_todo = 0; i_todo < i_range; i_todo++) {
         print \"${rebase_cmd} \" range_commits[i_todo];
+      }
+      if ((i_range > 0) && (\"${rewrite_message}\" !~ /^\$/)) {
+        # action: 'F' fixup2
+        print \"${rewrite_message}\";
       }
       for (i_todo = 0; i_todo < i_other; i_todo++) {
         print \"pick \" other_commits[i_todo];
