@@ -31,10 +31,7 @@ range_command_print_start_match () {
 range_command_print_until_match () {
   local until_match
 
-  local until_rev="$(range_command_print_chosen_rev)"
-  if [ -z "${until_rev}" ]; then
-    until_rev="$(range_command_print_until_rev)"
-  fi
+  local until_rev="$(range_command_print_chosen_or_until_rev)"
 
   if [ -n "${until_rev}" ]; then
     until_match="/ ${until_rev}\$/"
@@ -84,6 +81,15 @@ range_command_print_target_rev () {
   local target_tag="$(range_command_print_target_tag)"
 
   range_command_print_tag_object "${target_tag}"
+}
+
+range_command_print_chosen_or_until_rev () {
+  local until_rev="$(range_command_print_chosen_rev)"
+  if [ -z "${until_rev}" ]; then
+    until_rev="$(range_command_print_until_rev)"
+  fi
+
+  printf "%s" "${until_rev}"
 }
 
 # ***
