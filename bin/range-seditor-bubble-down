@@ -49,6 +49,11 @@ range_seditor_bubble_down () {
     exit 1
   fi
 
+  ${DX_SHOW_TODO} && >&2 echo -e \
+    "rebase_cmd  : ${rebase_cmd}" \
+    "\nstart_match : ${start_match}" \
+    "\nuntil_match : ${until_match}"
+
   # If 'squash' or 'fixup', caller included previous commit that we
   # need to 'squash' or 'fixup' into, in which case range_commits
   # get placed second, not first.
