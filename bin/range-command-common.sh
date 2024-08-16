@@ -205,7 +205,15 @@ print_todo_maybe () {
 
   >&2 echo
   >&2 echo "rebase-todo ${context}:"
-  >&2 echo "$(cat "${rebase_todo_path}" | grep -v "^#")"
+  >&2 echo "+++++++++++++++++++++++++++++++++++++++"
+  # Omit the standard "# Commands:" hints Git adds to the end of the todo.
+  >&2 awk "
+    BEGIN { state = 0; }
+    \$0 ~ /^# Commands:$/ { state = 1; }
+    state == 1 { next; }
+    1" "${rebase_todo_path}"
+
+  >&2 echo "+++++++++++++++++++++++++++++++++++++++"
   >&2 echo
 }
 
