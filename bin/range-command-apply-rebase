@@ -705,7 +705,7 @@ do_action_action () {
   # Set rebase.instructionFormat=%H so sequence editor can
   # more easily grep for the matching until_tag revision.
   # - Use eval, otherwise Bash tries to execute ${editor} (and
-  #   we cannot EDITOR="" lest "error: unable to start editor '').
+  #   we cannot EDITOR="" lest "error: unable to start editor ''").
   eval "GIT_SEQUENCE_EDITOR=\"${seditor}\" \
     ${editor} \
     git -c rebase.instructionFormat=%H \

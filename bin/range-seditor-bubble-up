@@ -71,7 +71,7 @@ range_seditor_bubble_up () {
 
   # Use arrays and state to print first commit, or a range of commits,
   # after target rev.
-  # - Also discard comment lines, who needs 'em.
+  # - Also discard comment lines, so final print_todo_maybe is less noisy.
   awk -i inplace "
     BEGIN { state = 0; i_range = 0; }
     state == 0 {
