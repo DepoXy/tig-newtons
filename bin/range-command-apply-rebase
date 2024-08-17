@@ -643,11 +643,12 @@ do_action_action () {
     rev_final="${until_rev}"
   fi
 
-  local seditor="${seditor_up}"
+  local seditor=""
 
   local upstream
   if git merge-base --is-ancestor "${rev_first}" "${target_rev}"; then
     # Start rebase one before rev_first, which we need to move.
+    seditor="${seditor_up}"
     upstream="${rev_first}^"
     if [ "${action}" = "before" ]; then
       # Placing a rev. before another is really just placing it after
