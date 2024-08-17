@@ -70,54 +70,87 @@ range_seditor_bubble_up () {
     "\ntarget_match : ${target_match}"
 
   local rewrite_message=""
-  if [ "${rebase_cmd}" = "fixup2" ]; then
-    # Squash commits and use most recent commit's message, aka fixup2.
+  local rebase_relative=""
+  if [ "${rebase_cmd}" = "fixup" ]; then
+    # The user selected range before target to "fixup" into target, so
+    # conceptually they probably except the target commit message to be
+    # used as the final commit message. Because the implementation
+    # technically squashes the target and most of the range into the
+    # first range commit, we need to fix the commit message in post.
+    # (An alternative would be to move the range *after* the target and
+    #  use 'fixup' on all the range commits, but then we might create
+    #  unnecessary conflicts.)
+    rewrite_message="exec git commit --amend --message \\\"\$( \
+      git log -1 --format=%B $(range_command_print_target_rev) \
+    )\\\""
+  elif [ "${rebase_cmd}" = "fixup2" ]; then
+    # Use most recent range commit's message.
     rewrite_message="exec git commit --amend --message \\\"\$( \
       git log -1 --format=%B $(range_command_print_chosen_or_until_rev) \
     )\\\""
 
     rebase_cmd="fixup"
+  elif [ "${rebase_cmd}" = "before" ] || [ "${rebase_cmd}" = "after" ]; then
+    rebase_relative="${rebase_cmd}"
+
+    rebase_cmd="pick"
   fi
 
   # Use arrays and state to print first commit, or a range of commits,
   # after target rev.
   # - Also discard comment lines, so final print_todo_maybe is less noisy.
   awk -i inplace "
-    BEGIN { state = 0; i_range = 0; }
+    BEGIN { state = 0; i_range = 0; target_pick = \"\"; }
 
-    function print_rebase_cmd_range_commits() {
+    function print_range_commits_and_target() {
+      if (\"${rebase_relative}\" == \"after\") {
+        print target_pick;
+      }
       for (i_todo = 0; i_todo < i_range; i_todo++) {
-        print \"${rebase_cmd} \" range_commits[i_todo];
+        if ((i_todo != 0) || (\"${rebase_relative}\" == \"after\")) {
+          sub(/^pick /, \"${rebase_cmd} \", range_commits[i_todo]);
+        }
+        print range_commits[i_todo];
+      }
+      if (\"${rebase_relative}\" != \"after\") {
+        sub(/^pick /, \"${rebase_cmd} \", target_pick);
+        print target_pick;
       }
       if ((i_range > 0) && (\"${rewrite_message}\" !~ /^\$/)) {
-        # action: 'F' fixup2
+        # action: 'f' fixup, 'F' fixup2
         print \"${rewrite_message}\";
       }
     }
 
     state == 0 {
-      range_commits[i_range] = \$2;
-      i_range++;
       if ((\"${until_match}\" == \"//\") || (\$0 ~ ${until_match})) {
         if (\"${until_match}\" == \"${target_match}\") {
+          target_pick = \$0;
           state = 2;
         } else {
+          range_commits[i_range] = \$0;
+          i_range++;
           state = 1;
         }
+      } else {
+        range_commits[i_range] = \$0;
+        i_range++;
       }
       next;
     }
 
-    state == 2 {
-      print_rebase_cmd_range_commits();
-      state = 3;
-    }
-
     \$0 ~ ${target_match} && state == 1 {
+      target_pick = \$0;
       state = 2;
+      next;
     }
     \$0 ~ /^\$/ && state == 1 {
-      print_rebase_cmd_range_commits();
+      state = 2;
+      next;
+    }
+
+    state == 2 {
+      print_range_commits_and_target();
       state = 3;
     }
 

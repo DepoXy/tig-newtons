@@ -237,10 +237,6 @@ kill_tig () {
 set_command_crumb () {
   local rebase_cmd="$1"
 
-  if [ "${rebase_cmd}" = "before" ] || [ "${rebase_cmd}" = "after" ]; then
-    rebase_cmd="pick"
-  fi
-
   printf "${rebase_cmd}" > "${TNEWTONS_CRUMB_PATH}"
 }
 
@@ -654,23 +650,7 @@ do_action_action () {
     # Start rebase one before rev_first, which we need to move.
     seditor="${seditor_up}"
     upstream="${rev_first}^"
-    if [ "${action}" = "before" ]; then
-      # Placing a rev. before another is really just placing it after
-      # the one before.
-      #
-      # NOTED: We could tell user when their 'before' is a no-op.
-      #        But it's also a valid operation, so why stop them.
-      #
-      #   if [ "${chosen_rev}" = "$(git rev-parse "${target_rev}^")" ]; then
-      #     >&2 echo "NO-OP: Cannot '${action}' a commit unto itself"
-      #     >&2 echo "- Hint: Try selecting a different target revision next time"
-      #  
-      #     return 1
-      #   fi
-      make_target_tag "${target_rev}^"
-    else
-      make_target_tag "${target_rev}"
-    fi
+    make_target_tag "${target_rev}"
   else
     # Bubble-down, not -up.
     seditor="$(dirname -- ${seditor_up})/range-seditor-bubble-down"
@@ -697,6 +677,9 @@ do_action_action () {
       # The target_rev stays put; but we need to squash/fixup into it,
       # or action is 'before' so we need preceding revision.
       upstream="${target_rev}^"
+    fi
+    if [ "${action}" = "before" ] || [ "${action}" = "after" ]; then
+      action="pick"
     fi
   fi
 
