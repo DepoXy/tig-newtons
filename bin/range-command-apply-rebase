@@ -696,6 +696,12 @@ do_action_action () {
     fi
   fi
 
+  # Tells sequence-editor which rebase action to print/use.
+  # - Note that action was/is transformed for the rebase-todo:
+  #   - 'before' and 'after' become 'pick'
+  #   - 'fixup2' was changed to 'fixup'
+  #   - 'top' already adjusted target_rev and became 'after'
+  #   - others used verbatim: 'pick', 'squash', and 'fixup'
   set_command_crumb "${action}" || return $?
 
   editor=""
