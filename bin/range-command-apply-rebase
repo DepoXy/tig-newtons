@@ -702,7 +702,7 @@ do_action_action () {
   #   we cannot EDITOR="" lest "error: unable to start editor ''").
   eval "GIT_SEQUENCE_EDITOR=\"${seditor}\" \
     ${editor} \
-    git -c rebase.instructionFormat=%H \
+    git -c rebase.instructionFormat=\"%s %H\" \
       rebase -i \"${upstream}\"
   "
 }
@@ -737,7 +737,7 @@ do_action_latest () {
   # Set rebase.instructionFormat=%H so sequence editor can
   # more easily grep for the matching until_tag revision.
   GIT_SEQUENCE_EDITOR="${seditor_up}" \
-    git -c rebase.instructionFormat=%H \
+    git -c rebase.instructionFormat="%s %H" \
       rebase -i "${commit}^"
 }
 

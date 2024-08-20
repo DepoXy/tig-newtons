@@ -5,6 +5,13 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+# REFER/2024-08-20: Matches assume specific format, e.g.,
+#
+#   git -c rebase.instructionFormat=%H \
+#     rebase -i \"${upstream}\"
+#
+# Or `rebase.instructionFormat="%s %H"`, so long as full SHA is last.
+
 range_command_print_start_match () {
   local start_match
 
