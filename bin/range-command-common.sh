@@ -11,6 +11,8 @@
 #     rebase -i \"${upstream}\"
 #
 # Or `rebase.instructionFormat="%s %H"`, so long as full SHA is last.
+#
+# - SAVVY: git-rebase postfixes " # empty" to empty commits.
 
 range_command_print_start_match () {
   local start_match
@@ -27,7 +29,7 @@ range_command_print_start_match () {
     #   rebase.instructionFormat=%H
     # So the todo format we're examing uses long SHAs (and short), e.g.,
     #   pick b2d75b5 b2d75b5d82ff4329d427fd0b8724abe185067593
-    start_match="/ ${start_rev}\$/"
+    start_match="/ ${start_rev}( # empty)?\$/"
   else
     start_match='//'
   fi
@@ -41,7 +43,7 @@ range_command_print_until_match () {
   local until_rev="$(range_command_print_chosen_or_until_rev)"
 
   if [ -n "${until_rev}" ]; then
-    until_match="/ ${until_rev}\$/"
+    until_match="/ ${until_rev}( # empty)?\$/"
   else
     until_match='//'
   fi
@@ -55,7 +57,7 @@ range_command_print_target_match () {
   local target_rev="$(range_command_print_target_rev)"
 
   if [ -n "${target_rev}" ]; then
-    target_match="/ ${target_rev}\$/"
+    target_match="/ ${target_rev}( # empty)?\$/"
   else
     # Note this matches twice in the awk, just how it flows.
     target_match='/^$/'
