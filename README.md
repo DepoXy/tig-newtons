@@ -289,6 +289,12 @@ Git might complain during garbage collection after you've used
   # Git will eventually run git-gc and be happy
   ```
 
+## Similar Projects
+
+- `lazygit` is another Git TUI you might find interesting:
+
+  https://github.com/jesseduffield/lazygit
+
 ## Bibliography
 
     man tig
