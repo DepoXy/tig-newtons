@@ -139,6 +139,44 @@ packadd vim-select-mode-stopped-down
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+" Close undo sequence on newline.
+" - Use case is normally starting a fresh line and messing up the
+"   first few words or changing what I'm thinking of writing.
+" - Though normally I'll hit <Ctrl-W> to delete back a word,
+"   or <Shift-Ctrl-W> to delete the whole line.
+" - Really, I don't use undo that often, but when I do, I'm
+"   still not used to Vim obliterately everything I've written
+"   in insert mode!
+" - Note, too, that use <Ctrl-{Arrow}> to jump around will
+"   break an undo sequence (e.g., <Ctrl-Left> runs <C-O>b,
+"   and the <C-O> naturally ends an undo sequence because
+"   it temporary breaks out of insert mode to run a command,
+"   which inherently closes the current undo sequence).
+"
+" REFER: :h i_CTRL-G_u
+
+" Create new undo block at every newline, undoes to end of prev line.
+"   inoremap <CR> <C-g>u<CR>
+" Create new undo block at every newline, undoes to end of curr line.
+inoremap <CR> <CR><C-g>u
+
+" Undoes to start of word that's removed.
+"   inoremap <Space> <Space><C-g>u
+" Undoes to end of word that's removed.
+" - But if you tab and it expands, *every space is an undo!*
+" - So I'd say this is too annoying, way too fine-grained.
+"   - You're better off <Ctrl-W>'ing to delete the previous
+"     word or otherwise normally editing any mistakes on the
+"     current line.
+"
+"   inoremap <Space> <C-g>u<Space>
+
+" You could similar close undo sequences on <Tab>, but author
+" almost exclusively expands <Tab>, and this Vimrc is mainly
+" for Git commit messages wherein you won't use a real <Tab>.
+"
+"   inoremap <Tab> <Tab><C-g>u
+
 " COPYD: ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/dubs_after_juice.vim
 "   https://github.com/landonb/dubs_edit_juice
 
