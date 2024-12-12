@@ -135,6 +135,15 @@ endif
 "     https://github.com/landonb/vim-buffer-ring
 inoremap <C-l> <C-k>
 
+nnoremap n nzz
+nnoremap N Nzz
+nnoremap <M-n> nzz
+nnoremap <M-N> Nzz
+nnoremap * *zz
+nnoremap # #zz
+nnoremap g* g*zz
+nnoremap g# g#zz
+
 " Ctrl-s to save and exit from any mode.
 noremap <C-s> :wq<CR>
 vnoremap <C-s> <Esc>:wq<CR>
