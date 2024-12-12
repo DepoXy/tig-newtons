@@ -183,23 +183,6 @@ let &t_EI = "\<Esc>[2 q"
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" CXREF: ~/.vim/pack/embrace-vim/start/vim-web-hatch/plugin/vim-web-hatch.vim
-"   https://github.com/embrace-vim/vim-web-hatch#🐣
-
-" Load optional web opener plugin, and define commands:
-" - <Leader>D — define selected word ('define:<term>') in new browser window
-"                 using URL https://www.google.com/search?q=define+<term>
-" - <Leader>W — search selected word in new browser window
-"                 using URL https://www.google.com/search?q=<term>
-" - <Leader>T, or Normal mode `gW` — open URL under cursor in browser
-let s:web_hatch_plug = $HOME . "/.vim/pack/landonb/start/vim-web-hatch/plugin/vim-web-hatch.vim"
-if filereadable(s:web_hatch_plug)
-  exec "source " . s:web_hatch_plug
-endif
-
-" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
 " COPYD: ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/dubs_after_juice.vim
 "   https://github.com/landonb/dubs_edit_juice
 
@@ -237,6 +220,22 @@ autocmd FileType gitcommit setlocal textwidth=0 shiftwidth=2 tabstop=2 expandtab
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+" CXREF: ~/.vim/pack/embrace-vim/start/vim-web-hatch/plugin/vim-web-hatch.vim
+"   https://github.com/embrace-vim/vim-web-hatch#🐣
+
+" Load optional web opener plugin, and define commands:
+" - <Leader>D — define selected word ('define:<term>') in new browser window
+"                 using URL https://www.google.com/search?q=define+<term>
+" - <Leader>W — search selected word in new browser window
+"                 using URL https://www.google.com/search?q=<term>
+" - <Leader>T, or Normal mode `gW` — open URL under cursor in browser
+let s:web_hatch_plug = $HOME . "/.vim/pack/landonb/start/vim-web-hatch/plugin/vim-web-hatch.vim"
+if filereadable(s:web_hatch_plug)
+  exec "source " . s:web_hatch_plug
+endif
+
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " Optional color-scheme (coupled to author's favorite colorscheme).
 " CXREF: ~/.vim/pack/landonb/start/dubs_after_dark/colors/after-dark.vim
 silent! color after-dark
