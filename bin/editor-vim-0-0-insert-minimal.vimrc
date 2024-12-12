@@ -130,6 +130,12 @@ set nonu
 " https://github.com/landonb/dubs_edit_juice#🧃
 packadd dubs_edit_juice
 
+" ***
+
+" Load selection gestures (like <Ctrl-Shift-{Arrow}>).
+" https://github.com/landonb/vim-select-mode-stopped-down#🛑
+packadd vim-select-mode-stopped-down
+
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
