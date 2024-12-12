@@ -200,7 +200,7 @@ call embrace#vim_web_hatch#create_maps()
 
 " Author's (favorite) colorscheme (won't error if not installed).
 " CXREF: ~/.vim/pack/landonb/start/dubs_after_dark/colors/after-dark.vim
-silent! color after-dark
+silent! colorscheme after-dark
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
