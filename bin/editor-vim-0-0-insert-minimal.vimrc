@@ -130,10 +130,8 @@ endif
 
 
 " Access digraphs at <Ctrl-l>, just like in Dubs Vim:
-"   https://github.com/landonb/dubs_edit_juice
-"     ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/dubs_after_juice.vim
 " - Dubs Vim uses Ctrl-l because Ctrl-j/Ctrl-k are used for buffer
-"   ring navigation, so Dubs Vim remaps built-in Ctrl-k to Ctrl-l).
+"   ring navigation, so Dubs Vim remaps built-in Ctrl-k to Ctrl-l.
 "     https://github.com/landonb/vim-buffer-ring
 inoremap <C-l> <C-k>
 
