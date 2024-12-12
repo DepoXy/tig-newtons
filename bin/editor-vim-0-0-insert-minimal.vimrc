@@ -123,7 +123,7 @@ packadd dubs_edit_juice
 let s:running_windows = has("win16") || has("win32") || has("win64")
 
 if !s:running_windows
-  " Map <Ctrl-V>, <Ctrl-X>, and <Ctrl-C> keys.
+  " Map <Ctrl-V>, <Ctrl-X>, and <Ctrl-C> keys, and insert mode <Ctrl-Z>.
   " - Also sets `:behave mswin` (at least MacVim).
   source $VIMRUNTIME/mswin.vim
 endif
