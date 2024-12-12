@@ -128,12 +128,6 @@ if !s:running_windows
   source $VIMRUNTIME/mswin.vim
 endif
 
-" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-
-" Ctrl-s to save and exit from any mode.
-noremap <C-s> :wq<CR>
-vnoremap <C-s> <Esc>:wq<CR>
-inoremap <C-s> <Esc>:wq<CR>
 
 " Access digraphs at <Ctrl-l>, just like in Dubs Vim:
 "   https://github.com/landonb/dubs_edit_juice
@@ -142,6 +136,11 @@ inoremap <C-s> <Esc>:wq<CR>
 "   ring navigation, so Dubs Vim remaps built-in Ctrl-k to Ctrl-l).
 "     https://github.com/landonb/vim-buffer-ring
 inoremap <C-l> <C-k>
+
+" Ctrl-s to save and exit from any mode.
+noremap <C-s> :wq<CR>
+vnoremap <C-s> <Esc>:wq<CR>
+inoremap <C-s> <Esc>:wq<CR>
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
