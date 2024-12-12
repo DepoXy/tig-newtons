@@ -128,6 +128,11 @@ if !s:running_windows
   source $VIMRUNTIME/mswin.vim
 endif
 
+" Ctrl-H Hides Highlighting
+noremap <C-h> :nohlsearch<CR>
+inoremap <C-h> <C-O>:nohlsearch<CR>
+cnoremap <C-h> <C-C>:nohlsearch<CR>
+onoremap <C-h> <C-C>:nohlsearch<CR>
 
 " Access digraphs at <Ctrl-l>, just like in Dubs Vim:
 " - Dubs Vim uses Ctrl-l because Ctrl-j/Ctrl-k are used for buffer
