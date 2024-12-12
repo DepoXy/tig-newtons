@@ -172,16 +172,28 @@ autocmd FileType gitcommit setlocal textwidth=0 shiftwidth=2 tabstop=2 expandtab
 " CXREF: ~/.vim/pack/embrace-vim/start/vim-web-hatch/plugin/vim-web-hatch.vim
 "   https://github.com/embrace-vim/vim-web-hatch#🐣
 
-" Load optional web opener plugin, and define commands:
-" - <Leader>D — define selected word ('define:<term>') in new browser window
-"                 using URL https://www.google.com/search?q=define+<term>
-" - <Leader>W — search selected word in new browser window
-"                 using URL https://www.google.com/search?q=<term>
-" - <Leader>T, or Normal mode `gW` — open URL under cursor in browser
-let s:web_hatch_plug = $HOME . "/.vim/pack/landonb/start/vim-web-hatch/plugin/vim-web-hatch.vim"
-if filereadable(s:web_hatch_plug)
-  exec "source " . s:web_hatch_plug
-endif
+" Huh, not necessary for autoload fcns:
+"
+"   packadd vim-web-hatch
+
+let g:vim_web_hatch_maps =
+  \ {
+  \   "open":
+  \     {
+  \       "nmap": [ "<Leader>T", "gW" ],
+  \       "imap": "<Leader>T",
+  \       "vmap": "<Leader>T",
+  \     },
+  \   "define": "<Leader>D",
+  \   "search": "<Leader>W",
+  \   "incognito": { "nmap": "g!" },
+  \ }
+
+call embrace#vim_web_hatch#create_maps()
+
+
+
+
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
