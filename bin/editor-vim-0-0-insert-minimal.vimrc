@@ -117,6 +117,14 @@ packadd vim-sensible
 
 " ***
 
+" Load a look 'n feel (lots of `set` commands).
+" https://github.com/landonb/dubs_appearance#💅
+packadd dubs_appearance
+
+" Disable line no. for distraction-free Git commit authoring.
+set nonu
+
+" ***
 
 " Load a ton of command maps author is accustomed to.
 " https://github.com/landonb/dubs_edit_juice#🧃
