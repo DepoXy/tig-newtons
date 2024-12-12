@@ -9,7 +9,7 @@
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " COPYD: ~/.vim/.vimrc
-"   https://github.com/landonb/dubs-vim#🖖
+" https://github.com/landonb/dubs-vim#🖖
 
 " ----------------------------------------
 "  OS Bootstrap
@@ -65,7 +65,7 @@ endif
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " COPYD: ~/.vim/plugin/dubs_preloads.vim
-"   https://github.com/landonb/dubs-vim#🖖
+" https://github.com/landonb/dubs-vim#🖖
 
 " ------------------------------------------------------
 " MacVim Alt-key sequence mapping enablement
@@ -213,8 +213,10 @@ inoremap <C-l> <C-k>
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" Vim defaults textwidth=72 and wraps once you type past that boundary.
+" COPYD: ~/.vim/pack/landonb/start/dubs_ftype_mess/plugin/dubs_ftype_mess.vim
+"   https://github.com/landonb/dubs_ftype_mess
 
+" Vim defaults textwidth=72 and wraps once you type past that boundary.
 autocmd FileType gitcommit setlocal textwidth=0 shiftwidth=2 tabstop=2 expandtab
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -236,7 +238,8 @@ endif
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-" Optional color-scheme (coupled to author's favorite colorscheme).
+
+" Author's (favorite) colorscheme (won't error if not installed).
 " CXREF: ~/.vim/pack/landonb/start/dubs_after_dark/colors/after-dark.vim
 silent! color after-dark
 
