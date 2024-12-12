@@ -119,6 +119,9 @@ packadd dubs_edit_juice
 " COPYD: ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/dubs_after_juice.vim
 "   https://github.com/landonb/dubs_edit_juice
 
+" SAVVY: :packadd does not source after/plugin/ scripts.
+" - So we copy what we want here.
+
 " See what OS we're on
 let s:running_windows = has("win16") || has("win32") || has("win64")
 
