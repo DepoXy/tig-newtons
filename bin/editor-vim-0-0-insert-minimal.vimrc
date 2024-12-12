@@ -101,84 +101,17 @@ endif
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" COPYD: ~/.vim/pack/landonb/start/dubs_edit_juice/plugin/dubs_edit_juice.vim
-"   https://github.com/landonb/dubs_edit_juice
+" SAVVY/2024-12-12: Phew! We can load select plugins at runtime.
+" - So far I don't notice a performance difference with these
+"   enabled or not!
+" - Note that after/plugin/ scripts are *not* loaded.
 
-" FIXME/2023-02-02 13:40: This is getting ridiculous: Split dubs_edit_juice.vim
-" - Move stuff you want in here into, dunno, dubs_edit_juice.vim,
-"   or dubs_edit_quick.vim, dubs_edit_juicy.vim ha.
+" ***
 
-" l. 238
-" <Alt-Left>/<Alt-Right> moves cursor to start/end of line
-function! s:add_alt_left_alt_right_maps_move_cursor_to_line_beg_line_end()
-  " Alt-Left moves the cursor to the beginning of the line.
-  noremap <M-Left> <Home>
-  inoremap <M-Left> <C-O><Home>
-  vnoremap <M-Left> :<C-U> <CR>gvy :execute "normal! 0"<CR>
-  " Alt-Right moves the cursor to the end of the line.
-  noremap <M-Right> <End>
-  inoremap <M-Right> <C-O><End>
-  vnoremap <M-Right> :<C-U> <CR>gvy :execute "normal! $"<CR>
-endfunction
-"
-call <SID>add_alt_left_alt_right_maps_move_cursor_to_line_beg_line_end()
-"
-function! s:add_cmd_left_cmd_right_maps_move_cursor_to_line_beg_line_end()
-  " Cmd-Left moves the cursor to the beginning of the line.
-  noremap <D-Left> <Home>
-  inoremap <D-Left> <C-O><Home>
-  vnoremap <D-Left> :<C-U> <CR>gvy :execute "normal! 0"<CR>
-  " Cmd-Right moves the cursor to the end of the line.
-  noremap <D-Right> <End>
-  inoremap <D-Right> <C-O><End>
-  vnoremap <D-Right> :<C-U> <CR>gvy :execute "normal! $"<CR>
-endfunction
-"
-call <SID>add_cmd_left_cmd_right_maps_move_cursor_to_line_beg_line_end()
 
-" l. 731
-" <Ctrl-Z>/<Ctrl-Y> undo/redo
-vnoremap <C-Z> :<C-U> :undo<CR>
-vnoremap <C-Y> :<C-U> :redo<CR>
-
-" l. 753
-" <Alt-T> transpose characters
-function! s:TransposeCharacters()
-  let cursorCol = col('.')
-  if 1 == cursorCol
-    execute 'normal ' . 'xp'
-  else
-    execute 'normal ' . 'Xp'
-  endif
-endfunction
-"
-inoremap <M-T> <C-o>:call <SID>TransposeCharacters()<CR>
-
-" l. 794
-" Tab/Shift-Tab to dedent/indent
-vnoremap <Tab> >gv
-vnoremap <S-Tab> <gv
-
-" l. 1533
-" Insert date abbreviations
-iabbrev <expr> TTT strftime("%Y-%m-%d")
-iabbrev <expr> TTT_ strftime("%Y_%m_%d")
-iabbrev <expr> TTTtt strftime("%Y-%m-%d %H:%M")
-iabbrev <expr> TTTTtt strftime("%Y-%m-%dT%H:%M")
-iabbrev <expr> ttt strftime("%H:%M")
-inoremap <silent> <unique> <Leader>t <C-R>=strftime("/%Y-%m-%d: ")<CR>
-inoremap <F12> <C-R>=strftime("/%Y-%m-%d %H:%M: ")<CR>
-
-" l. 1830
-" Delete word under cursor
-imap <M-d> <C-o>diw
-nmap <M-d> diw
-
-" l. 1849
-" https://vim.fandom.com/wiki/Change_cursor_shape_in_different_modes
-let &t_SI = "\<Esc>[6 q"
-let &t_SR = "\<Esc>[4 q"
-let &t_EI = "\<Esc>[2 q"
+" Load a ton of command maps author is accustomed to.
+" https://github.com/landonb/dubs_edit_juice#🧃
+packadd dubs_edit_juice
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
