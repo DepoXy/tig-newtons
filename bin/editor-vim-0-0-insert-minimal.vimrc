@@ -101,6 +101,15 @@ endif
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+" 'Defaults everyone can agree on'
+" https://github.com/tpope/vim-sensible
+" - CXREF:
+"   ~/.vim/pack/tpope/opt/vim-sensible/plugin/sensible.vim
+packadd vim-sensible
+
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 " SAVVY/2024-12-12: Phew! We can load select plugins at runtime.
 " - So far I don't notice a performance difference with these
 "   enabled or not!
