@@ -192,7 +192,7 @@ let &t_EI = "\<Esc>[2 q"
 " - <Leader>W — search selected word in new browser window
 "                 using URL https://www.google.com/search?q=<term>
 " - <Leader>T, or Normal mode `gW` — open URL under cursor in browser
-let s:web_hatch_plug = $HOME . "/.vim/pack/landonb/start/dubs_web_hatch/plugin/dubs_web_hatch.vim"
+let s:web_hatch_plug = $HOME . "/.vim/pack/landonb/start/vim-web-hatch/plugin/vim-web-hatch.vim"
 if filereadable(s:web_hatch_plug)
   exec "source " . s:web_hatch_plug
 endif
