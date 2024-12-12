@@ -191,9 +191,27 @@ let g:vim_web_hatch_maps =
 
 call embrace#vim_web_hatch#create_maps()
 
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+" COPYD: ~/.depoxy/ambers/home/.vim/pack/DepoXy/start/vim-depoxy/plugin/vim-shift-ctrl-bindings.vim
+" https://github.com/DepoXy/depoxy#🍯
+"
+" - CXREF: See Alacritty substitutions for terminal `vim`:
+"     ~/.depoxy/ambers/home/.config/alacritty/alacritty.toml
+" - CXREF: See Hammerspoon substitution for MacVim:
+"     ~/.depoxy/ambers/home/.hammerspoon/depoxy-hs.lua
+"
+" These each call a dubs_edit_juice function.
 
+" DUNNO/2024-12-12 03:01: Now that I've added these, and so :packadd's
+" above, if I disable these, they still work!
 
+" Enable <Shift-Ctrl-D>
+inoremap  <C-O>:call CursorFriendlyIndent(1)<CR>
+
+" Enable <Shift-Ctrl-W>
+inoremap  <C-O>:<C-U>call dubs_edit_juice_backspace#delete_back_line()<CR>
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
