@@ -6,6 +6,7 @@
 " Copyright (c) © 2020-2023 Landon Bouma. All Rights Reserved.
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " COPYD: ~/.vim/.vimrc
 "   https://github.com/landonb/dubs-vim#🖖
@@ -61,6 +62,7 @@ if filereadable($VIMRUNTIME . "/defaults.vim")
 endif
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " COPYD: ~/.vim/plugin/dubs_preloads.vim
 "   https://github.com/landonb/dubs-vim#🖖
@@ -96,6 +98,7 @@ if has('macunix')
   let macvim_hig_shift_movement=1
 endif
 
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " COPYD: ~/.vim/pack/landonb/start/dubs_edit_juice/plugin/dubs_edit_juice.vim
@@ -178,6 +181,7 @@ let &t_SR = "\<Esc>[4 q"
 let &t_EI = "\<Esc>[2 q"
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " CXREF: ~/.vim/pack/embrace-vim/start/vim-web-hatch/plugin/vim-web-hatch.vim
 "   https://github.com/embrace-vim/vim-web-hatch#🐣
@@ -193,6 +197,7 @@ if filereadable(s:web_hatch_plug)
   exec "source " . s:web_hatch_plug
 endif
 
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " COPYD: ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/dubs_after_juice.vim
@@ -223,16 +228,19 @@ inoremap <C-s> <Esc>:wq<CR>
 inoremap <C-l> <C-k>
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " Vim defaults textwidth=72 and wraps once you type past that boundary.
 
 autocmd FileType gitcommit setlocal textwidth=0 shiftwidth=2 tabstop=2 expandtab
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " Optional color-scheme (coupled to author's favorite colorscheme).
 " CXREF: ~/.vim/pack/landonb/start/dubs_after_dark/colors/after-dark.vim
 silent! color after-dark
 
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
