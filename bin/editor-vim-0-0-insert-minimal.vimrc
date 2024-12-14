@@ -177,46 +177,46 @@ inoremap <CR> <CR><C-g>u
 "
 "   inoremap <Tab> <Tab><C-g>u
 
-" COPYD: ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/dubs_after_juice.vim
-"   https://github.com/landonb/dubs_edit_juice
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " SAVVY: :packadd does not source after/plugin/ scripts.
-" - So we copy what we want here.
 
-" See what OS we're on
-let s:running_windows = has("win16") || has("win32") || has("win64")
+" CXREF: https://github.com/landonb/dubs_edit_juice
+"
+" - <C-c> copy, etc.
+"   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim
+"
+" - <C-h> hides search highlight (:nohlsearch)
+"   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/hide-highlights.vim
+"
+" - Center cursor on search jump (n, N, <M-n>, <M-N>, *, #, g*, g#)
+"   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/center-cursor-on-highlight-next-search-match.vim
+"
+" - <C-s> saves and quits (:wq).
+"   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/save-and-quit-command.vim
+let $VIM_EDIT_JUICE_EXIT_ON_SAVE = 1
 
-if !s:running_windows
-  " Map <Ctrl-V>, <Ctrl-X>, and <Ctrl-C> keys, and insert mode <Ctrl-Z>.
-  " - Also sets `:behave mswin` (at least MacVim).
-  source $VIMRUNTIME/mswin.vim
-endif
+function! s:load_dubs_after_juice_commands() abort
+  for l:sourcep in [
+    \ $HOME . "/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim",
+    \ $HOME . "/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/hide-highlights.vim",
+    \ $HOME . "/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/center-cursor-on-highlight-next-search-match.vim",
+    \ $HOME . "/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/save-and-quit-command.vim",
+  \ ]
+    if filereadable(l:sourcep)
+      exec "source " . l:sourcep
+    endif
+  endfor
+endfunction
 
-" Ctrl-H Hides Highlighting
-noremap <C-h> :nohlsearch<CR>
-inoremap <C-h> <C-O>:nohlsearch<CR>
-cnoremap <C-h> <C-C>:nohlsearch<CR>
-onoremap <C-h> <C-C>:nohlsearch<CR>
+call s:load_dubs_after_juice_commands()
 
 " Access digraphs at <Ctrl-l>, just like in Dubs Vim:
 " - Dubs Vim uses Ctrl-l because Ctrl-j/Ctrl-k are used for buffer
 "   ring navigation, so Dubs Vim remaps built-in Ctrl-k to Ctrl-l.
 "     https://github.com/landonb/vim-buffer-ring
 inoremap <C-l> <C-k>
-
-nnoremap n nzz
-nnoremap N Nzz
-nnoremap <M-n> nzz
-nnoremap <M-N> Nzz
-nnoremap * *zz
-nnoremap # #zz
-nnoremap g* g*zz
-nnoremap g# g#zz
-
-" Ctrl-s to save and exit from any mode.
-noremap <C-s> :wq<CR>
-vnoremap <C-s> <Esc>:wq<CR>
-inoremap <C-s> <Esc>:wq<CR>
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
