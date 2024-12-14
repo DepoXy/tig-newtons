@@ -147,7 +147,7 @@ packadd vim-select-mode-stopped-down
 " - Really, I don't use undo that often, but when I do, I'm
 "   still not used to Vim obliterately everything I've written
 "   in insert mode!
-" - Note, too, that use <Ctrl-{Arrow}> to jump around will
+" - Note, too, that using <Ctrl-{Arrow}> to jump around will
 "   break an undo sequence (e.g., <Ctrl-Left> runs <C-O>b,
 "   and the <C-O> naturally ends an undo sequence because
 "   it temporary breaks out of insert mode to run a command,
