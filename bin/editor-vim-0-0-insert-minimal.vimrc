@@ -221,6 +221,19 @@ inoremap <C-l> <C-k>
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
+" CXREF: Most for parity, so I'm not suprised if this doesn't work.
+" - But generally I <C-s> to save and quit a Git commit message
+"   EDITOR session.
+" - This is not exactly COPYD, but a much simpler impl. of Dubs Vim's
+"   it's same as <C-s> save-and-quit-command.vim sourced above.
+" ~/.depoxy/ambers/home/.vim/pack/DepoXy/start/vim-depoxy/plugin/vim-save-close-quit-maps.vim
+
+noremap <Leader>dq :wq<CR>
+inoremap <Leader>dq <C-o>:wq<CR>
+
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+
 " COPYD: ~/.vim/pack/landonb/start/dubs_ftype_mess/plugin/dubs_ftype_mess.vim
 "   https://github.com/landonb/dubs_ftype_mess
 
