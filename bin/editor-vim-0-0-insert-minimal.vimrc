@@ -282,16 +282,16 @@ call g:embrace#webopen#CreateMaps()
 function! s:AsyncMap_CreateMaps_kj_jk() abort
   try
     " SAVVY: Timeout defaults 100 msec.
-    call g:embrace#async_map#register_insert_mode_map("kj", "\<ESC>")
-    call g:embrace#async_map#register_insert_mode_map("jk", "\<ESC>")
+    call g:embrace#async_map#RegisterInsertModeMap("kj", "\<ESC>")
+    call g:embrace#async_map#RegisterInsertModeMap("jk", "\<ESC>")
 
     " SAVVY: These don't work at all or as intended when the line above
     " and/or below is missing... oh, well, don't really care that much.
     " - For Git commit message template where there's no line above
     "   but there are below, `kj` start insert mode but on line below;
     "   but `jk` works correctly.
-    call g:embrace#async_map#register_normal_mode_map("kj", "ji")
-    call g:embrace#async_map#register_normal_mode_map("jk", "ki")
+    call g:embrace#async_map#RegisterNormalModeMap("kj", "ji")
+    call g:embrace#async_map#RegisterNormalModeMap("jk", "ki")
 	catch /^Vim\%((\a\+)\)\=:E117:/
     " E.g., E117: Unknown function: foo#bar#baz
 
