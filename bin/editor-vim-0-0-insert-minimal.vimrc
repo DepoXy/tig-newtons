@@ -215,7 +215,7 @@ call s:load_dubs_after_juice_commands()
 " Access digraphs at <Ctrl-l>, just like in Dubs Vim:
 " - Dubs Vim uses Ctrl-l because Ctrl-j/Ctrl-k are used for buffer
 "   ring navigation, so Dubs Vim remaps built-in Ctrl-k to Ctrl-l.
-"     https://github.com/landonb/vim-buffer-ring
+"     https://github.com/landonb/vim-buffer-ring#💍
 inoremap <C-l> <C-k>
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
