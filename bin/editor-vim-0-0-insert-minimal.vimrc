@@ -197,7 +197,7 @@ inoremap <CR> <CR><C-g>u
 "   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/save-and-quit-command.vim
 let $VIM_EDIT_JUICE_EXIT_ON_SAVE = 1
 
-function! s:load_dubs_after_juice_commands() abort
+function! s:LoadDubsAfterJuiceCommands() abort
   for l:sourcep in [
     \ $HOME . "/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim",
     \ $HOME . "/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/hide-highlights.vim",
@@ -210,7 +210,7 @@ function! s:load_dubs_after_juice_commands() abort
   endfor
 endfunction
 
-call s:load_dubs_after_juice_commands()
+call s:LoadDubsAfterJuiceCommands()
 
 " Access digraphs at <Ctrl-l>, just like in Dubs Vim:
 " - Dubs Vim uses Ctrl-l because Ctrl-j/Ctrl-k are used for buffer
@@ -279,7 +279,7 @@ call g:embrace#webopen#CreateMaps()
 " COPYD/2024-12-14:
 " ~/.vim/pack/landonb/start/vim-ovm-easyescape-kj-jk/plugin/vim_ovm_easyescape_kj_jk.vim
 
-function! s:setup_bindings_all_modes_kj_jk() abort
+function! s:AsyncMap_CreateMaps_kj_jk() abort
   try
     " SAVVY: Timeout defaults 100 msec.
     call g:embrace#async_map#register_insert_mode_map("kj", "\<ESC>")
@@ -300,7 +300,7 @@ function! s:setup_bindings_all_modes_kj_jk() abort
   endtry
 endfunction
 
-call s:setup_bindings_all_modes_kj_jk()
+call s:AsyncMap_CreateMaps_kj_jk()
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
