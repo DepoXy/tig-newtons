@@ -243,12 +243,12 @@ autocmd FileType gitcommit setlocal textwidth=0 shiftwidth=2 tabstop=2 expandtab
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" CXREF: ~/.vim/pack/embrace-vim/start/vim-web-hatch/plugin/vim-web-hatch.vim
-"   https://github.com/embrace-vim/vim-web-hatch#🐣
+" CXREF: ~/.vim/pack/embrace-vim/start/vim-webopen/autoload/embrace/vim_webopen.vim
+"   https://github.com/embrace-vim/vim-webopen#🐣
 
 " Huh, not necessary for autoload fcns:
 "
-"   packadd vim-web-hatch
+"   packadd vim-webopen
 
 let g:vim_web_hatch_maps =
   \ {
@@ -263,7 +263,7 @@ let g:vim_web_hatch_maps =
   \   "incognito": { "nmap": "g!" },
   \ }
 
-call embrace#vim_web_hatch#create_maps()
+call g:embrace#webopen#CreateMaps()
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
