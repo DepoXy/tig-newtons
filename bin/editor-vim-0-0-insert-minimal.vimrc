@@ -250,20 +250,30 @@ autocmd FileType gitcommit setlocal textwidth=0 shiftwidth=2 tabstop=2 expandtab
 "
 "   packadd vim-webopen
 
-let g:vim_web_hatch_maps =
-  \ {
-  \   "open":
-  \     {
-  \       "nmap": [ "<Leader>T", "gW" ],
-  \       "imap": "<Leader>T",
-  \       "vmap": "<Leader>T",
-  \     },
-  \   "define": "<Leader>D",
-  \   "search": "<Leader>W",
-  \   "incognito": { "nmap": "g!" },
-  \ }
+function! s:Webopen_CreateMaps() abort
+  let g:vim_webopen_maps =
+    \ {
+    \   "open":
+    \     {
+    \       "nmap": [ "<Leader>T", "gW" ],
+    \       "imap": "<Leader>T",
+    \       "vmap": "<Leader>T",
+    \     },
+    \   "define": "<Leader>D",
+    \   "search": "<Leader>W",
+    \   "incognito": { "nmap": "g!" },
+    \ }
 
-call g:embrace#webopen#CreateMaps()
+  try
+    call g:embrace#webopen#CreateMaps()
+	catch /^Vim\%((\a\+)\)\=:E117:/
+    " E.g., E117: Unknown function: foo#bar#baz
+
+    echom "ALERT: Please install embrace-vim/vim-webopen to enable browser open commands"
+  endtry
+endfunction
+
+call s:Webopen_CreateMaps()
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
