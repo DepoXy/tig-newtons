@@ -226,7 +226,8 @@ inoremap <C-l> <C-k>
 "   EDITOR session.
 " - This is not exactly COPYD, but a much simpler impl. of Dubs Vim's
 "   it's same as <C-s> save-and-quit-command.vim sourced above.
-" ~/.depoxy/ambers/home/.vim/pack/DepoXy/start/vim-depoxy/plugin/vim-save-close-quit-maps.vim
+" CXREF: https://github.com/DepoXy/vim-depoxy#🤙
+"   ~/.vim/pack/DepoXy/start/vim-depoxy/plugin/vim-save-close-quit-maps.vim
 
 noremap <Leader>dq :wq<CR>
 inoremap <Leader>dq <C-o>:wq<CR>
@@ -315,8 +316,8 @@ call s:AsyncMap_CreateMaps_kj_jk()
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" COPYD: ~/.depoxy/ambers/home/.vim/pack/DepoXy/start/vim-depoxy/plugin/vim-shift-ctrl-bindings.vim
-" https://github.com/DepoXy/depoxy#🍯
+" COPYD: ~/.vim/pack/DepoXy/start/vim-depoxy/plugin/vim-shift-ctrl-bindings.vim
+"   https://github.com/DepoXy/vim-depoxy#🤙
 "
 " - CXREF: See Alacritty substitutions for terminal `vim`:
 "     ~/.depoxy/ambers/home/.config/alacritty/alacritty.toml
