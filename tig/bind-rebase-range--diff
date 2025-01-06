@@ -95,6 +95,13 @@ bind diff ! >sh -c " \
 # - Nor does `printf \"\\x23\"` work (prints '\x23').
 # - However, Bash'ing out works fine (`command bash -c ...`).
 
+# NONST: Non-standard bidings. Default tig assigns these to [ and ].
+bind diff ( :toggle diff-context -1
+bind diff ) :toggle diff-context +1
+# Also add stage bindings for parity.
+bind stage ( :toggle diff-context -1
+bind stage ) :toggle diff-context +1
+
 bind diff [ >sh -c " \
   revision_range_cmd__select_first_commit___ () { \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
