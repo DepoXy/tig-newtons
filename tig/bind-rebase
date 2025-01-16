@@ -59,6 +59,10 @@
 #   then that commit will be fixed up or squashed.
 bind generic <C-r> >sh -c " \
   rebase_interactive___from_selected_rev____ () { \
+    ! command -v dc >/dev/null \
+      && >&2 echo \"ERROR: Missing \\`dc\\`\" \
+      && return 1 || true; \
+    \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <Ctrl-r> disabled while staging' \
       && return 1 || true; \
@@ -169,6 +173,10 @@ bind generic & >sh -c " \
 # SAVVY: <sh exits Tig after executing the command.
 bind generic * <sh -c " \
   rebase_edit__________selected_rev_________ () { \
+    ! command -v dc >/dev/null \
+      && >&2 echo \"ERROR: Missing \\`dc\\`\" \
+      && return 1 || true; \
+    \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <*> disabled while staging' \
       && return 1 || true; \
@@ -280,6 +288,10 @@ bind generic + >sh -c " \
 
 bind generic <C-o> >sh -c " \
   git_drop_revision_________________________ () { \
+    ! command -v dc >/dev/null \
+      && >&2 echo \"ERROR: Missing \\`dc\\`\" \
+      && return 1 || true; \
+    \
     ! git diff --cached --quiet \
       && printf '%s\\n\\n' 'ERROR: <C-o> disabled while staging' \
       && return 1 || true; \
