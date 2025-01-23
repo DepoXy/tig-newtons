@@ -125,40 +125,44 @@ endif
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" 'Defaults everyone can agree on'
-" https://github.com/tpope/vim-sensible
-" - CXREF:
-"   ~/.vim/plugs/tpope/opt/vim-sensible/plugin/sensible.vim
-packadd vim-sensible
+function! s:LoadMinimalPlugins() abort
+  " 'Defaults everyone can agree on'
+  " https://github.com/tpope/vim-sensible
+  " - CXREF:
+  "   ~/.vim/plugs/tpope/opt/vim-sensible/plugin/sensible.vim
+  packadd vim-sensible
 
-" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
-" +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+  " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+  " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" SAVVY/2024-12-12: Phew! We can load select plugins at runtime.
-" - So far I don't notice a performance difference with these
-"   enabled or not!
-" - Note that after/plugin/ scripts are *not* loaded.
+  " SAVVY/2024-12-12: Phew! We can load select plugins at runtime.
+  " - So far I don't notice a performance difference with these
+  "   enabled or not!
+  " - Note that after/plugin/ scripts are *not* loaded.
 
-" ***
+  " ***
 
-" Load a look 'n feel (lots of `set` commands).
-" https://github.com/landonb/dubs_appearance#💅
-packadd dubs_appearance
+  " Load a look 'n feel (lots of `set` commands).
+  " https://github.com/landonb/dubs_appearance#💅
+  packadd dubs_appearance
 
-" Disable line no. for distraction-free Git commit authoring.
-set nonu
+  " Disable line no. for distraction-free Git commit authoring.
+  set nonu
 
-" ***
+  " ***
 
-" Load a ton of command maps author is accustomed to.
-" https://github.com/landonb/dubs_edit_juice#🧃
-packadd dubs_edit_juice
+  " Load a ton of command maps author is accustomed to.
+  " https://github.com/landonb/dubs_edit_juice#🧃
+  packadd dubs_edit_juice
 
-" ***
+  " ***
 
-" Load selection gestures (like <Ctrl-Shift-{Arrow}>).
-" https://github.com/landonb/vim-select-mode-stopped-down#🛑
-packadd vim-select-mode-stopped-down
+  " Load selection gestures (like <Ctrl-Shift-{Arrow}>).
+  " https://github.com/landonb/vim-select-mode-stopped-down#🛑
+  packadd vim-select-mode-stopped-down
+endfunction
+
+call s:LoadMinimalPlugins()
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
