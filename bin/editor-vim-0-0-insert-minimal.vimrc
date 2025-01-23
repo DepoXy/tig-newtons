@@ -13,37 +13,41 @@
 "        https://github.com/DepoXy/depoxy#🍯
 
 " ----------------------------------------
-"  OS Bootstrap
+"  Distro Bootstrap
 " ----------------------------------------
 
-" The buck stops here.
-"      ... or does it?
-" Actually, it does; we're responsible for 
-" loading the application's startup script 
-" if the user's startup script (this script) 
-" exists.
-if filereadable($VIMRUNTIME . "/../.vimrc")
-  " This is where the startup file lives in 
-  " 'nix, but in Cygwin, it's not created by 
-  " default (but I can't vouch for other 
-  " distributions).
-  source $VIMRUNTIME/../.vimrc
-elseif filereadable($VIMRUNTIME . "/../_vimrc")
-  " This file exists and *must* be sourced 
-  " for native Windows gVim to work properly.
-  source $VIMRUNTIME/../_vimrc
-elseif filereadable($VIMRUNTIME . "/../vimrc")
-  " MacVim (Apple Silicon Homebrew).
-  source $VIMRUNTIME/../vimrc
-else
-  " Well, we could complain, but in some
-  " distros, the application startup file
-  " doesn't exist. So let's not bother the
-  " user, i.e., we won't:
-  "  call confirm(
-  "   \ 'vimrc: Cannot find VIMRUNTIME''s vimrc, '
-  "   \ . 'i.e., $VIMRUNTIME/../[\.|_]vimrc', 'OK')
-endif
+" Not every Vim distribution includes a vimrc, but if we can find one,
+" load it.
+" - CALSO: Same with defaults.vim, which we'll source after this.
+function! s:SourceDistroVimrc() abort
+  if filereadable($VIMRUNTIME . "/../vimrc")
+    " - E.g., MacVim:
+    "   /Applications/MacVim.app/Contents/Resources/vim/runtime/../vimrc
+    "   - CALSO:
+    "     /Applications/MacVim.app/Contents/Resources/vim/gvimrc
+    source $VIMRUNTIME/../vimrc
+  elseif filereadable($VIMRUNTIME . "/../_vimrc")
+    " - SAVVY/2009-09-21: For native Windows gVim to work properly.
+    "   - HSTRY/2025-01-23: Keeping for historic reasons, but cannot vouch.
+    source $VIMRUNTIME/../_vimrc
+  elseif filereadable($VIMRUNTIME . "/../.vimrc")
+    " - Possibly found on some 'nix distros [author added this block in
+    "   2009, when I may have been on Fedora in VM on Windows, and also
+    "   using Cygwin, but 2009 Cygwin Vim doesn't include a vimrc file].
+    source $VIMRUNTIME/../.vimrc
+  else
+    " Don't bother complaining. This file doesn't exist everywhere.
+    " - E.g., Debian 12 has /usr/share/vim/gvimrc, but no vimrc (and
+    "   gvimrc is just comments).
+    " - Also, e.g., LM 19.3: Author runs local build, where
+    "   $VIMRUNTIME is ~/.local/share/vim/vim82/ but there's nothing
+    "   else under ~/.local/share/vim and no vimrc thereunder.
+  endif
+endfunction
+
+call s:SourceDistroVimrc()
+
+" ***
 
 " MAYBE/2023-02-08: How dated is Dubs Vim?
 " - There's no .vimrc in my $VIMRUNTIME @linux, just defaults.vim.
