@@ -97,7 +97,7 @@ endif
 
 " CXREF: /Applications/MacVim.app/Contents/Resources/vim/gvimrc
 
-if has('macunix')
+if has('macunix') && has('gui_macvim')
   " Enable Alt-key (aka Meta, aka Option) mappings (e.g., <M-a>).
   set macmeta
 
