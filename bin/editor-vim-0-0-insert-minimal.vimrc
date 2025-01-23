@@ -3,13 +3,14 @@
 " Project: https://github.com/DepoXy/tig-newtons#🍎
 " License: MIT. Please find more in the LICENSE file.
 
-" Copyright (c) © 2020-2023 Landon Bouma. All Rights Reserved.
+" Copyright (c) © 2015, 2018-2025 Landon Bouma. All Rights Reserved.
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" COPYD: ~/.vim/.vimrc
-" https://github.com/landonb/dubs-vim#🖖
+" COPYD: OS Bootstrap and MacVim setup copied from DepoXy
+"          ~/.depoxy/ambers/home/.vim/.vimrc
+"        https://github.com/DepoXy/depoxy#🍯
 
 " ----------------------------------------
 "  OS Bootstrap
@@ -88,8 +89,6 @@ endif
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" COPYD: ~/.depoxy/ambers/home/.vim/.vimrc
-"   https://github.com/DepoXy/depoxy#🍯
 
 " ------------------------------------------------------
 " MacVim Alt-key sequence mapping enablement
