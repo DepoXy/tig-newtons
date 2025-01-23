@@ -72,7 +72,7 @@ if 0
   "   https://github.com/landonb/dubs_edit_juice#🧃
   "     https://github.com/landonb/dubs_edit_juice/blob/release/after/plugin/enable-behave-mswin.vim
   " - You could also source that plugin file here, e.g.:
-  "   source ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim
+  "   source ~/.vim/plugs/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim
 
   let s:running_windows = has("win16") || has("win32") || has("win64")
 
@@ -103,7 +103,7 @@ if has('macunix') && has('gui_macvim')
 
   " Don't let MacVim call `colorscheme macvim`.
   " - Dubs Vim sets its own colorscheme (see plugin
-  "   ~/.vim/pack/landonb/start/dubs_after_dark/).
+  "   ~/.vim/plugs/landonb/start/dubs_after_dark/).
   " - CXREF: :h macvim-colorscheme
   let macvim_skip_colorscheme=1
 
@@ -128,7 +128,7 @@ endif
 " 'Defaults everyone can agree on'
 " https://github.com/tpope/vim-sensible
 " - CXREF:
-"   ~/.vim/pack/tpope/opt/vim-sensible/plugin/sensible.vim
+"   ~/.vim/plugs/tpope/opt/vim-sensible/plugin/sensible.vim
 packadd vim-sensible
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
@@ -209,16 +209,16 @@ inoremap <CR> <CR><C-g>u
 " CXREF: https://github.com/landonb/dubs_edit_juice
 "
 " - <C-c> copy, etc.
-"   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim
+"   ~/.vim/plugs/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim
 "
 " - <C-h> hides search highlight (:nohlsearch)
-"   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/hide-highlights.vim
+"   ~/.vim/plugs/landonb/start/dubs_edit_juice/after/plugin/hide-highlights.vim
 "
 " - Center cursor on search jump (n, N, <M-n>, <M-N>, *, #, g*, g#)
-"   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/center-cursor-on-highlight-next-search-match.vim
+"   ~/.vim/plugs/landonb/start/dubs_edit_juice/after/plugin/center-cursor-on-highlight-next-search-match.vim
 "
 " - <C-s> saves and quits (:wq).
-"   ~/.vim/pack/landonb/start/dubs_edit_juice/after/plugin/ctrl-s-save-command.vim
+"   ~/.vim/plugs/landonb/start/dubs_edit_juice/after/plugin/ctrl-s-save-command.vim
 let $VIM_EDIT_JUICE_EXIT_ON_SAVE = 1
 
 function! s:LoadDubsAfterJuiceCommands() abort
@@ -251,7 +251,7 @@ inoremap <C-l> <C-k>
 " - This is not exactly COPYD, but a much simpler impl. of Dubs Vim's
 "   it's same as <C-s> ctrl-s-save-command.vim sourced above.
 " CXREF: https://github.com/DepoXy/vim-depoxy#🤙
-"   ~/.vim/pack/DepoXy/start/vim-depoxy/plugin/vim-save-close-quit-maps.vim
+"   ~/.vim/plugs/DepoXy/start/vim-depoxy/plugin/vim-save-close-quit-maps.vim
 
 noremap <Leader>dQ :wq<CR>
 inoremap <Leader>dQ <C-o>:wq<CR>
@@ -259,7 +259,7 @@ inoremap <Leader>dQ <C-o>:wq<CR>
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" COPYD: ~/.vim/pack/landonb/start/dubs_ftype_mess/plugin/dubs_ftype_mess.vim
+" COPYD: ~/.vim/plugs/landonb/start/dubs_ftype_mess/plugin/dubs_ftype_mess.vim
 "   https://github.com/landonb/dubs_ftype_mess
 
 " SAVVY: Vim defaults textwidth=72 and wraps once you type past that boundary.
@@ -278,7 +278,7 @@ autocmd FileType gitcommit setlocal textwidth=0 shiftwidth=2 tabstop=2 expandtab
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" CXREF: ~/.vim/pack/embrace-vim/start/vim-webopen/autoload/embrace/vim_webopen.vim
+" CXREF: ~/.vim/plugs/embrace-vim/start/vim-webopen/autoload/embrace/vim_webopen.vim
 "   https://github.com/embrace-vim/vim-webopen#🐣
 
 " Huh, not necessary for autoload fcns:
@@ -319,10 +319,10 @@ call s:Webopen_CreateMaps()
 "   So, whatever, adding it.
 
 " CXREF/2024-12-14:
-" ~/.vim/pack/embrace-vim/start/vim-async-map/autoload/embrace/async_map.vim
+" ~/.vim/plugs/embrace-vim/start/vim-async-map/autoload/embrace/async_map.vim
 "
 " COPYD/2024-12-14:
-" ~/.vim/pack/landonb/start/vim-ovm-easyescape-kj-jk/plugin/vim_ovm_easyescape_kj_jk.vim
+" ~/.vim/plugs/landonb/start/vim-ovm-easyescape-kj-jk/plugin/vim_ovm_easyescape_kj_jk.vim
 
 function! s:AsyncMap_CreateMaps_kj_jk() abort
   try
@@ -350,7 +350,7 @@ call s:AsyncMap_CreateMaps_kj_jk()
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" COPYD: ~/.vim/pack/DepoXy/start/vim-depoxy/plugin/vim-shift-ctrl-bindings.vim
+" COPYD: ~/.vim/plugs/DepoXy/start/vim-depoxy/plugin/vim-shift-ctrl-bindings.vim
 "   https://github.com/DepoXy/vim-depoxy#🤙
 "
 " - CXREF: See Alacritty substitutions for terminal `vim`:
@@ -373,7 +373,7 @@ inoremap  <C-O>:<C-U>call dubs_edit_juice_backspace#delete_back_line()<CR>
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 " Author's (favorite) colorscheme (won't error if not installed).
-" CXREF: ~/.vim/pack/landonb/start/dubs_after_dark/colors/after-dark.vim
+" CXREF: ~/.vim/plugs/landonb/start/dubs_after_dark/colors/after-dark.vim
 silent! colorscheme after-dark
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
