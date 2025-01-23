@@ -76,23 +76,38 @@ call s:SourceDistroDefaults()
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" DEVEL: Enable to test bare mswin Vim.
-if 0
-  " CXREF: See also author's mswin.vim loader (which saves/restores
-  " <C-f> and <C-h> bindings, if another plugin sets those before
-  " mswin.vim runs):
-  "   https://github.com/landonb/dubs_edit_juice#🧃
-  "     https://github.com/landonb/dubs_edit_juice/blob/release/after/plugin/enable-behave-mswin.vim
-  " - You could also source that plugin file here, e.g.:
-  "   source ~/.vim/plugs/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim
+" CALSO: See also author's more complicated mswin.vim loader,
+"        which saves and restores <C-f> and <C-h> bindings.
+"
+" - Because plugin order is not guaranteed, and author's Vim config
+"   calls `behave mswin` from ~/.vim/pack/*/start/*/plugin script,
+"   it's possible another plugin sets <C-f> and <C-h> before mswin.vim
+"   runs.
+"
+" CXREF: https://github.com/landonb/dubs_edit_juice#🧃
+"
+"   https://github.com/landonb/dubs_edit_juice/blob/release/after/plugin/enable-behave-mswin.vim
+"
+" ALTLY: You can also source that plugin file here, e.g.:
+"
+"  source ~/.vim/plugs/landonb/start/dubs_edit_juice/after/plugin/enable-behave-mswin.vim
 
+function! s:EnableBehaveMswin() abort
   let s:running_windows = has("win16") || has("win32") || has("win64")
 
   if !s:running_windows
     source $VIMRUNTIME/mswin.vim
 
     behave mswin
+
+    return 1
   endif
+
+  return 0
+endfunction
+
+" DEVEL: Enable this to test bare mswin Vim.
+if 0 && s:EnableBehaveMswin()
 
   finish
 endif
