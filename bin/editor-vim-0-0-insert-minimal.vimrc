@@ -49,22 +49,29 @@ call s:SourceDistroVimrc()
 
 " ***
 
-" MAYBE/2023-02-08: How dated is Dubs Vim?
-" - There's no .vimrc in my $VIMRUNTIME @linux, just defaults.vim.
-" - I added this `source defaults.vim` only to minimal.vimrc:
-"   - I do not source defaults.vim from Dubs Vim.
-"   - But I probably don't need to: Dubs Vim works like I expect/want, so
-"     I bet that my various plugins setup Vim similarly to defaults.vim.
-" Source defaults.vim, otherwise when Vim starts: you'll see strange
-" phantom control characters on the first line of input; the arrow keys
-" won't work (they'll insert As, Bs, Cs, and Ds); Ctrl-s doesn't work;
-" and also whatever else is wrong that I didn't notice b/c those three.
-if filereadable($VIMRUNTIME . "/defaults.vim")
-  " CXREF: ~/.local/share/vim/vim90/defaults.vim
-  "   /Applications/MacVim.app/Contents/Resources/vim/runtime/defaults.vim
-  "   /usr/share/vim/vim90/defaults.vim
-  source $VIMRUNTIME/defaults.vim
-endif
+" You'll likely find a defaults.vim in the runtime path,
+" but it's not always necessary to source it.
+" - E.g., the author's usual Vim configuration ignores it
+"   and runs just fine.
+" - But I had issues when I didn't source it for minimal.vim:
+"   - There were strange phantom control characters on the first
+"     line of input; the arrow keys didn't work (they'd insert
+"     As, Bs, Cs, and Ds); Ctrl-s didn't work; and also probably
+"     lots more but I quit after noting those three.
+"   - DUNNO: I think MacVim vim TUI, but might have been Linux build.
+" - So this `source defaults.vim` necessary from minimal.vimrc,
+"   but probably not from your normal ~/.vimrc
+function! s:SourceDistroDefaults() abort
+  if filereadable($VIMRUNTIME . "/defaults.vim")
+    " CXREF: Some places you might find this file:
+    "   /Applications/MacVim.app/Contents/Resources/vim/runtime/defaults.vim
+    "   /usr/share/vim/vim90/defaults.vim
+    "   ~/.local/share/vim/vim90/defaults.vim
+    source $VIMRUNTIME/defaults.vim
+  endif
+endfunction
+
+call s:SourceDistroDefaults()
 
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
