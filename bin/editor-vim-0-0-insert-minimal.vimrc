@@ -88,8 +88,8 @@ endif
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 " +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-" COPYD: ~/.vim/plugin/dubs_preloads.vim
-" https://github.com/landonb/dubs-vim#🖖
+" COPYD: ~/.depoxy/ambers/home/.vim/.vimrc
+"   https://github.com/DepoXy/depoxy#🍯
 
 " ------------------------------------------------------
 " MacVim Alt-key sequence mapping enablement
