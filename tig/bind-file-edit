@@ -95,6 +95,10 @@
 #   --default-prefix, in addition to --src-prefix and --dst-prefix.
 #   - This command should handle any configuration of those options.
 #     - Well, it should handle no prefix, or the "b/" prefix.
+#
+# CXREF: Runs gvim or nvim (latter if GVIM_OPEN_PREFER_NVIM=true).
+# - If running a DepoXy environ, found locally at:
+#   ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
 
 bind generic v +sh -c " \
   open_line_under_cursor__gVim______________ () { \
