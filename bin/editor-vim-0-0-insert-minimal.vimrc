@@ -96,9 +96,13 @@ function! s:EnableBehaveMswin() abort
   let s:running_windows = has("win16") || has("win32") || has("win64")
 
   if !s:running_windows
-    source $VIMRUNTIME/mswin.vim
-
-    behave mswin
+    if has('nvim')
+      " CXREF:
+      " /Applications/MacVim.app/Contents/Resources/vim/runtime/mswin.vim
+      source $VIMRUNTIME/mswin.vim
+    else
+      behave mswin
+    endif
 
     return 1
   endif
