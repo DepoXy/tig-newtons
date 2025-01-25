@@ -141,8 +141,20 @@ endif
 
 " Note that MacVim also sets 'gui_macvim' for terminal Vim.
 if has('macunix') && has('gui_macvim')
-  " Enable Alt-key (aka Meta, aka Option) mappings (e.g., <M-a>).
-  set macmeta
+  " ISOFF: For broader compatibility throughout macOS (n)vim instances,
+  " be they GUIs or TUIs, prefer using literal <Option> key map sequences,
+  " and not control sequences.
+  " - E.g., while this binds <Shift-Alt-3> on Linux and in MacVim with
+  "   |macmeta| enabled:
+  "     nnoremap <M-#> :Foobar<CR>
+  "   It doesn't work in Neovide or terminal Vim.
+  " - So use literal characters instead, e.g.:
+  "     nnoremap ‹ :Foobar<CR>
+  "   though note you'll want to avoid 2-character macOS accent-generator
+  "   bindings, like <Option-e>, <Option-i>, etc.
+  "
+  "  " Enable Alt-key (aka Meta, aka Option) mappings (e.g., <M-a>).
+  "  set macmeta
 
   " Don't let MacVim call `colorscheme macvim`.
   " - See our `colorscheme` call elsewhere in this file.
