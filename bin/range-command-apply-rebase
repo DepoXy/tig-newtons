@@ -691,6 +691,10 @@ do_action_action () {
   #   - others used verbatim: 'pick', 'squash', and 'fixup'
   set_command_crumb "${action}" || return $?
 
+  # CXREF: Runs vim or nvim (latter if EDITOR_PREFER_NVIM=true).
+  # - If running a DepoXy environ, found locally at:
+  #   ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal
+  #   ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal.vimrc
   editor=""
   if ${TN_OPTION_EDITOR_VIM:-false}; then
     editor="EDITOR=\"$(dirname -- ${seditor_up})/editor-vim-0-0-insert-minimal\""

@@ -7,7 +7,10 @@
 
 # *** Overrides tig-newton's git-commit bindings to use `minimal` Vim.
 #
-# If using DepoXy, CXREF: ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal.vimrc
+# CXREF: Runs vim or nvim (latter if EDITOR_PREFER_NVIM=true).
+# - If running a DepoXy environ, found locally at:
+#   ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal
+#   ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal.vimrc
 
 bind generic C >sh -c " \
   git_commit_verbose________________________ () { \

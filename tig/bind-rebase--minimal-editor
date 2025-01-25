@@ -14,6 +14,12 @@
 #          ...
 #          EDITOR='vim --noplugin' \
 #          GIT_SEQUENCE_EDITOR='f () { ... }; f "$@"'
+#
+# CXREF: Runs vim or nvim (latter if EDITOR_PREFER_NVIM=true).
+# - If running a DepoXy environ, found locally at:
+#   ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal
+#   ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal.vimrc
+
 bind generic & >sh -c " \
   rebase_reword________selected_rev_________ () { \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
