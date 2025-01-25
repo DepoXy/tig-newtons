@@ -9,11 +9,11 @@
 #   https://github.com/landonb/git-smart#💡
 # If using DepoXy, it's at ~/.kit/git/git-smart/bin/git-reword
 #
-# YOU: If you use Vim and find your EDITOR slow to open,
-#      consider running it without plugs:
-#        ...
-#        EDITOR='vim --noplugin' \
-#        GIT_SEQUENCE_EDITOR='f () { ...
+# SAVVY: If you use Vim and find your EDITOR slow to open,
+#        consider running it without plugins:
+#          ...
+#          EDITOR='vim --noplugin' \
+#          GIT_SEQUENCE_EDITOR='f () { ... }; f "$@"'
 bind generic & >sh -c " \
   rebase_reword________selected_rev_________ () { \
     local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
