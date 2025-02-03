@@ -125,7 +125,8 @@ bind generic <C-r> >sh -c " \
 #
 # YOU: If you use Vim and find your EDITOR slow to open,
 #      consider running it without plugs to help diagnose:
-#        ...
+#        TNEWTONS_EDITOR='vim --noplugin' tig
+#      Or directly:
 #        EDITOR='vim --noplugin' \
 #        GIT_SEQUENCE_EDITOR='f () { ...
 bind generic & >sh -c " \
@@ -145,6 +146,9 @@ bind generic & >sh -c " \
       fi; \
     }; \
     \
+    if [ -n \"${TNEWTONS_EDITOR}\" ]; then \
+      export EDITOR=\"${TNEWTONS_EDITOR}\"; \
+    fi; \
     GIT_SEQUENCE_EDITOR='f () { \
       local rebase_todo_path=\"$1\"; \
       \

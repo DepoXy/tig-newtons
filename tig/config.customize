@@ -19,10 +19,6 @@ source ${TIGNEWTONSPATH}/tig/bind-rebase-range--diff
 source ${TIGNEWTONSPATH}/tig/bind-rebase-range--main
 source ${TIGNEWTONSPATH}/tig/bind-shell-out
 
-# USAGE: Uncomment if you'd like to use a miminal Vim EDITOR:
-#  source ${TIGNEWTONSPATH}/tig/bind-commit--minimal-editor
-#  source ${TIGNEWTONSPATH}/tig/bind-rebase--minimal-editor
-
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # USAGE: Below you could supply your own custom 'tig' config and commands.

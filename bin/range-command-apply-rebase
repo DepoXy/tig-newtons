@@ -691,13 +691,15 @@ do_action_action () {
   #   - others used verbatim: 'pick', 'squash', and 'fixup'
   set_command_crumb "${action}" || return $?
 
-  # CXREF: Runs vim or nvim (latter if EDITOR_PREFER_NVIM=true).
-  # - If running a DepoXy environ, found locally at:
-  #   ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal
-  #   ~/.kit/git/tig-newtons/bin/editor-vim-0-0-insert-minimal.vimrc
+  # USAGE: Set TNEWTONS_EDITOR to your preferred EDITOR, if you want
+  # something different than your typical EDITOR.
+  # - E.g., author sets EDITOR=
+  #     TNEWTONS_EDITOR=editor-vim-0-0-insert-minimal
+  #   Which runs a minimal Neovim instance provided by nvim-depoxy
+  #     https://github.com/DepoXy/nvim-depoxy#🐇
   editor=""
-  if ${TN_OPTION_EDITOR_VIM:-false}; then
-    editor="EDITOR=\"$(dirname -- ${seditor_up})/editor-vim-0-0-insert-minimal\""
+  if [ -n "${TNEWTONS_EDITOR}" ]; then
+    editor="EDITOR=\"${TNEWTONS_EDITOR}\""
   fi
 
   # Set rebase.instructionFormat=%H so sequence editor can

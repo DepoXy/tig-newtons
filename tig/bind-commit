@@ -26,6 +26,10 @@
 
 bind generic C >sh -c " \
   git_commit_verbose________________________ () { \
+    if [ -n \"${TNEWTONS_EDITOR}\" ]; then \
+      export EDITOR=\"${TNEWTONS_EDITOR}\"; \
+    fi; \
+    \
     echo; \
     git commit -v; \
     echo; \
@@ -35,6 +39,10 @@ bind generic C >sh -c " \
 # to specific keymaps, so we must needs repeat ourself.
 bind main C >sh -c " \
   git_commit_verbose________________________ () { \
+    if [ -n \"${TNEWTONS_EDITOR}\" ]; then \
+      export EDITOR=\"${TNEWTONS_EDITOR}\"; \
+    fi; \
+    \
     echo; \
     git commit -v; \
     echo; \

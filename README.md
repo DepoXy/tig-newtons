@@ -174,27 +174,18 @@ Edit `~/.config/tig/config` and add:
 
 ### EDITOR
 
-For the rebase range commands, if you'd like to use Vim as your editor with
-a minimal config that includes some convenience functions — like `<Ctrl-s>`
-to save your commit message and exit Vim in one fell swoop — set the
-`TN_OPTION_EDITOR_VIM` environ, e.g.,
+For commands that use `EDITOR`, if you'd like to use a different editor
+than your normal `EDITOR`, set the `TNEWTONS_EDITOR` environ, e.g.,
 
-    export TN_OPTION_EDITOR_VIM=true
+    export TNEWTONS_EDITOR='nvim --noplugin'
     tig
 
 Or:
 
-    TN_OPTION_EDITOR_VIM=true tig
+    TNEWTONS_EDITOR='nvim --noplugin' tig
 
-You can also use the same config for the commit (`C`) and reword (`&`)
-commands if you uncomment a few lines in your custom `tig/config`:
-
-    source /home/user/.kit/git/tig-newtons/tig/bind-commit--minimal-editor
-    source /home/user/.kit/git/tig-newtons/tig/bind-rebase--minimal-editor
-
-Please inspect
-[bin/editor-vim-0-0-insert-minimal.vimrc](bin/editor-vim-0-0-insert-minimal.vimrc)
-to see the special Vim commands you can use.
+This setting applies to the rebase commands, as well as the commit (`C`)
+and reword (`&`) commands.
 
 ### Gvim-Open-Kindness
 
