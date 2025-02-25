@@ -109,7 +109,7 @@ bind generic v +sh -c " \
       else \
         local servername=\"\"; \
         if [ -n \"${GVIM_OPEN_SERVERNAME}\" ] || [ -z \"${GVIM_OPEN_SERVERNAME+x}\" ]; then \
-          servername=\"--servername ${GVIM_OPEN_SERVERNAME:-SAMPI}\"; \
+          servername=\"--servername ${GVIM_OPEN_SERVERNAME:-TNEWTONS}\"; \
         fi; \
         gvim ${servername} --remote-silent \
           \"%(directory)$( \
