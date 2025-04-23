@@ -5,3 +5,6 @@
 
 /tig/config
 
+# https://aider.chat/
+/.aider*
+
