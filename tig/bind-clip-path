@@ -5,15 +5,26 @@
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-# Copy filepath to clipboard
-# - Mnemonic: Copy 'P'ath
-# - Note: This strips realpath newline using tr, but here's alt: | sed -z 's/\\n$//g'
+# Copy filepath to clipboard.
+# - MNMNC: Mnemonic: Copy [P]ath.
+# - SAVVY: Strip realpath newline using `tr` / ALTLY: | sed -z 's/\\n$//g'
+# - FEATR: Shorten leading user home portion to "~/".
+#   - Note that tig stops parsing at `#` with no way to escape, so we use
+#     sed @-delimiters (where normally we'd use "#", e.g., `s#foo#bar#`).
+#   - As such, if path contains '@' char(s), we won't shorten it.
+#     - ALTLY: `bash -c "... sed 's\\x23foo\\x23bar\\x23'"` would let us
+#       handle "@" characters, or we could escape "@" chars, but it's too
+#       rare a use case to care.
 bind generic P @sh -c " \
   clipboard_copy__file_path_________________ () { \
-    local path=\"$(realpath -- '%(directory)/%(file)' | tr -d '\\n')\"; \
+    local full_path=\"$(realpath -- '%(directory)/%(file)' | tr -d '\\n')\"; \
+    local tilde_path=\"${full_path}\"; \
+    if ! echo \"${tilde_path}\" | grep -e '@'; then \
+      tilde_path=\"$(printf '%s' \"${full_path}\" | sed -E \"s@^${HOME}(/|$)@~\\1@\")\"; \
+    fi; \
     type xclip > /dev/null 2>&1 \
-      && printf '%s' \"${path}\" | xclip -selection c \
-      || printf '%s' \"${path}\" | pbcopy; \
+      && printf '%s' \"${tilde_path}\" | xclip -selection c \
+      || printf '%s' \"${tilde_path}\" | pbcopy; \
   }; clipboard_copy__file_path_________________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
