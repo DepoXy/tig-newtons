@@ -12,8 +12,8 @@ bind generic P @sh -c " \
   clipboard_copy__file_path_________________ () { \
     local path=\"$(realpath -- '%(directory)/%(file)' | tr -d '\\n')\"; \
     type xclip > /dev/null 2>&1 \
-      && printf $path | xclip -selection c \
-      || printf $path | pbcopy; \
+      && printf '%s' \"${path}\" | xclip -selection c \
+      || printf '%s' \"${path}\" | pbcopy; \
   }; clipboard_copy__file_path_________________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
