@@ -5,7 +5,7 @@
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # USAGE: Comment out config or bindings you don't want.
-# - Or leave be and enjoy all the features.
+# - Or leave this as it is, and enjoy all the features.
 source ${TIGNEWTONSPATH}/tig/config-color
 source ${TIGNEWTONSPATH}/tig/config-dates
 source ${TIGNEWTONSPATH}/tig/config-opinionated
