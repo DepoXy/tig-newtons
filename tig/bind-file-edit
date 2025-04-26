@@ -108,7 +108,28 @@ bind generic v @sh -c " \
       local path=\"${dir}/%(file)\"; \
       if command -v \"gvim-open-kindness\" > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"${path}\"; \
-      else \
+      elif test \"${TNEWTONS_GUI_EDITOR}\" = \"neovide\" || \
+        ( test \"${TNEWTONS_GUI_EDITOR}\" = '' && command -v \"neovide\" > /dev/null) \
+      ; then \
+        local server_id=\"${NVIM_OPEN_SOCKETNAME:-🍎}\"; \
+        local socket_path=\"/tmp/nvim.socket-${server_id}\"; \
+        local server_arg=\"--server ${socket_path}\"; \
+        local is_server_running=$(test -S \"${socket_path}\" && echo true || echo false); \
+        if ! ${is_server_running}; then \
+          local neovim_bin=''; \
+          if [ -n \"${NEOVIM_BIN}\" ]; then \
+            neovim_bin=\"--neovim-bin \\\"${NEOVIM_BIN}\\\"\"; \
+          fi; \
+          local cursor_cmd=\"-c 'call cursor(%(lineno), 0)'\"; \
+          eval \"neovide ${neovim_bin} -- --listen ${socket_path} ${cursor_cmd} '${path}' & 2>/dev/null\"; \
+        else \
+          local cursor_arg=\"--remote-send '<ESC>:call cursor(%(lineno), 0)<CR>'\"; \
+          eval \"nvim ${server_arg} --remote-silent '${path}' 2>/dev/null\"; \
+          eval \"nvim ${server_arg} ${cursor_arg} 2>/dev/null\"; \
+        fi; \
+      elif test \"${TNEWTONS_GUI_EDITOR}\" = \"gvim\" || \
+        ( test \"${TNEWTONS_GUI_EDITOR}\" = '' && command -v \"gvim\" > /dev/null) \
+      ; then \
         local servername=\"\"; \
         if [ -n \"${GVIM_OPEN_SERVERNAME}\" ] || [ -z \"${GVIM_OPEN_SERVERNAME+x}\" ]; then \
           servername=\"--servername ${GVIM_OPEN_SERVERNAME:-🍎}\"; \
