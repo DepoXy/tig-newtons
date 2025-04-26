@@ -61,19 +61,19 @@ and optionally squash or fixup those commits:
 
 `\` command actions:
 
-- These actions work on a single commit, or on a range of commits,
+* These actions work on a single commit, or on a range of commits,
   using the target commit for reference.
 
-- The special tags are necessary to tell the sequence editor what to
+* The special tags are necessary to tell the sequence editor what to
   do (we could alternatively use a temporary file under the local
   `.git/` directory, but using tags lets you see which commit(s)
   you've selected).
 
-- To act on one commit, first use the `[` command to select a commit,
+* To act on one commit, first use the `[` command to select a commit,
   then select the target commit and press `\` to perform one of the
   following actions.
 
-- To act on a range of commits, first use the `[` command to select
+* To act on a range of commits, first use the `[` command to select
   one end of the range, then use `]` to select the other end. Finally,
   select the target commit and press `\` to perform one of the
   following actions:
@@ -87,20 +87,20 @@ and optionally squash or fixup those commits:
 |      `s` | Squash the selected commit or range of commits into the target commit |
 |      `f` | Fixup the selected commit or range of commits into the target commit |
 
-- Note that, except for cherry-pick, the previous actions only work on the
+* Note that, except for cherry-pick, the previous actions only work on the
   current branch.
 
-  - E.g., if you run `tig some-other-branch`, you can only cherry-pick from
+  * E.g., if you run `tig some-other-branch`, you can only cherry-pick from
     that branch; you cannot move, squash, or fixup commits.
 
 Masked bindings:
 
-- The `^` mapping masks tig's built-in `:toggle rev-filter` binding [but I tested `rev-filter` and it changes nothing for me, so I'm not remapping the command elsewhere, like I did with `V`/`:show-version`]
+* The `^` mapping masks tig's built-in `:toggle rev-filter` binding [but I tested `rev-filter` and it changes nothing for me, so I'm not remapping the command elsewhere, like I did with `V`/`:show-version`]
 
-- The `C` mapping masks tig's built-in `?git cherry-pick %(commit)` binding.
-  - Use the `\` action to cherry-pick; and use `C` to call `git commit -v`.
+* The `C` mapping masks tig's built-in `?git cherry-pick %(commit)` binding.
+  * Use the `\` action to cherry-pick; and use `C` to call `git commit -v`.
 
-- The `v` mapping masks tig's built-in `:show-version` binding, which is
+* The `v` mapping masks tig's built-in `:show-version` binding, which is
   re-bound to `V` (so that we can use `v` to open the line under the cursor
   in gVim).
 
@@ -149,7 +149,7 @@ Run the [generate-config.sh](generate-config.sh) command to generate the file.
 It uses a template ([tig/config.customize](tig/config.customize))
 to generate a similar file that uses your local project's path.
 
-- After cloning the project, change to the root directory and
+* After cloning the project, change to the root directory and
   create your `tig/config` file:
 
       cd path/to/tig-newtons
@@ -192,20 +192,20 @@ and reword (`&`) commands.
 The GVim open command (`v`) prefers `gvim-open-kindness`
 if available, otherwise it falls back on raw `gvim` calls.
 
-- You can clone and install `gvim-open-kindness` from sources:
+* You can clone and install `gvim-open-kindness` from sources:
 
   [https://github.com/DepoXy/gvim-open-kindness#🐬](https://github.com/DepoXy/gvim-open-kindness#🐬)
 
-- The `gvim-open-kindness` command adds a few niceties, such
+* The `gvim-open-kindness` command adds a few niceties, such
   as fronting the Neovim, Neovide, or GVim window after opening
   the file (for macOS and X Windows; Wayland support coming).
 
-- If `gvim-open-kindness` is not installed, the command will
+* If `gvim-open-kindness` is not installed, the command will
   fallback to looking for a GVim instance. Then you would have
   to manually switch to GVim if the opened file is sent to a
   running instance.
 
-- Whether or not you install `gvim-open-kindness`, you can use
+* Whether or not you install `gvim-open-kindness`, you can use
   the `GVIM_OPEN_SERVERNAME` environ to set the GVim `--servername`,
   e.g.,:
 
@@ -219,10 +219,10 @@ if available, otherwise it falls back on raw `gvim` calls.
 Git might complain during garbage collection after you've used
 `tig` and `tig-newtons` a lot.
 
-- To be honest, the author has only seen this happen *once* in their
+* To be honest, the author has only seen this happen *once* in their
   own experience, but it's documented here should it happen again.
 
-- If you see the following warning after git-commit:
+* If you see the following warning after git-commit:
 
     ```
     warning: The last gc run reported the following.
@@ -236,9 +236,9 @@ Git might complain during garbage collection after you've used
   There's likely a very reasonable explanation (and Git maybe should
   ease off a bit, especially if you're a *power tigger*).
 
-- Git's problem is `too many unreachable loose objects`.
+* Git's problem is `too many unreachable loose objects`.
 
-  - The most well known type of "loose object" is the *dangling commit*.
+  * The most well known type of "loose object" is the *dangling commit*.
 
     This will happen because of rebase — all those original commits that
     were rebased are no longer part of any branch, and are therefore
@@ -246,7 +246,7 @@ Git might complain during garbage collection after you've used
 
     <!-- (At least I think it's all rebased commits. It might just be old HEADs. -->
 
-  - There's also another type of loose object, the *dangling blob*.
+  * There's also another type of loose object, the *dangling blob*.
 
     A dangling blob is simply a change to staging that is never committed.
 
@@ -257,7 +257,7 @@ Git might complain during garbage collection after you've used
     `tig` to stage line-by-line (`1`), by the chunk-part (`2`), or
     by the chunk (`u`), each of those actions creates a dangling blob.
 
-  - The author uses single-line staging most of the time, and I rebase
+  * The author uses single-line staging most of the time, and I rebase
     so, so often, that I had 700 dangling commits, and ten times as many
     dangling blobs in the project that
     [I was hacking on](https://github.com/doblabs/easy-as-pypi#🥧)
@@ -269,11 +269,11 @@ Git might complain during garbage collection after you've used
     error describing the same thing?)
     -->
 
-  - To probe your situation, run `git fsck` to see the dangling objects.
+  * To probe your situation, run `git fsck` to see the dangling objects.
 
-    - Use `git show <blob>` to see blobs, and `tig <commit>` to see comits.
+    * Use `git show <blob>` to see blobs, and `tig <commit>` to see comits.
 
-- To resolve the situation, run something like this:
+* To resolve the situation, run something like this:
 
   ```
   git prune
