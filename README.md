@@ -26,22 +26,22 @@
 
 | Binding  | Description |
 | -------: | :---------- |
-| `<C-r>`  | Run [interactive-rebase-tool](https://github.com/MitMaro/git-interactive-rebase-tool) from revision under cursor (and quit tig if conflicts or rebase doesn't complete) |
 |     `&`  | Reword revision under cursor |
 |     `*`  | Edit revision under cursor (and quit tig) |
 |     `+`  | Fixup staged to revision under cursor (and quit tig if conflicts) |
 | `<C-t>`  | Create a WIP commit with uncommitted changes |
 |     `^`  | Pop youngest (latest) commit if WIP commit |
-|     `x`  | Copy SHA from revision under cursor to clipboard |
 |     `T`  | Show datetime format and make date column wider, e.g., `2023-01-15 15:23` |
 |     `R`  | Show relative format and make date column narrower, e.g., `3 hour` |
-|     `v`  | Open line under cursor in gVim (prefers [`gvim-open-kindness`](https://github.com/landonb/home-fries/blob/release/bin/gvim-open-kindness) if installed) |
-|     `V`  | Moved built-in `:show-version` from `v` to `V`, to make our gVim command easier to use |
-|     `e`  | Like `v`, but opens line under cursor in terminal EDITOR |
+|     `x`  | Copy SHA from revision under cursor to clipboard |
 |     `P`  | Copy file path to clipboard |
+|     `e`  | Open file in terminal EDITOR and jump to line under cursor  |
+|     `v`  | Open line under cursor in external editor (prefers [`gvim-open-kindness`](https://github.com/landonb/home-fries/blob/release/bin/gvim-open-kindness) if installed, which can open Neovim or gVim; otherwise `v` defaults to gVim) |
+|     `V`  | Run `:show-version` (moved from `v`, to make our external editor command easier to use) |
 |     `.`  | Temporarily shells-out (shows terminal session; useful for reviewing previous command output) |
-|     `C`  | Runs `git commit -v` |
+|     `C`  | Run `git commit -v` |
 | `<C-o>`  | Drop the selected revision |
+| `<C-r>`  | Run [interactive-rebase-tool](https://github.com/MitMaro/git-interactive-rebase-tool) from revision under cursor (and quit tig if conflicts or rebase doesn't complete) |
 
 'Main' and 'diff' view bindings:
 
