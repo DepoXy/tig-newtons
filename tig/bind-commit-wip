@@ -9,16 +9,19 @@
 # - <C-w> available, but I feel it's overloaded (kill word, close window, etc.).
 #   <C-i> available, meh.
 #   <C-t> could work, as in *Tidy*.
-# - Note that I tried sync style, which lets us 'echo' message to status line:
-#     bind generic <C-t> +sh -c "
-#   Unfortunately the main display is not updated, and I don't know how to tell
-#   tig to update the revision list. Fortunately, we can just use the '@sh'
-#   binding, which blocks tig to run, and tig doesn't show its output, but
-#   user at least sees revision list update to show new WIP commit. (See
-#   also '!sh' option, but that hides tig window to show output in terminal
-#   and prompts user to acknowledge.)
-# - Note @sh better than >sh, so tig doesn't shell out for a blip.
-bind generic <C-t> @sh -c " \
+# - HSTRY: This used to use @sh, not +sh, but tig now appears to
+#   update the revision list appropriately.
+#   - Here's the original comment (explaining why +sh was being used):
+#     - Note that I tried sync style, which lets us 'echo' message to status line:
+#       bind generic <C-t> +sh -c "
+#     - Unfortunately the main display is not updated, and I don't know how to tell
+#       tig to update the revision list. Fortunately, we can just use the '@sh'
+#       binding, which blocks tig to run, and tig doesn't show its output, but
+#       user at least sees revision list update to show new WIP commit. (See
+#       also '!sh' option, but that hides tig window to show output in terminal
+#       and prompts user to acknowledge.)
+#     - Note @sh better than >sh, so tig doesn't shell out for a blip.
+bind generic <C-t> +sh -c " \
   wip_commit__push__aka_tidy_up_____________ () { \
     git_status_porcelain () { git status --porcelain=v1; }; \
     if [ -n \"$(git_status_porcelain)\" ]; then \
@@ -30,7 +33,7 @@ bind generic <C-t> @sh -c " \
           && git commit -q --no-verify -m 'WIP'; \
       fi; \
     else \
-      echo 'Already pristine'; \
+      echo 'Nothing to commit'; \
     fi; \
   }; wip_commit__push__aka_tidy_up_____________"
 
