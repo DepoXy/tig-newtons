@@ -20,8 +20,7 @@
 #
 # - Option 2: Leave the `+sh` below and toast yourself, e.g.,
 #
-#     terminal-notifier -message \"%(directory) — %(file) — $( \
-#       echo \"%(file)\" | sed \"s/^\\(b\\/\\)\\?/\\//\")\"; \
+#     terminal-notifier -message \"%(directory) — %(file)\"; \
 #
 #   Or use `notify-send` on Linux Mint MATE (GNOME 2).
 
@@ -78,24 +77,6 @@
 #       browser location, e.g., /gvim-open-kindness?🐬.
 #       - A better option is to resolve '\\x23' to '#' using bash -c.
 #
-# SAVVY: We need to prepare the %(file) string before opening the
-# file.
-# - Depending on the Git diff prefix options, which you could set
-#   via your tig config, e.g.,
-#     set diff-options = --src-prefix=a/ --dst-prefix=b/
-#   the %(file) component might start with "b/".
-#   - Or it might not, e.g., the %(file) might be "b/path/to/file"
-#     or it might just be "path/to/file".
-# - Also note that, usually, the %(directory) string is the relative
-#   path to the current directory, i.e., "."
-# - So we use a sed command to ensure the file name starts with a "/"
-#   - E.g., whether %(file) is "b/foo" or just "foo", the sed will
-#     convert it to "/foo", and then the complete path will be "./foo"
-# - See also git-diff's --no-prefix, and the newer (Git 2.41 and onward)
-#   --default-prefix, in addition to --src-prefix and --dst-prefix.
-#   - This command should handle any configuration of those options.
-#     - Well, it should handle no prefix, or the "b/" prefix.
-#
 # CXREF: Runs gvim or nvim (latter if GVIM_OPEN_PREFER_NVIM=true).
 # - If running a DepoXy environ, found locally at:
 #   ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
@@ -103,17 +84,16 @@
 bind generic v +sh -c " \
   open_line_under_cursor__gVim______________ () { \
     if [ -n \"%(file)\" ]; then \
+      local dir=\"$(realpath -- \"%(directory)\")\"; \
+      local path=\"${dir}/%(file)\"; \
       if command -v gvim-open-kindness > /dev/null; then \
-        gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"%(directory)$( \
-          echo \"%(file)\" | sed \"s/^\\(b\\/\\)\\?/\\//\")\"; \
+        gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"${path}\"; \
       else \
         local servername=\"\"; \
         if [ -n \"${GVIM_OPEN_SERVERNAME}\" ] || [ -z \"${GVIM_OPEN_SERVERNAME+x}\" ]; then \
           servername=\"--servername ${GVIM_OPEN_SERVERNAME:-TNEWTONS}\"; \
         fi; \
-        gvim ${servername} --remote-silent \
-          \"%(directory)$( \
-          echo \"%(file)\" | sed \"s/^\\(b\\/\\)\\?/\\//\")\"; \
+        gvim ${servername} --remote-silent \"${path}\"; \
         gvim ${servername} --remote-send \
           \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
         \
