@@ -7,7 +7,7 @@
 
 # CPYST: Here's how you might diagnose issues with open/edit commands:
 #
-# - Option 1: Change the `+sh` below to `!sh` and echo, e.g.,
+# - Option 1: Change the `@sh` below to `!sh` and echo, e.g.,
 #
 #     bind generic v !sh -c " \
 #       print_file_line_info () { \
@@ -83,8 +83,25 @@
 #     GVIM_OPEN_PREFER_NVIM=true).
 #     - If running a DepoXy environ, found locally at:
 #       ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
+#
+# - SAVVY: This command uses @sh and not +sh — the latter doesn't
+#   support backgrounding tasks.
+#   - With +sh, if the editor is not already running, tig blocks
+#     while it runs.
+#     - E.g., tig blocks if this runs Neovide:
+#         eval \"neovide '%(directory)/%(file)' &\"; \
+#     - And these cause tig error, `sh: 1: Syntax error: ";" unexpected`:
+#         ${TNEWTONS_GUI_EDITOR} '%(directory)/%(file)' &; \
+#         # Same:
+#         eval \"'${TNEWTONS_GUI_EDITOR}' '%(directory)/%(file)' &\" &; \
+#         # Ditto:
+#         bash -c \"eval '${TNEWTONS_GUI_EDITOR} %(directory)/%(file) &'\"; \
+#   - Because using @sh, tig does not print echo output.
+#     - So if none of the openers are detected — gvim-open-kindness,
+#       Neovide, nor gvim — this command tries to notifier the user
+#       via a desktop notifier (using osascript, or notify-send).
 
-bind generic v +sh -c " \
+bind generic v @sh -c " \
   open_line_under_cursor__gVim______________ () { \
     if [ -n \"%(file)\" ]; then \
       local dir=\"$(realpath -- \"%(directory)\")\"; \
@@ -100,8 +117,17 @@ bind generic v +sh -c " \
         gvim ${servername} --remote-send \
           \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
         \
+        local BWARE='Cannot echo to tig, because @sh above; see comments above'; \
         local gvok_url=\"https://github.com/DepoXy/gvim-open-kindness\\x23🐬\"; \
-        command bash -c \"echo -e 'Improve ‘v’ with gvim-open-kindness: ${gvok_url}'\"; \
+        local message=\"$(command bash -c \"echo -e 'To use the ‘v’ command, install gvim-open-kindness [${gvok_url}], Neovide, or gVim (or MacVim)'\")\"; \
+        local title=\"Not available\"; \
+        if command -v \"terminal-notifier\" > /dev/null; then \
+          terminal-notifier -title \"${title}\" -message \"${message}\"; \
+        elif command -v \"osascript\" > /dev/null; then \
+          /usr/bin/osascript -e \"display notification \\\"${message}\\\" with title \\\"${title}\\\"\"; \
+        elif command -v \"notify-send\" > /dev/null; then \
+          notify-send \"${message}\"; \
+        fi; \
       fi; \
     else \
       echo \"Nothing to edit\"; \
