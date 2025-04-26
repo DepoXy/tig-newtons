@@ -30,7 +30,7 @@
 # - Otherwise we could wait-prompt ourselves and return 0, but let's tig it.
 bind diff ! >sh -c " \
   git_upraise_revision______________________ () { \
-    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${XDG_CONFIG_HOME:-${HOME}/.config}/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
       command bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
@@ -104,7 +104,7 @@ bind stage ) :toggle diff-context +1
 
 bind diff [ >sh -c " \
   revision_range_cmd__select_first_commit___ () { \
-    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${XDG_CONFIG_HOME:-${HOME}/.config}/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
       command bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
@@ -117,7 +117,7 @@ bind diff [ >sh -c " \
 
 bind diff ] >sh -c " \
   revision_range_cmd__select_final_commit___ () { \
-    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${XDG_CONFIG_HOME:-${HOME}/.config}/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
       command bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \
@@ -161,7 +161,7 @@ bind diff \ >sh -c " \
   revision_range_cmd__apply_range_action____ () { \
     local action=\"%(prompt Choose action: [p]ick, [b]efore, [a]fter, [t]op, [s]quash, [f]ixup, or [F]ixup2 ? )\"; \
     \
-    local tnewtons=\"${TIGNEWTONSPATH:-${HOME}/.kit/git/tig-newtons}\"; \
+    local tnewtons=\"${TIGNEWTONSPATH:-${XDG_CONFIG_HOME:-${HOME}/.config}/tig-newtons}\"; \
     if [ ! -d \"${tnewtons}\" ]; then \
       local readme_url=\"https://github.com/DepoXy/tig-newtons\\x23setup\"; \
       command bash -c \"echo -e 'ERROR: Setup tig-newtons properly to use this feature — ${readme_url}'\"; \

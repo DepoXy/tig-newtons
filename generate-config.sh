@@ -4,9 +4,18 @@
 # Project: https://github.com/DepoXy/tig-newtons#🍎
 # License: MIT. Please find more in the LICENSE file.
 
-# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
+# USAGE: Run this script to generate tig/config with a custom
+# path to this project, so you can install tig-newtons where-
+# ever you'd like.
+# - You can ignore this script if you install to XDG_CONFIG_HOME,
+#   e.g., ~/.config/tig-newtons
+# - Note the author doesn't run Windows, so I haven't confirmed
+#   where to install on Windows (e.g., it's maybe %LOCALAPPDATA%
+#   e.g., C:\Users\USERNAME\AppData\Local, or perhaps using
+#   Cygwin or WSL you won't need to do anything). Feel free
+#   to submit a PR for Windows support, if necessary!
 
-customize () {
+customize() {
   cd "$(dirname -- "$0")"
 
   export TIGNEWTONSPATH="$(pwd)"

@@ -130,7 +130,7 @@ Masked bindings:
 If you want to use certain bindings (including bubble-up `<!>`, and most of
 the rebase commands), you'll need to install tig-newtons to a specific path:
 
-    ~/.kit/git/tig-newtons
+    ~/.config/tig-newtons
 
 Or you'll need to use the `TIGNEWTONSPATH` environ, e.g.,
 
@@ -140,10 +140,15 @@ Which you could also export from your Bashrc or similar:
 
     export TIGNEWTONSPATH=path/to/tig-newtons
 
-### Generate a custom `tig/config` file
+You could alternatively symlink the checkout path from `~/.config/tig-newtons`, e.g.,
 
-The `tig/config` has to use full paths to `source` files,
-so you need to generate a custom `tig/config` file.
+    ln -sfn path/to/tig-newtons "${XDG_CONFIG_HOME:-${HOME}/.config}/tig-newtons"
+
+### Generate a custom `tig/config` file (Optional)
+
+The `tig` config file (that you'll generally find at `~/.config/tig/config`)
+must use full paths, so you need to generate a custom `tig/config` file if
+you install to a location other than `~/.config/tig-newtons`.
 
 Run the [generate-config.sh](generate-config.sh) command to generate the file.
 It uses a template ([tig/config.customize](tig/config.customize))
@@ -168,7 +173,11 @@ to generate a similar file that uses your local project's path.
 
 #### Option 3 — Source from your own config
 
-Edit `~/.config/tig/config` and add:
+If you installed to the default location, edit `~/.config/tig/config` and add:
+
+    source ~/.config/tig-newtons/tig/config
+
+Otherwise, if you installed to a custom location, edit `~/.config/tig/config` and add:
 
     source /path/to/tig-newtons/tig/config
 
