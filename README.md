@@ -145,7 +145,7 @@ Which you could also export from your Bashrc or similar:
 The `tig/config` has to use full paths to `source` files,
 so you need to generate a custom `tig/config` file.
 
-Run the [customize.sh](customize.sh) command to generate the file.
+Run the [generate-config.sh](generate-config.sh) command to generate the file.
 It uses a template ([tig/config.customize](tig/config.customize))
 to generate a similar file that uses your local project's path.
 
@@ -153,7 +153,7 @@ to generate a similar file that uses your local project's path.
   create your `tig/config` file:
 
       cd path/to/tig-newtons
-      ./customize.sh > tig/config
+      ./generate-config.sh > tig/config
 
 ### Use your custom `tig/config` when you run `tig`
 
