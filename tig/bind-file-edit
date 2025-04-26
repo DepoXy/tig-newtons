@@ -31,12 +31,12 @@
 # In diff or stage view, the file that's under the tig cursor will be
 # opened, and the GVim cursor will be placed on the corresponding line.
 #
-# - SAVVY: This only works when you run `tig` normally.
+# - Note this only works when you run `tig` normally.
 #   - This does not work if you pipe a diff to tig, e.g.,
 #     `git diff sha1..sha2 | tig`, because tig does not set %(file).
 #
-# - SAVVY: tig does not clear %(file) or %(lineno) if user quits
-#   the diff view or otherwise moves cursor away from a file diff.
+# - tig does not clear %(file) or %(lineno) if user quits the diff
+#   view or otherwise moves cursor away from a file diff.
 #   - In such a state, tig sets %(lineno_old) to 0.
 #     - Note that file_old/lineno_old is the a/path file (the diff
 #       lhs).
@@ -53,12 +53,14 @@
 #       file from the main view. So we're not gonna worry about
 #       that.
 #
-# - Mnemonic: Think 'v', as in Vim.
+# - Note that, usually, the %(directory) string is the relative
+#   path to the current directory, i.e., "."
 #
+# - Mnemonic: Think 'v', as in Vim.
 #   - Note this hides the default tig 'v' binding, which is
 #     show-version, e.g., prints 'tig-2.5.1' to the status line.
 #     - You can also just run `:show-version`.
-#     - But we'll move the version command to `V`.
+#     - The tig-newtons config also moves the version command to `V`.
 #
 # - This command prefers to call gvim-open-kindness to ensure that
 #   the file does not open in the quickfix window, or the project
@@ -77,9 +79,10 @@
 #       browser location, e.g., /gvim-open-kindness?🐬.
 #       - A better option is to resolve '\\x23' to '#' using bash -c.
 #
-# CXREF: Runs gvim or nvim (latter if GVIM_OPEN_PREFER_NVIM=true).
-# - If running a DepoXy environ, found locally at:
-#   ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
+#   - CXREF: gvim-open-kindness runs gvim or nvim (the latter if
+#     GVIM_OPEN_PREFER_NVIM=true).
+#     - If running a DepoXy environ, found locally at:
+#       ~/.kit/sh/gvim-open-kindness/bin/gvim-open-kindness
 
 bind generic v +sh -c " \
   open_line_under_cursor__gVim______________ () { \
