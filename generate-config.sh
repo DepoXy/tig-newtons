@@ -16,24 +16,23 @@ customize () {
 
 # ***
 
-check_deps () {
-  hint_envsubst_deb () { >&2 echo "  sudo apt-get install gettext"; }
-  hint_envsubst_brew () { >&2 echo "  brew install gettext"; }
-  os_is_macos () { [ "$(uname)" = 'Darwin' ]; }
+check_deps() {
+  hint_envsubst_deb() { >&2 echo "  sudo apt-get install gettext"; }
+  hint_envsubst_brew() { >&2 echo "  brew install gettext"; }
+  os_is_macos() { [ "$(uname)" = 'Darwin' ]; }
 
-  if ! command -v envsubst > /dev/null; then
+  if ! command -v envsubst >/dev/null; then
     >&2 echo 'ERROR: Requires `envsubst`'
     >&2 echo '- Hint: Install `gettext`, e.g.:'
-    os_is_macos && hint_envsubst_brew || hint_envsubst_deb 
+    os_is_macos && hint_envsubst_brew || hint_envsubst_deb
 
     exit 1
   fi
 }
 
-main () {
+main() {
   check_deps
   customize "$@"
 }
 
 main "$@"
-
