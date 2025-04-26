@@ -114,9 +114,7 @@ bind generic v @sh -c " \
           servername=\"--servername ${GVIM_OPEN_SERVERNAME:-TNEWTONS}\"; \
         fi; \
         gvim ${servername} --remote-silent \"${path}\"; \
-        gvim ${servername} --remote-send \
-          \"<ESC>:call cursor(\"%(lineno)\", \"0\")<CR>\"; \
-        \
+        gvim ${servername} --remote-send \"<ESC>:call cursor(%(lineno), 0)<CR>\"; \
         local BWARE='Cannot echo to tig, because @sh above; see comments above'; \
         local gvok_url=\"https://github.com/DepoXy/gvim-open-kindness\\x23🐬\"; \
         local message=\"$(command bash -c \"echo -e 'To use the ‘v’ command, install gvim-open-kindness [${gvok_url}], Neovide, or gVim (or MacVim)'\")\"; \
