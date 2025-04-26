@@ -22,8 +22,13 @@ bind generic <C-t> @sh -c " \
   wip_commit__push__aka_tidy_up_____________ () { \
     git_status_porcelain () { git status --porcelain=v1; }; \
     if [ -n \"$(git_status_porcelain)\" ]; then \
-      git add -A \
-        && git commit -q --no-verify -m 'PRIVATE: WIP'; \
+      if command -v \"git-put-wise\" > /dev/null; then \
+        git add -A \
+          && git commit -q --no-verify -m 'PRIVATE: WIP'; \
+      else \
+        git add -A \
+          && git commit -q --no-verify -m 'WIP'; \
+      fi; \
     else \
       echo 'Already pristine'; \
     fi; \
