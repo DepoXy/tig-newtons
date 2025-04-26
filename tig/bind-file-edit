@@ -89,7 +89,7 @@ bind generic v +sh -c " \
     if [ -n \"%(file)\" ]; then \
       local dir=\"$(realpath -- \"%(directory)\")\"; \
       local path=\"${dir}/%(file)\"; \
-      if command -v gvim-open-kindness > /dev/null; then \
+      if command -v \"gvim-open-kindness\" > /dev/null; then \
         gvim-open-kindness \"\" \"%(lineno)\" \"0\" \"${path}\"; \
       else \
         local servername=\"\"; \
