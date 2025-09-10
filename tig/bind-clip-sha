@@ -24,7 +24,8 @@ set main-view-id = yes
 #   - Both c's are taken: 'c' is switch to stage view, and 'C' is cherry-pick
 #     in main, and commit in status. Which is fine, I like 'x'.
 #
-# - How this works: Try xclip first (Linux), then fallback pbcopy (macOS).
+# - How this works: Check kernel name and display environs to decide
+#   whether to call pbcopy (Darwin), wl-copy (Wayland), or xclip (X11).
 #
 # - Note that `xclip -selection c` is `xclip -selection clipboard` (XA_CLIPBOARD),
 #   i.e., not the "primary" (XA_PRIMARY) X selection (which is the default).
@@ -37,9 +38,13 @@ set main-view-id = yes
 #
 bind generic x @sh -c " \
   clipboard_copy__selected_commit_sha_______ () { \
-    type xclip > /dev/null 2>&1 \
-      && printf %(commit) | xclip -selection c \
-      || printf %(commit) | pbcopy; \
+    if [ \"$(uname)\" = 'Darwin' ] && type pbcopy >/dev/null 2>&1; then \
+      printf %(commit) | pbcopy; \
+    elif [ -n ${WAYLAND_DISPLAY} ] && type wl-copy >/dev/null 2>&1; then \
+      printf %(commit) | wl-copy; \
+    elif [ -n ${DISPLAY} ] && type xclip >/dev/null 2>&1; then \
+      printf %(commit) | xclip -selection c; \
+    fi; \
   }; clipboard_copy__selected_commit_sha_______"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #

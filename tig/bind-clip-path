@@ -22,9 +22,13 @@ bind generic P @sh -c " \
     if ! echo \"${tilde_path}\" | grep -e '@'; then \
       tilde_path=\"$(printf '%s' \"${full_path}\" | sed -E \"s@^${HOME}(/|$)@~\\1@\")\"; \
     fi; \
-    type xclip > /dev/null 2>&1 \
-      && printf '%s' \"${tilde_path}\" | xclip -selection c \
-      || printf '%s' \"${tilde_path}\" | pbcopy; \
+    if [ \"$(uname)\" = 'Darwin' ] && type pbcopy >/dev/null 2>&1; then \
+      printf '%s' \"${tilde_path}\" | pbcopy; \
+    elif [ -n ${WAYLAND_DISPLAY} ] && type wl-copy >/dev/null 2>&1; then \
+      printf '%s' \"${tilde_path}\" | wl-copy; \
+    elif [ -n ${DISPLAY} ] && type xclip >/dev/null 2>&1; then \
+      printf '%s' \"${tilde_path}\" | xclip -selection c; \
+    fi; \
   }; clipboard_copy__file_path_________________"
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
