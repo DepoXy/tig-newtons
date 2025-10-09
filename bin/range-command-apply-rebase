@@ -21,7 +21,7 @@ DX_SHOW_TODO=${DX_SHOW_TODO:-false}
 
 # ***
 
-source_deps () {
+source_deps() {
   local tnewtons_bin="$(dirname -- "$0")"
 
   # Load TNEWTONS_CRUMB_PATH, range_command_print_until_tag, etc.
@@ -34,7 +34,7 @@ source_deps () {
   #   gpid: tig
   #   ppid: tig config shell command
   #   pid: <this command>
-  tig_pid () {
+  tig_pid() {
     # Parent process is the tig config shell command,
     # and its parent is tig.
     # - Note that many `ps` commands' output "may contain spaces."
@@ -44,7 +44,7 @@ source_deps () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-range_command_muxxer () {
+range_command_muxxer() {
   local action="$1"
   local commit="$2"
 
@@ -66,9 +66,9 @@ range_command_muxxer () {
   else
     # User pressed apply-action ('\'), so check that one or
     # two revisions are marked, otherwise they missed a step.
-    if [ "${action}" != "make_latest" ] \
-      && ! insist_marked_select_rev_or_range_revs \
-    ; then
+    if [ "${action}" != "make_latest" ] &&
+      ! insist_marked_select_rev_or_range_revs \
+      ; then
       delay_tig_return=true
     else
       # At this point, we've verified one revision, or a range (indicated
@@ -77,43 +77,43 @@ range_command_muxxer () {
       # First, normalize the ${action}, which is what user answered
       # when %(prompt)'ed.
       case "${action}" in
-        p | pick)
-          action="pick"
-          ;;
+      p | pick)
+        action="pick"
+        ;;
 
-        b | before | move_before)
-          action="before"
-          ;;
+      b | before | move_before)
+        action="before"
+        ;;
 
-        a | after | move_after)
-          action="after"
-          ;;
+      a | after | move_after)
+        action="after"
+        ;;
 
-        s | squash | move_after_then_squash)
-          action="squash"
-          ;;
+      s | squash | move_after_then_squash)
+        action="squash"
+        ;;
 
-        t | top)
-          action="top"
-          ;;
+      t | top)
+        action="top"
+        ;;
 
-        f | fixup | move_after_then_fixup)
-          action="fixup"
-          ;;
+      f | fixup | move_after_then_fixup)
+        action="fixup"
+        ;;
 
-        F | fixup2 | move_after_then_fixup2)
-          action="fixup2"
-          ;;
+      F | fixup2 | move_after_then_fixup2)
+        action="fixup2"
+        ;;
 
-        make_latest)
-          action="latest"
-          ;;
+      make_latest)
+        action="latest"
+        ;;
 
-        *)
-          >&2 echo "ERROR: Unknown action: ${action}"
-          delay_tig_return=true
-          action=""
-          ;;
+      *)
+        >&2 echo "ERROR: Unknown action: ${action}"
+        delay_tig_return=true
+        action=""
+        ;;
       esac
 
       if [ -n "${action}" ]; then
@@ -166,10 +166,10 @@ range_command_muxxer () {
     return 1
   fi
 
-  if ! ${delay_tig_return} \
-    && [ "${action}" != "mark_first" ] \
-    && [ "${action}" != "mark_final" ] \
-  ; then
+  if ! ${delay_tig_return} &&
+    [ "${action}" != "mark_first" ] &&
+    [ "${action}" != "mark_final" ] \
+    ; then
     tags_delete_range_tags
 
     # Run optional post-rebase user hook.
@@ -193,33 +193,33 @@ range_command_muxxer () {
 #   On branch release
 #   nothing to commit, working tree clean
 # So throwing in a staged diff check.
-make_wip_commit_if_untidy () {
+make_wip_commit_if_untidy() {
   local action="$1"
 
   local wipped=false
 
-  git add -A \
-    && [ -n "$(git --no-pager diff --cached --shortstat)" ] \
-    && git commit -q --no-verify -m "${PRIVATE_PREFIX:-PRIVATE: }WIP [tig ${action}]" \
-    && wipped=true
+  git add -A &&
+    [ -n "$(git --no-pager diff --cached --shortstat)" ] &&
+    git commit -q --no-verify -m "${PRIVATE_PREFIX:-PRIVATE: }WIP [tig ${action}]" &&
+    wipped=true
 
   printf "%s" "${wipped}"
 }
 
-pop_wip_commit_if_wipped () {
+pop_wip_commit_if_wipped() {
   local wipped="$1"
 
-  if ${wipped:-false} \
-    && git log -1 --format=%s \
-      | grep -q -e "^${PRIVATE_PREFIX:-PRIVATE: }WIP \\[tig " \
-  ; then
+  if ${wipped:-false} &&
+    git log -1 --format=%s |
+    grep -q -e "^${PRIVATE_PREFIX:-PRIVATE: }WIP \\[tig " \
+    ; then
     git reset -q --mixed @~1
   fi
 }
 
 # ***
 
-kill_tig () {
+kill_tig() {
   >&2 echo
   >&2 echo "Killing \`tig\` because you got work to do"
   >&2 echo "  🥩 🥩 chop chop"
@@ -234,15 +234,15 @@ kill_tig () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-set_command_crumb () {
+set_command_crumb() {
   local rebase_cmd="$1"
 
-  printf "${rebase_cmd}" > "${TNEWTONS_CRUMB_PATH}"
+  printf "${rebase_cmd}" >"${TNEWTONS_CRUMB_PATH}"
 }
 
 # When rebase fails, append 'exec' to rebase-todo to pop WIP,
 # if necessary, and to run optional post-rebase user hook.
-set_post_rebase_exec () {
+set_post_rebase_exec() {
   local wipped="$1"
 
   [ -f "${GIT_REBASE_TODO_PATH}" ] || return
@@ -253,7 +253,7 @@ set_post_rebase_exec () {
   #          synced across disparate Git repos.
   if [ -n "${GIT_POST_REBASE_EXEC}" ]; then
     echo "exec ${GIT_POST_REBASE_EXEC} ${GITSMART_POST_REBASE_EXECS_TAG}" \
-      >> "${GIT_REBASE_TODO_PATH}"
+      >>"${GIT_REBASE_TODO_PATH}"
   fi
 
   # Magic, explained:
@@ -267,23 +267,23 @@ set_post_rebase_exec () {
       && git log -1 --format=%s \
         | grep -q -e \"^${PRIVATE_PREFIX:-PRIVATE: }WIP \\\\[tig \" \
       && git reset -q --mixed @~1 & ${GITSMART_POST_REBASE_EXECS_TAG}" \
-      >> "${GIT_REBASE_TODO_PATH}"
+      >>"${GIT_REBASE_TODO_PATH}"
   fi
 }
 
 # ***
 
-del_command_crumb () {
+del_command_crumb() {
   command rm -f "${TNEWTONS_CRUMB_PATH}"
 }
 
 # ***
 
 # DEV: This shouldn't ever return nonzero, because code always cleans up.
-insist_no_runtime_assets () {
-  true \
-    && [ ! -e "${TNEWTONS_CRUMB_PATH}" ] \
-    && return 0
+insist_no_runtime_assets() {
+  true &&
+    [ ! -e "${TNEWTONS_CRUMB_PATH}" ] &&
+    return 0
 
   >&2 echo "ERROR: tig-newtons range command might already in progress?"
   >&2 echo "- It's more likely tig-newtons failed to cleanup from before"
@@ -295,7 +295,7 @@ insist_no_runtime_assets () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-make_chosen_tag () {
+make_chosen_tag() {
   local commit="$1"
 
   local chosen_tag="$(range_command_print_chosen_tag)"
@@ -303,7 +303,7 @@ make_chosen_tag () {
   git tag -f "${chosen_tag}" "${commit}"
 }
 
-make_start_tag () {
+make_start_tag() {
   local commit="$1"
 
   local start_tag="$(range_command_print_start_tag)"
@@ -311,7 +311,7 @@ make_start_tag () {
   git tag -f "${start_tag}" "${commit}"
 }
 
-make_until_tag () {
+make_until_tag() {
   local commit="$1"
 
   local until_tag="$(range_command_print_until_tag)"
@@ -319,7 +319,7 @@ make_until_tag () {
   git tag -f "${until_tag}" "${commit}"
 }
 
-make_target_tag () {
+make_target_tag() {
   local commit="$1"
 
   local target_tag="$(range_command_print_target_tag)"
@@ -330,17 +330,17 @@ make_target_tag () {
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
 # SYNC_ME: See same-named function in tig config.
-tags_delete_range_tags____________________ () {
+tags_delete_range_tags____________________() {
   local first_char="${1:-[🚩🏁]}"
 
-  git tag | grep "^${first_char}-.\+-🍏$" | xargs -I % git tag -d % > /dev/null
+  git tag | grep "^${first_char}-.\+-🍏$" | xargs -I % git tag -d % >/dev/null
 }
 
 # Ideally, if rebase fails (and user cancels), it'd be nice to
 # leave their tags. But the tags are annotated with the tig pid,
 # so they're useless if git-cherry-pick or git-rebase fails,
 # or if user aborts.
-tags_delete_range_tags () {
+tags_delete_range_tags() {
   tags_delete_range_tags____________________ "[🚩🏁]"
 }
 
@@ -371,7 +371,7 @@ tags_delete_range_tags () {
 
 # ***
 
-do_mark_first () {
+do_mark_first() {
   local commit="$1"
 
   tags_delete_range_tags
@@ -381,7 +381,7 @@ do_mark_first () {
 
 # ***
 
-do_mark_final () {
+do_mark_final() {
   local commit="$1"
 
   local chosen_rev="$(range_command_print_chosen_rev)"
@@ -437,16 +437,16 @@ do_mark_final () {
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-insist_marked_select_rev_or_range_revs () {
+insist_marked_select_rev_or_range_revs() {
   local chosen_rev="$(range_command_print_chosen_rev)"
   local start_rev="$(range_command_print_start_rev)"
   local until_rev="$(range_command_print_until_rev)"
 
-  if true \
-    && [ -z "${chosen_rev}" ] \
-    && [ -z "${start_rev}" ] \
-    && [ -z "${until_rev}" ] \
-  ; then
+  if true &&
+    [ -z "${chosen_rev}" ] &&
+    [ -z "${start_rev}" ] &&
+    [ -z "${until_rev}" ] \
+    ; then
     >&2 echo "ERROR: Please select a single commit or commit range to use this feature"
     >&2 echo "- First select a revision and press '[' to mark it"
     >&2 echo "- If you want to act on a range use ']' to mark the other range boundary"
@@ -486,7 +486,7 @@ insist_marked_select_rev_or_range_revs () {
 # ignore any no-op picks (despite the possibly misleading option name,
 # "--allow-empty").
 
-do_action_pick () {
+do_action_pick() {
   local seditor_up="$1"
   local wipped="$2"
 
@@ -566,7 +566,7 @@ do_action_pick () {
 #   - I have not checked tig's source to understand why...
 # Work-around: Use commit, and check ancestor of HEAD.
 
-insist_tig_branch_is_current_branch () {
+insist_tig_branch_is_current_branch() {
   local commit="$1"
   local action="$2"
 
@@ -579,14 +579,14 @@ insist_tig_branch_is_current_branch () {
   fi
 }
 
-git_branch_name_full () {
-  git rev-parse --symbolic-full-name HEAD \
-    | sed 's#^refs/heads/##'
+git_branch_name_full() {
+  git rev-parse --symbolic-full-name HEAD |
+    sed 's#^refs/heads/##'
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-do_action_action () {
+do_action_action() {
   local action="$1"
   local target_rev="$2"
   local seditor_up="$3"
@@ -631,9 +631,9 @@ do_action_action () {
   else
     # Verify the target_rev is outside the range.
     # - Note that a commit --is-ancestor of itself.
-    if git merge-base --is-ancestor "${start_rev}" "${target_rev}" \
-      && git merge-base --is-ancestor "${target_rev}" "${until_rev}" \
-    ; then
+    if git merge-base --is-ancestor "${start_rev}" "${target_rev}" &&
+      git merge-base --is-ancestor "${target_rev}" "${until_rev}" \
+      ; then
       >&2 echo "NO-OP: Cannot '${action}' a range unto itself"
       >&2 echo "- Hint: Try selecting a target outside the range next time"
 
@@ -722,7 +722,7 @@ do_action_action () {
 #          - So not like this isn't supported.
 
 # Aka bubble-up-up-up.
-do_action_latest () {
+do_action_latest() {
   local commit="$1"
   local seditor_up="$2"
   local wipped="$3"
@@ -744,12 +744,12 @@ do_action_latest () {
   # more easily grep for the matching until_tag revision.
   GIT_SEQUENCE_EDITOR="${seditor_up}" \
     git -c rebase.instructionFormat="%s %H" \
-      rebase -i "${commit}^"
+    rebase -i "${commit}^"
 }
 
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
-insist_run_via_bash () {
+insist_run_via_bash() {
   local prog_name="$(basename -- "$0")"
 
   # Complain if sourced (from any shell), or not run via Bash.
@@ -762,7 +762,7 @@ insist_run_via_bash () {
 
 # ***
 
-main () {
+main() {
   source_deps
 
   range_command_muxxer "$@"
@@ -773,4 +773,3 @@ if insist_run_via_bash; then
 else
   false
 fi
-
